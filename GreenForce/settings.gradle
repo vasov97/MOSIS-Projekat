@@ -1,0 +1,2 @@
+rootProject.name='GreenForce'
+include ':app'

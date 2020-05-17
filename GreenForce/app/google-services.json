@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "737118909667",
+    "firebase_url": "https://greenforce-2d968.firebaseio.com",
+    "project_id": "greenforce-2d968",
+    "storage_bucket": "greenforce-2d968.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:737118909667:android:278f0a202652b0a5a841d6",
+        "android_client_info": {
+          "package_name": "rs.elfak.mosis.greenforce"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "737118909667-36ebq3i1gt63ob01blous1q3vo708983.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "rs.elfak.mosis.greenforce",
+            "certificate_hash": "cce3eec758feacb376ce0f3c6c411a8e75ebf357"
+          }
+        },
+        {
+          "client_id": "737118909667-nijm4kau2gml0a4gdo1d5nkpb8bj18p2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAowLkaf9nt59Yv8UlNA7w8Vk1tExvoVUY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "737118909667-nijm4kau2gml0a4gdo1d5nkpb8bj18p2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
