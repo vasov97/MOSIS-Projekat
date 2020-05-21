@@ -1,3 +1,23 @@
 <resources>
     <string name="app_name">GreenForce</string>
+    <string name="login_page_header">
+        Saw garbage?&#10;Take a photo.Invite friends.&#10;Clean together and earn points.
+
+
+    </string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="registerText">Don\'t have an account?</string>
+    <string name="logintext">LOGIN</string>
+    <string name="forgotPassword">Forgot password?</string>
+    <string name="alertDialog">Reset password</string>
+    <string name="recoverPassword">Recover</string>
+    <string name="cancel">Cancel</string>
+    <string name="emailSent">Email sent</string>
+    <string name="emailFailed">Failed</string>
+    <string name="next">Next</string>
+    <string name="finish">Finish</string>
+    <string name="upload">Upload</string>
+    <string name="registrationCompleted">Registration success</string>
+    <string name="registrationFailed">Registration failed</string>
 </resources>
