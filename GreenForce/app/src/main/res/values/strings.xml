@@ -1,9 +1,7 @@
 <resources>
     <string name="app_name">GreenForce</string>
     <string name="login_page_header">
-        Saw garbage?&#10;Take a photo.Invite friends.&#10;Clean together and earn points.
-
-
+        Saw garbage?\nTake a photo.Invite friends.\nClean together and earn points.
     </string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -20,4 +18,12 @@
     <string name="upload">Upload</string>
     <string name="registrationCompleted">Registration success</string>
     <string name="registrationFailed">Registration failed</string>
+    <string name="homepage_text">GreenForce</string>
+    <string name="profile_card_text">Profile</string>
+    <string name="events_text">Events</string>
+    <string name="mark_a_spot_text">Mark a spot</string>
+    <string name="add_text">Add</string>
+    <string name="friends_text">Friends</string>
+    <string name="rank_text">Rank</string>
+
 </resources>

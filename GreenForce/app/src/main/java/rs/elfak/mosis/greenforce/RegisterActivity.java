@@ -41,6 +41,8 @@ public class RegisterActivity extends AppCompatActivity implements FragmentRegis
 
 
 
+
+
     }
 
     private void setUpFragment(int container, Fragment fragment,Boolean addToBackStack) {

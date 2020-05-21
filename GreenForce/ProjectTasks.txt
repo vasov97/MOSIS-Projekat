@@ -1,0 +1,46 @@
+https://www.youtube.com/watch?v=i22INe14JUc
+https://www.youtube.com/watch?v=b3BEa2drx4w
+
+//user u firebase
+https://www.youtube.com/watch?v=0gNPX52o_7I
+
+//prikaz skinute slike iz firebse 11:41
+https://www.youtube.com/watch?v=CDv05EP45JQ
+
+
+
+
+
+
+
+
+
+
+
+//to DO
+skloni app bar--
+pokupi bitmap za default sliku
+fragmenti na back se baguju
+testiraj forgot pasword--
+onaj zeleni tekst --
+mejl za projekat
+
+kad je sifra kratka izbaci iz app
+edit text malo siri i stil drugaciji
+
+zelene ikonice sa material.io nisam stigao da dodam
+da se sredi mozda homepage layout, preveliki je
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 

@@ -4,6 +4,193 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/homepage_screen"
     tools:context=".HomePageActivity">
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/homepage_text"
+        android:textColor="@color/greenText"
+        android:textSize="31sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.067"
+        tools:ignore="HardcodedText" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/proile_card"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:background="@color/colorWhite"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:layout_constraintVertical_bias="0.198">
+
+        <ImageView
+            android:id="@+id/profile_card_icon"
+            android:layout_height="70dp"
+            android:layout_width="70dp"
+            android:layout_gravity="center_horizontal"
+            />
+
+
+
+        <TextView
+            android:id="@+id/profile_card_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_card_text"
+            android:textColor="@color/greenText"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="30dp"
+            tools:ignore="HardcodedText" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/friends_card"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:background="@color/colorWhite"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.153"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/proile_card"
+        app:layout_constraintVertical_bias="0.135">
+
+        <ImageView
+            android:id="@+id/friends_card_icon"
+            android:layout_height="70dp"
+            android:layout_width="70dp"
+            android:layout_gravity="center_horizontal"
+            />
+        <TextView
+            android:id="@+id/friends_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/friends_text"
+            android:textColor="@color/greenText"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="25dp"
+            tools:ignore="HardcodedText" />
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/rank_card"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:background="@color/colorWhite"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.861"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/proile_card"
+        app:layout_constraintVertical_bias="0.135">
+
+        <ImageView
+            android:id="@+id/rank_card_icon"
+            android:layout_height="70dp"
+            android:layout_width="70dp"
+            android:layout_gravity="center_horizontal"
+            />
+
+        <TextView
+            android:id="@+id/rank_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rank_text"
+            android:textColor="@color/greenText"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="35dp"
+            tools:ignore="HardcodedText" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/mark_a_spot_card"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:layout_marginTop="44dp"
+        android:background="@color/colorWhite"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.153"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/friends_card"
+        app:layout_constraintVertical_bias="0.0">
+
+        <ImageView
+            android:id="@+id/mark_a_spot_card_icon"
+            android:layout_height="70dp"
+            android:layout_width="70dp"
+            android:layout_gravity="center_horizontal"
+            />
+
+        <TextView
+            android:id="@+id/mark_a_spot_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_text"
+            android:textColor="@color/greenText"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="40dp"
+            tools:ignore="HardcodedText" />
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/events_card"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:layout_marginBottom="28dp"
+        android:background="@color/colorWhite"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.861"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rank_card"
+        app:layout_constraintVertical_bias="0.488">
+
+        <ImageView
+            android:id="@+id/events_card_icon"
+            android:layout_height="70dp"
+            android:layout_width="70dp"
+            android:layout_gravity="center_horizontal"
+            />
+
+        <TextView
+            android:id="@+id/events_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/events_text"
+            android:textColor="@color/greenText"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="25dp"
+            tools:ignore="HardcodedText" />
+    </androidx.cardview.widget.CardView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

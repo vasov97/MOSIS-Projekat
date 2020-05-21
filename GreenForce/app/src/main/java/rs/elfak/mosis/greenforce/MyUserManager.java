@@ -79,6 +79,7 @@ public class MyUserManager {
     }
 
     public void createUserProfile(final HashMap<String,String> params, final Bitmap imageBitmap, final Activity enclosingActivity) {
+
            firebaseAuth.createUserWithEmailAndPassword(params.get("email"),params.get("password")).addOnCompleteListener(enclosingActivity,
                     new OnCompleteListener<AuthResult>()
                     {
