@@ -32,7 +32,10 @@ zelene ikonice sa material.io nisam stigao da dodam
 da se sredi mozda homepage layout, preveliki je
 
 
-
+Registration:
+-mejl za @
+-mejl da ne postoji vec u bazi
+-
 
 
 
