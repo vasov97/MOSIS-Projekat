@@ -7,6 +7,7 @@
         <item name="colorPrimaryDark">#EA1D8708</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColorPrimary">?android:attr/textColorPrimaryInverse</item>
+
     </style>
 
 

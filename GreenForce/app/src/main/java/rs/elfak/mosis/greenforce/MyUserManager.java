@@ -3,6 +3,7 @@ package rs.elfak.mosis.greenforce;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -27,12 +28,16 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
@@ -44,7 +49,7 @@ public class MyUserManager {
     private DatabaseReference databaseReference;
     private StorageReference storageReference;
     private static final String USER = "user";
-    private static final String IMAGE = "profileImage";
+    private static final String IMAGE = "profileImage/";
     private UserData userData;
 
     private MyUserManager()
@@ -52,7 +57,7 @@ public class MyUserManager {
         firebaseAuth=FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference(USER);
-        storageReference = FirebaseStorage.getInstance().getReference(IMAGE);
+        storageReference = FirebaseStorage.getInstance().getReference();
     }
     private static class SingletonHolder{
         public static final MyUserManager instance=new MyUserManager();
@@ -291,9 +296,27 @@ public class MyUserManager {
 
     }
     private void getUserImageBitmap(FirebaseUser user,final Activity enclosingActivity) throws IOException {
-        Uri uri= user.getPhotoUrl();
-        Bitmap bm = MediaStore.Images.Media.getBitmap(enclosingActivity.getContentResolver(), uri);
-        userData.setUserImage(bm);
+
+        String uid=user.getUid();
+        StorageReference imageReference=storageReference.child(IMAGE+uid+".jpeg");
+
+        final File localFile=File.createTempFile(uid,".jpeg");
+        imageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                Bitmap bm=BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                userData.setUserImage(bm);
+            }
+        });
+
+
+      /*
+        Uri uri= Uri.parse(user.getPhotoUrl().toString());
+        InputStream is=enclosingActivity.getContentResolver().openInputStream(uri);
+        Bitmap bitmap=BitmapFactory.decodeStream(is);
+        is.close();
+       //ges.Media.getBitmap(enclosingActivity.getContentResolver(), uri);
+        userData.setUserImage(bitmap);*/
 
     }
 

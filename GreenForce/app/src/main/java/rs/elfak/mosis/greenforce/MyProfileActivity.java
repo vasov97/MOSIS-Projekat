@@ -2,6 +2,7 @@ package rs.elfak.mosis.greenforce;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -11,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -36,7 +38,7 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_profile);
         initializeComponents();
-        setUpActionBar(String.valueOf(R.string.my_profile));
+        setUpActionBar(R.string.my_profile);
         setUpUserData();
         myProfileMainFragment=new FragmentMyProfileMain();
         myProfileEditFragment=new FragmentMyProfileEdit();
@@ -45,9 +47,9 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
 
     }
 
-    private void setUpActionBar(String msg) {
+    private void setUpActionBar(int rid) {
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(msg);
+        getSupportActionBar().setTitle(rid);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);
@@ -82,6 +84,7 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
             getMenuInflater().inflate(R.menu.menu_myprofile_main,menu);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
