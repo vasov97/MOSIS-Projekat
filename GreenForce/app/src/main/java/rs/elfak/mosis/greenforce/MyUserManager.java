@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -19,15 +22,20 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
 public class MyUserManager {
 
@@ -36,21 +44,22 @@ public class MyUserManager {
     private DatabaseReference databaseReference;
     private StorageReference storageReference;
     private static final String USER = "user";
+    private static final String IMAGE = "profileImage";
+    private UserData userData;
 
-    UserData userData;
     private MyUserManager()
     {
         firebaseAuth=FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference(USER);
-        storageReference = FirebaseStorage.getInstance().getReference();
+        storageReference = FirebaseStorage.getInstance().getReference(IMAGE);
     }
     private static class SingletonHolder{
         public static final MyUserManager instance=new MyUserManager();
     }
 
 
-
+   public UserData getUser(){return userData;}
 
     public static MyUserManager getInstance(){
         return SingletonHolder.instance;
@@ -71,6 +80,7 @@ public class MyUserManager {
                         }
                         else
                         {
+                            getUserData(FirebaseAuth.getInstance().getCurrentUser(),enclosingActivity);
                             enclosingActivity.startActivity(new Intent(enclosingActivity,HomePageActivity.class));
                         }
                     }
@@ -151,8 +161,7 @@ public class MyUserManager {
                 });
     }
 
-    private void getDownloadUrl(StorageReference reference)
-    {
+    private void getDownloadUrl(StorageReference reference) {
        reference.getDownloadUrl()
                .addOnSuccessListener(new OnSuccessListener<Uri>() {
                    @Override
@@ -163,8 +172,7 @@ public class MyUserManager {
                });
     }
 
-    private void setUserProfileUrl(Uri uri)
-    {
+    private void setUserProfileUrl(Uri uri) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         UserProfileChangeRequest request = new UserProfileChangeRequest.Builder()
@@ -241,12 +249,77 @@ public class MyUserManager {
         return valid;
     }
 
-    private void writeToDatabase()
-    {
+    private void writeToDatabase() {
         //String uid = databaseReference.push().getKey();
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         databaseReference.child(uid).setValue(userData);
 
+    }
 
+    private void getUserData(final FirebaseUser user,final Activity enclosingActivity){
+        final ArrayList<String> userString=new ArrayList<String>();
+        String uid = user.getUid();
+        databaseReference.child(uid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                userString.clear();
+                for(DataSnapshot snapshot : dataSnapshot.getChildren())
+                    userString.add(snapshot.getValue().toString());
+                userData=new UserData();
+                createUserFromList(userData,userString);
+
+                try {
+                    getUserImageBitmap(user,enclosingActivity);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+    public void createUserFromList(UserData user,ArrayList<String> userString){
+        user.setEmail(userString.get(0));
+        user.setName(userString.get(1));
+        user.setPhoneNumber(userString.get(2));
+        user.setPoints(userString.get(3));
+        user.setSurname(userString.get(4));
+        user.setUsername(userString.get(5));
+
+    }
+    private void getUserImageBitmap(FirebaseUser user,final Activity enclosingActivity) throws IOException {
+        Uri uri= user.getPhotoUrl();
+        Bitmap bm = MediaStore.Images.Media.getBitmap(enclosingActivity.getContentResolver(), uri);
+        userData.setUserImage(bm);
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void editProfileChanges(HashMap<String,String> userData) {
+
+        this.userData.setEmail(userData.get("email"));
+        this.userData.setName(userData.get("name"));
+        this.userData.setSurname(userData.get("surname"));
+        this.userData.setPhoneNumber(userData.get("phoneNumber"));
+
+        saveProfileChangesToDatabase(userData);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void saveProfileChangesToDatabase(final HashMap<String, String> userData) {
+        CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                for(String key:userData.keySet())
+                {
+                    databaseReference.child(uid).child(key).setValue(userData.get(key));
+                }
+            }
+        });
     }
 }

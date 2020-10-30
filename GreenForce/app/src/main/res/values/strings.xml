@@ -25,5 +25,21 @@
     <string name="add_text">Add</string>
     <string name="friends_text">Friends</string>
     <string name="rank_text">Rank</string>
+    <string name="EditProfile">Edit</string>
+    <string name="my_profile">Account</string>
+    <string name="edit">Edit</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="points_text">Points</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="tasks">Tasks</string>
+    <string name="name">Name</string>
+    <string name="surname">Surame</string>
+    <string name="change_password">Change Password</string>
+    <string name="old_password">Old Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm">Confirm</string>
 
 </resources>

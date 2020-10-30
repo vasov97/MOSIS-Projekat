@@ -10,9 +10,11 @@ public class UserData
 {
     String email;
     String name;
+    String phoneNumber;
+    String points;
     String surname;
     String username;
-    String phoneNumber;
+
     @Exclude
     Bitmap userImage;
 
@@ -26,6 +28,7 @@ public class UserData
     this.username = username;
     this.phoneNumber = phoneNumber;
     this.userImage = userImage;
+    this.points="0";
     }
 
 
@@ -48,6 +51,23 @@ public class UserData
     public String getPhoneNumber() {
         return phoneNumber;
     }
+
+    public String getPoints(){return points;}
+
+    public void setEmail(String email){ this.email=email;}
+
+    public void setName(String name){ this.name=name;}
+
+    public void setPhoneNumber(String phoneNumber){ this.phoneNumber=phoneNumber;}
+
+    public void setPoints(String points){this.points=points;}
+
+    public void setSurname(String surname){ this.surname=surname;}
+
+    public void setUsername(String username){ this.username=username;}
+    @Exclude
+    public void setUserImage(Bitmap userImage){this.userImage=userImage;}
+
     @Exclude
     public Bitmap getUserImage() {
         return userImage;

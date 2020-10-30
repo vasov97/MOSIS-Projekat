@@ -7,4 +7,6 @@
     <color name="redOrange">#e64d3c</color>
     <color name="redOrangeDark">#ee4214</color>
     <color name="greenText">#F215A811</color>
+    <color name="greenBlue">#09F18C</color>
+    <color name="colorBlack">#000000</color>
 </resources>
