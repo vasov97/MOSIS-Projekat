@@ -9,11 +9,16 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
@@ -24,15 +29,23 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 public class MyProfileActivity extends AppCompatActivity implements IComponentInitializer {
 
+    private static final int PICK_IMAGE = 1;
     FragmentMyProfileMain myProfileMainFragment;
     FragmentMyProfileEdit myProfileEditFragment;
     Toolbar toolbar;
     boolean edit=false;
     TextView userName;
     TextView fullName;
+    TextView changePhoto;
     ImageView myProfileImage;
+    Bitmap imageBitmap;
+    Uri imageUri;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,26 +100,22 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-        int id = item.getItemId();
-
         if(item.getItemId()==R.id.menu_edit_profile)
         {
-            edit=true;
-            getSupportActionBar().setTitle(R.string.EditProfile);
-            invalidateOptionsMenu();
+            setUpEditToolbar();
             setUpFragment(R.id.MyProfileActivityFragmentContainer,myProfileEditFragment,true);
 
         }
         else if(item.getItemId()==R.id.menu_save_profile_changes)
         {
-            edit=false;
-            MyUserManager.getInstance().editProfileChanges(myProfileEditFragment.getUserData());
-            getSupportActionBar().setTitle(R.string.my_profile);
-            invalidateOptionsMenu();
-            setUpFragment(R.id.MyProfileActivityFragmentContainer,myProfileMainFragment,true);
-        }
 
+            MyUserManager.getInstance().editProfileChanges(myProfileEditFragment.getUserData());
+            MyUserManager.getInstance().getUser().setUserImage(imageBitmap);
+            MyUserManager.getInstance().saveUserImage();
+            setUpAccountToolbar();
+            setUpUserData();
+            setUpFragment(R.id.MyProfileActivityFragmentContainer,myProfileMainFragment,false);
+        }
 
 
         return super.onOptionsItemSelected(item);
@@ -114,11 +123,41 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
     @Override
     public void initializeComponents() {
         toolbar = findViewById(R.id.myProfileToolbar);
-
+        changePhoto=findViewById(R.id.changePhoto);
+        changePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                choseImage();
+            }
+        });
         myProfileImage=findViewById(R.id.my_profile_image);
         userName=findViewById(R.id.my_username);
         fullName=findViewById(R.id.account_full_name);
 
+    }
+
+    private void choseImage() {
+        Intent gallery = new Intent();
+        gallery.setType("image/*");
+        gallery.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(gallery, "Select image"), PICK_IMAGE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
+            imageUri = data.getData();
+            try {
+                imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                myProfileImage.setImageBitmap(imageBitmap);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void setUpFragment(int container, Fragment fragment, Boolean addToBackStack) {
@@ -128,5 +167,27 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
             getSupportFragmentManager().beginTransaction().replace(container,fragment).commit();
     }
 
+    public void setUpAccountToolbar(){
+        edit=false;
+        getSupportActionBar().setTitle(R.string.my_profile);
+        invalidateOptionsMenu();
+    }
 
+    public void setUpEditToolbar(){
+        edit=true;
+        getSupportActionBar().setTitle(R.string.EditProfile);
+        invalidateOptionsMenu();
+    }
+
+    public void setInvisible(){
+        fullName.setVisibility(TextView.INVISIBLE);
+        userName.setVisibility(TextView.INVISIBLE);
+        changePhoto.setVisibility(TextView.VISIBLE);
+    }
+
+    public void setVisible(){
+        changePhoto.setVisibility(View.INVISIBLE);
+        fullName.setVisibility(TextView.VISIBLE);
+        userName.setVisibility(TextView.VISIBLE);
+    }
 }

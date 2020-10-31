@@ -18,7 +18,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
@@ -141,7 +143,7 @@ public class MyUserManager {
         thread.start();
     }
 
-    private void saveUserImage() {
+    public void saveUserImage() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         userData.getUserImage().compress(Bitmap.CompressFormat.JPEG, 100, baos);
 
@@ -345,4 +347,33 @@ public class MyUserManager {
             }
         });
     }
+
+    public void updatePasswrod(String oldPassword,final String newPassword,final Activity myActivity) {
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+
+        AuthCredential credential = EmailAuthProvider
+                .getCredential(userData.getEmail(), oldPassword);
+
+        user.reauthenticate(credential)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            user.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful())
+                                        Toast.makeText(myActivity,"Password updated",Toast.LENGTH_SHORT).show();
+                                    else
+                                        Toast.makeText(myActivity,"Update not successful",Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        } else {
+                            Toast.makeText(myActivity,"Authentication failed",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
 }

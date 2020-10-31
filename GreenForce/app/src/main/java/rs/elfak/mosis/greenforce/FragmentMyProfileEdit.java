@@ -1,5 +1,6 @@
 package rs.elfak.mosis.greenforce;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -12,7 +13,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 
@@ -23,12 +27,8 @@ public class FragmentMyProfileEdit extends Fragment implements IFragmentComponen
     EditText myProfileEmailAddress;
     EditText myProfilePhone;
     Button changePassword;
-    FragmentMyProfileEditListener listener;
 
-    public interface  FragmentMyProfileEditListener
-    {
-        void onInputDataSent(HashMap<String,String> userData);
-    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -36,7 +36,70 @@ public class FragmentMyProfileEdit extends Fragment implements IFragmentComponen
         View myProfileEdit= inflater.inflate(R.layout.fragment_my_profile_edit, container, false);
         initializeComponents(myProfileEdit);
         setUpUserData();
+        changePassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openChangePasswordDialog();
+            }
+        });
+
+
         return myProfileEdit;
+    }
+
+    private void openChangePasswordDialog() {
+
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_my_profile_change_password,null);
+        final EditText oldPassword= view.findViewById(R.id.editTextOldPassword);
+        final EditText newPassword= view.findViewById(R.id.editTextNewPassword);
+        final EditText confirmPassword = view.findViewById(R.id.editTextConfirmPassword);
+        Button confirm = view.findViewById(R.id.buttonConfirmNewPassword);
+        Button cancel = view.findViewById(R.id.buttonCancelNewPassword);
+
+
+
+        AlertDialog.Builder builder= new AlertDialog.Builder(getActivity());
+        builder.setView(view);
+        final AlertDialog dialog= builder.create();
+        dialog.show();
+
+
+        confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String oldPasswordText = oldPassword.getText().toString();
+                String newPasswordText = newPassword.getText().toString();
+                String confirmPasswordText = confirmPassword.getText().toString();
+                ArrayList<String> stringsToCheck=new ArrayList<String>();
+                Collections.addAll(stringsToCheck,oldPasswordText,newPasswordText,confirmPasswordText);
+                ArrayList<EditText> errorHolders=new ArrayList<EditText>();
+                Collections.addAll(errorHolders,oldPassword,newPassword,confirmPassword);
+                if(MyUserManager.getInstance().validateInfo(stringsToCheck,errorHolders))
+                {
+                    if(newPasswordText.equals(confirmPasswordText)){
+                        dialog.dismiss();
+                        updatePassword(oldPasswordText,newPasswordText);
+                    }
+                    else
+                        Toast.makeText(getActivity(),"Passwords don't match",Toast.LENGTH_SHORT).show();
+
+                }
+
+            }
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+    }
+
+    private void updatePassword(String oldPasswordText, String newPasswordText) {
+
+       MyUserManager.getInstance().updatePasswrod(oldPasswordText,newPasswordText,getActivity());
     }
 
     private void setUpUserData() {
@@ -45,6 +108,7 @@ public class FragmentMyProfileEdit extends Fragment implements IFragmentComponen
         myProfileSurname.setText(user.getSurname(), TextView.BufferType.EDITABLE);
         myProfilePhone.setText(user.getPhoneNumber(), TextView.BufferType.EDITABLE);
         myProfileEmailAddress.setText(user.getEmail(), TextView.BufferType.EDITABLE);
+        ((MyProfileActivity)getActivity()).setInvisible();
     }
 
     @Override
@@ -70,18 +134,10 @@ public class FragmentMyProfileEdit extends Fragment implements IFragmentComponen
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if(context instanceof FragmentMyProfileEditListener)
-            listener=(FragmentMyProfileEditListener)context;
-        else{
-            throw new RuntimeException(context.toString()+" must implement FragmentMyProfileEditListener");
-        }
-    }
-
-    @Override
     public void onDetach() {
         super.onDetach();
-        listener=null;
+        ((MyProfileActivity)this.getActivity()).setUpAccountToolbar();
     }
+
+
 }

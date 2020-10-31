@@ -1,5 +1,6 @@
 package rs.elfak.mosis.greenforce;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -33,6 +34,7 @@ public class FragmentMyProfileMain extends Fragment implements IFragmentComponen
         UserData user=MyUserManager.getInstance().getUser();
         myProfilePhone.setText(user.getPhoneNumber());
         myProfileEmailAddress.setText(user.getEmail());
+        ((MyProfileActivity)getActivity()).setVisible();
         //ranking
     }
 
@@ -42,5 +44,11 @@ public class FragmentMyProfileMain extends Fragment implements IFragmentComponen
         myProfilePoints=v.findViewById(R.id.my_profile_points);
         myProfileEmailAddress=v.findViewById(R.id.my_profile_email_address);
         myProfilePhone=v.findViewById(R.id.my_profile_phone_number);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        this.getActivity().finish();
     }
 }
