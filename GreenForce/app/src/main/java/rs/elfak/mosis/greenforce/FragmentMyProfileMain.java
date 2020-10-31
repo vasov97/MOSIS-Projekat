@@ -49,6 +49,8 @@ public class FragmentMyProfileMain extends Fragment implements IFragmentComponen
     @Override
     public void onDetach() {
         super.onDetach();
+
         this.getActivity().finish();
     }
+
 }

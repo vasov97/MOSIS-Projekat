@@ -8,6 +8,8 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.app.Activity;
 import android.app.SearchManager;
@@ -35,6 +37,8 @@ import java.io.IOException;
 public class MyProfileActivity extends AppCompatActivity implements IComponentInitializer {
 
     private static final int PICK_IMAGE = 1;
+    private static final String MAIN_TAG="MainFragment";
+    private static final String EDIT_TAG="EditFragment";
     FragmentMyProfileMain myProfileMainFragment;
     FragmentMyProfileEdit myProfileEditFragment;
     Toolbar toolbar;
@@ -46,6 +50,7 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
     Bitmap imageBitmap;
     Uri imageUri;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,7 +60,7 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
         setUpUserData();
         myProfileMainFragment=new FragmentMyProfileMain();
         myProfileEditFragment=new FragmentMyProfileEdit();
-        setUpFragment(R.id.MyProfileActivityFragmentContainer,myProfileMainFragment,true);
+        setUpFragment(R.id.MyProfileActivityFragmentContainer,new FragmentMyProfileMain(),true,MAIN_TAG);
 
 
     }
@@ -103,7 +108,7 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
         if(item.getItemId()==R.id.menu_edit_profile)
         {
             setUpEditToolbar();
-            setUpFragment(R.id.MyProfileActivityFragmentContainer,myProfileEditFragment,true);
+            setUpFragment(R.id.MyProfileActivityFragmentContainer,myProfileEditFragment,true,EDIT_TAG);
 
         }
         else if(item.getItemId()==R.id.menu_save_profile_changes)
@@ -116,7 +121,7 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
             }
             setUpAccountToolbar();
             setUpUserData();
-            setUpFragment(R.id.MyProfileActivityFragmentContainer,myProfileMainFragment,false);
+            setUpFragment(R.id.MyProfileActivityFragmentContainer,new FragmentMyProfileMain(),true,MAIN_TAG);
         }
 
 
@@ -162,12 +167,14 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
         }
     }
 
-    private void setUpFragment(int container, Fragment fragment, Boolean addToBackStack) {
-        if(!fragment.isAdded()){
-            if(addToBackStack)
-                getSupportFragmentManager().beginTransaction().replace(container,fragment).addToBackStack(null).commit();
-            else
-                getSupportFragmentManager().beginTransaction().replace(container,fragment).commit();
+    private void setUpFragment(int container, Fragment fragment, Boolean addToBackStack,String tag) {
+
+        if (getSupportFragmentManager().findFragmentByTag ( tag ) == null) {
+                if (addToBackStack)
+                    getSupportFragmentManager().beginTransaction().replace(container, fragment).addToBackStack(tag).commit();
+                else
+                    getSupportFragmentManager().beginTransaction().replace(container, fragment).commit();
+
         }
 
     }
