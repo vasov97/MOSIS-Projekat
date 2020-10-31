@@ -110,8 +110,10 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
         {
 
             MyUserManager.getInstance().editProfileChanges(myProfileEditFragment.getUserData());
-            MyUserManager.getInstance().getUser().setUserImage(imageBitmap);
-            MyUserManager.getInstance().saveUserImage();
+            if(imageBitmap!=null){
+                MyUserManager.getInstance().getUser().setUserImage(imageBitmap);
+                MyUserManager.getInstance().saveUserImage();
+            }
             setUpAccountToolbar();
             setUpUserData();
             setUpFragment(R.id.MyProfileActivityFragmentContainer,myProfileMainFragment,false);
@@ -161,10 +163,13 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
     }
 
     private void setUpFragment(int container, Fragment fragment, Boolean addToBackStack) {
-        if(addToBackStack)
-            getSupportFragmentManager().beginTransaction().replace(container,fragment).addToBackStack(null).commit();
-        else
-            getSupportFragmentManager().beginTransaction().replace(container,fragment).commit();
+        if(!fragment.isAdded()){
+            if(addToBackStack)
+                getSupportFragmentManager().beginTransaction().replace(container,fragment).addToBackStack(null).commit();
+            else
+                getSupportFragmentManager().beginTransaction().replace(container,fragment).commit();
+        }
+
     }
 
     public void setUpAccountToolbar(){
