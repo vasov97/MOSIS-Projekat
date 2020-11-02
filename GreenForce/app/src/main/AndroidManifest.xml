@@ -1,36 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="rs.elfak.mosis.greenforce">
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:hardwareAccelerated="true"
-        android:theme="@style/AppTheme"
-        >
-
-
-        <activity android:name=".MyProfileActivity">
-
-        </activity>
-        <activity android:name=".HomePageActivity">
-
-        </activity>
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".AddFriendsViaBluetoothActivity"
+            android:label="@string/title_activity_add_friends_via_bluetooth"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".MyFriendsActivity"
+            android:label="@string/title_activity_my_friends"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".MyProfileActivity" />
+        <activity android:name=".HomePageActivity" />
         <activity android:name=".RegisterActivity" />
-        <activity android:name=".LoginActivity"/>
-
+        <activity android:name=".LoginActivity" />
         <activity android:name=".SplashScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
-
     </application>
 
 </manifest>

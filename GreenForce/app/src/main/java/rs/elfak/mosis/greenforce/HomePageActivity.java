@@ -13,28 +13,38 @@ import android.view.View;
 public class HomePageActivity extends AppCompatActivity implements View.OnClickListener,IComponentInitializer {
 
     CardView profileCard;
+    CardView friendsListCard;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
         initializeComponents();
         profileCard.setOnClickListener(this);
+        friendsListCard.setOnClickListener(this);
 
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(View v)
+    {
         if(v.getId()==R.id.profile_card)
         {
             Intent i=new Intent(this,MyProfileActivity.class);
+            startActivity(i);
+        }
+        else if(v.getId()==R.id.friends_card)
+        {
+            Intent i=new Intent(this,MyFriendsActivity.class);
             startActivity(i);
         }
     }
 
 
     @Override
-    public void initializeComponents() {
+    public void initializeComponents()
+    {
         profileCard=findViewById(R.id.profile_card);
-
-    }
+        friendsListCard = findViewById(R.id.friends_card);
+;    }
 }
