@@ -58,7 +58,7 @@
             android:id="@+id/fabFriends"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="35dp"
+            android:layout_margin="4dp"
             android:tint="@color/colorWhite"
             app:fabSize="normal"
             app:srcCompat="@drawable/add_friends_icon"

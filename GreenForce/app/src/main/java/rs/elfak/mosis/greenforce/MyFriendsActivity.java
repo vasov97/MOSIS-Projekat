@@ -1,5 +1,6 @@
 package rs.elfak.mosis.greenforce;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -22,9 +23,11 @@ MyFriends ToDo:
  - dimen xml *
  - fab menu *
  - listview design
+ -
  - add static listview
  - scrolable
  - toolbar design
+ - bluetooth toolbar
  - bluetooth acitivity
  - scan nearby devices
  - adding to friends list
@@ -111,7 +114,8 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         }
         else if(v.getId()==R.id.fabBluetooth)
         {
-            //
+            Intent i=new Intent(this,AddFriendsViaBluetoothActivity.class);
+            startActivity(i);
         }
         else if(v.getId()==R.id.fabMaps)
         {

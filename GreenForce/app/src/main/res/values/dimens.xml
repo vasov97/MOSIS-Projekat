@@ -5,4 +5,5 @@
     <dimen name="submenuMargin">10dp</dimen>
     <dimen name="marginRight">16dp</dimen>
     <dimen name="marginBottom">16dp</dimen>
+    <dimen name="listViewMargin">8dp</dimen>
 </resources>
