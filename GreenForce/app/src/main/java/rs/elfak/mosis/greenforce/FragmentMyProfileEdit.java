@@ -1,10 +1,8 @@
 package rs.elfak.mosis.greenforce;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -99,7 +97,7 @@ public class FragmentMyProfileEdit extends Fragment implements IFragmentComponen
 
     private void updatePassword(String oldPasswordText, String newPasswordText) {
 
-       MyUserManager.getInstance().updatePasswrod(oldPasswordText,newPasswordText,getActivity());
+       MyUserManager.getInstance().updatePassword(oldPasswordText,newPasswordText,getActivity());
     }
 
     private void setUpUserData() {

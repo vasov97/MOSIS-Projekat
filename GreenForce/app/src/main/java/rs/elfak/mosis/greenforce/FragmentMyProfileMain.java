@@ -18,20 +18,26 @@ public class FragmentMyProfileMain extends Fragment implements IFragmentComponen
       TextView myProfilePoints;
       TextView myProfileEmailAddress;
       TextView myProfilePhone;
-
-
+      boolean visitor=false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View myProfileMain = inflater.inflate(R.layout.fragment_my_profile_main,container,false);
         initializeComponents(myProfileMain);
-        setUpUserData();
+        visitor=((MyProfileActivity)getActivity()).getVisitor();
+        choseUserToDisplay();
         return myProfileMain;
     }
+    private void choseUserToDisplay() {
+        if(visitor)
+            setUpUserData(MyUserManager.getInstance().getVisitProfile());
+        else
+            setUpUserData(MyUserManager.getInstance().getUser());
 
-    private void setUpUserData() {
-        UserData user=MyUserManager.getInstance().getUser();
+    }
+
+    private void setUpUserData(UserData user) {
         myProfilePhone.setText(user.getPhoneNumber());
         myProfileEmailAddress.setText(user.getEmail());
         ((MyProfileActivity)getActivity()).setVisible();

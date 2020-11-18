@@ -5,11 +5,4 @@
     tools:context=".MyFriendsActivity"
     >
 
-
-    <item
-        android:id="@+id/menu_save_profile_changes"
-        android:orderInCategory="100"
-        app:showAsAction="ifRoom"
-        android:title="Bluetooth"
-        />
 </menu>

@@ -19,12 +19,12 @@ import java.util.ArrayList;
 public class MyListViewAdapter extends ArrayAdapter<String>
 {
     Context context;
-    String[] titles;
+    ArrayList<String> titles;
     int id;
     int layout;
     int textID;
 
-    public MyListViewAdapter(Context context, String[] titles,int textID,int id,int layout)
+    public MyListViewAdapter(Context context, ArrayList<String> titles,int textID,int id,int layout)
     {
         super(context, R.layout.nearby_device, titles);
         this.context=context;
@@ -46,7 +46,7 @@ public class MyListViewAdapter extends ArrayAdapter<String>
 
         // now set our resources on views
         images.setImageResource(R.drawable.add_friends_icon);
-        myTitle.setText(titles[position]);
+        myTitle.setText(titles.get(position));
         //myDescription.setText(rDescription[position]);
 
 

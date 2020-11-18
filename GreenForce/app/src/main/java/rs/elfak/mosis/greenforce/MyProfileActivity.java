@@ -42,7 +42,7 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
     FragmentMyProfileMain myProfileMainFragment;
     FragmentMyProfileEdit myProfileEditFragment;
     Toolbar toolbar;
-    boolean edit=false;
+    boolean edit=false,visitor=false;
     TextView userName;
     TextView fullName;
     TextView changePhoto;
@@ -57,11 +57,23 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
         setContentView(R.layout.activity_my_profile);
         initializeComponents();
         setUpActionBar(R.string.my_profile);
-        setUpUserData();
+        String visit = getIntent().getStringExtra("Visit");
+        if(visit.equals("Visit"))
+            visitor=true;
+        choseUserToDisplay();
+        Bundle bundle=new Bundle();
+        bundle.putString("Visit",visit);
         myProfileMainFragment=new FragmentMyProfileMain();
+        myProfileMainFragment.setArguments(bundle);
         myProfileEditFragment=new FragmentMyProfileEdit();
         setUpFragment(R.id.MyProfileActivityFragmentContainer,new FragmentMyProfileMain(),true,MAIN_TAG);
+    }
 
+    private void choseUserToDisplay() {
+        if(visitor)
+            setUpUserData(MyUserManager.getInstance().getVisitProfile());
+        else
+            setUpUserData(MyUserManager.getInstance().getUser());
 
     }
 
@@ -74,8 +86,7 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
 
     }
 
-    private void setUpUserData(){
-        UserData user=MyUserManager.getInstance().getUser();
+    private void setUpUserData(UserData user){
         fullName.setText(user.getName()+" "+user.getSurname());
         userName.setText(user.getUsername());
         myProfileImage.setImageBitmap(user.getUserImage());
@@ -98,8 +109,13 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
     private void selectMenu(Menu menu) {
         if(edit)
             getMenuInflater().inflate(R.menu.menu_myprofile_edit,menu);
-        else
-            getMenuInflater().inflate(R.menu.menu_myprofile_main,menu);
+        else{
+            if(visitor==false)
+                getMenuInflater().inflate(R.menu.menu_myprofile_main,menu);
+            else
+                getMenuInflater().inflate(R.menu.menu_main,menu);
+        }
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -120,7 +136,7 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
                 MyUserManager.getInstance().saveUserImage();
             }
             setUpAccountToolbar();
-            setUpUserData();
+            setUpUserData(MyUserManager.getInstance().getUser());
             setUpFragment(R.id.MyProfileActivityFragmentContainer,new FragmentMyProfileMain(),true,MAIN_TAG);
         }
 
@@ -202,4 +218,6 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
         fullName.setVisibility(TextView.VISIBLE);
         userName.setVisibility(TextView.VISIBLE);
     }
+
+    public boolean getVisitor(){return visitor;}
 }

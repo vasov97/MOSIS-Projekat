@@ -1,68 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MyFriendsActivity">
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        tools:ignore="MissingConstraints">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout3"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.1"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            tools:ignore="MissingConstraints">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/friends_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <ListView
+            android:id="@+id/my_friends_listview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.9">
+
+
+        </ListView>
+    </LinearLayout>
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:ignore="RtlCompat">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabBluetooth"
+        android:layout_alignParentBottom="true"
+        >
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/submenuMargin"
-            android:tint="@color/colorWhite"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/bluetooth_icon"
-            tools:ignore="VectorDrawableCompat" />
+            android:layout_height="250dp"
+            android:layout_alignParentRight="true"
+            android:orientation="vertical"
+            tools:ignore="RtlCompat">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabBluetooth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/submenuMargin"
+                android:tint="@color/colorWhite"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/bluetooth_icon"
+                tools:ignore="VectorDrawableCompat" />
 
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabMaps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/submenuMargin"
-            android:tint="@color/colorWhite"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/map_icon"
-            tools:ignore="VectorDrawableCompat" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabMaps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/submenuMargin"
+                android:tint="@color/colorWhite"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/map_icon"
+                tools:ignore="VectorDrawableCompat" />
 
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabFriends"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:tint="@color/colorWhite"
-            app:fabSize="normal"
-            app:srcCompat="@drawable/add_friends_icon"
-            tools:ignore="VectorDrawableCompat" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabFriends"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tint="@color/colorWhite"
+                app:fabSize="normal"
+                app:srcCompat="@drawable/add_friends_icon"
+                tools:ignore="VectorDrawableCompat" />
 
-    </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+
+
+    </RelativeLayout>
+</RelativeLayout>

@@ -40,8 +40,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class MyUserManager {
@@ -49,26 +51,31 @@ public class MyUserManager {
     private FirebaseAuth firebaseAuth;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
+    private DatabaseReference databaseFriendsReference;
     private StorageReference storageReference;
     private static final String USER = "user";
+    private static final String FRIENDS = "friends";
     private static final String IMAGE = "profileImage/";
-    private UserData userData;
+    private UserData userData,visitProfile;
+
 
     private MyUserManager()
     {
         firebaseAuth=FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference(USER);
+        databaseFriendsReference=firebaseDatabase.getReference(FRIENDS);
         storageReference = FirebaseStorage.getInstance().getReference();
+
     }
     private static class SingletonHolder{
         public static final MyUserManager instance=new MyUserManager();
     }
-
-
+   public UserData getVisitProfile(){return visitProfile;}
+   public void setVisitProfile(UserData visitProfile){this.visitProfile=visitProfile;}
    public UserData getUser(){return userData;}
-
-    public static MyUserManager getInstance(){
+   public String getCurrentUserUid(){return firebaseAuth.getCurrentUser().getUid();}
+   public static MyUserManager getInstance(){
         return SingletonHolder.instance;
     }
 
@@ -87,7 +94,10 @@ public class MyUserManager {
                         }
                         else
                         {
-                            getUserData(FirebaseAuth.getInstance().getCurrentUser(),enclosingActivity);
+                            FirebaseUser user=firebaseAuth.getCurrentUser();
+                            String uid=user.getUid();
+                            userData=new UserData();
+                            getUserData(uid,userData);
                             enclosingActivity.startActivity(new Intent(enclosingActivity,HomePageActivity.class));
                         }
                     }
@@ -147,7 +157,7 @@ public class MyUserManager {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         userData.getUserImage().compress(Bitmap.CompressFormat.JPEG, 100, baos);
 
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String uid = firebaseAuth.getCurrentUser().getUid();
         final StorageReference reference = FirebaseStorage.getInstance().getReference()
                 .child("profileImage")
                 .child(uid + ".jpeg");
@@ -180,7 +190,7 @@ public class MyUserManager {
     }
 
     private void setUserProfileUrl(Uri uri) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = firebaseAuth.getCurrentUser();
 
         UserProfileChangeRequest request = new UserProfileChangeRequest.Builder()
                 .setPhotoUri(uri).build();
@@ -257,29 +267,29 @@ public class MyUserManager {
     }
 
     private void writeToDatabase() {
-        //String uid = databaseReference.push().getKey();
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String uid = firebaseAuth.getCurrentUser().getUid();
         databaseReference.child(uid).setValue(userData);
-
     }
 
-    private void getUserData(final FirebaseUser user,final Activity enclosingActivity){
+    private void getUserData(final String uid,final UserData newUserData){
         final ArrayList<String> userString=new ArrayList<String>();
-        String uid = user.getUid();
+        //final String uid = user.getUid();
         databaseReference.child(uid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 userString.clear();
                 for(DataSnapshot snapshot : dataSnapshot.getChildren())
                     userString.add(snapshot.getValue().toString());
-                userData=new UserData();
-                createUserFromList(userData,userString);
+
+                createUserFromList(newUserData,userString);
 
                 try {
-                    getUserImageBitmap(user,enclosingActivity);
+                    getUserImageBitmap(uid,newUserData);
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
             }
 
             @Override
@@ -287,6 +297,7 @@ public class MyUserManager {
 
             }
         });
+
     }
     public void createUserFromList(UserData user,ArrayList<String> userString){
         user.setEmail(userString.get(0));
@@ -297,9 +308,9 @@ public class MyUserManager {
         user.setUsername(userString.get(5));
 
     }
-    private void getUserImageBitmap(FirebaseUser user,final Activity enclosingActivity) throws IOException {
+    private void getUserImageBitmap(String uid, final UserData newUserData) throws IOException {
 
-        String uid=user.getUid();
+        //String uid=user.getUid();
         StorageReference imageReference=storageReference.child(IMAGE+uid+".jpeg");
 
         final File localFile=File.createTempFile(uid,".jpeg");
@@ -307,18 +318,10 @@ public class MyUserManager {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                 Bitmap bm=BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                userData.setUserImage(bm);
+                newUserData.setUserImage(bm);
             }
         });
 
-
-      /*
-        Uri uri= Uri.parse(user.getPhotoUrl().toString());
-        InputStream is=enclosingActivity.getContentResolver().openInputStream(uri);
-        Bitmap bitmap=BitmapFactory.decodeStream(is);
-        is.close();
-       //ges.Media.getBitmap(enclosingActivity.getContentResolver(), uri);
-        userData.setUserImage(bitmap);*/
 
     }
 
@@ -348,8 +351,8 @@ public class MyUserManager {
         });
     }
 
-    public void updatePasswrod(String oldPassword,final String newPassword,final Activity myActivity) {
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    public void updatePassword(String oldPassword, final String newPassword, final Activity myActivity) {
+        final FirebaseUser user = firebaseAuth.getCurrentUser();
 
 
         AuthCredential credential = EmailAuthProvider
@@ -376,4 +379,87 @@ public class MyUserManager {
                 });
     }
 
+    public void getFriends(String uid, final IGetFriendsCallback callback){
+        databaseFriendsReference.child(uid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                final ArrayList<UserData> friends=new ArrayList<UserData>();
+                if(dataSnapshot.exists())
+                {
+                    //friends.clear();
+                    long childrenCount=dataSnapshot.getChildrenCount();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        String uid = snapshot.getKey();
+                        UserData newUser=new UserData();
+                        childrenCount--;
+                        if(childrenCount==0)
+                            getUserData(uid,newUser,true,callback,friends);
+                        else
+                            getUserData(uid,newUser,false,callback,friends);
+                   }
+                }else
+                  callback.onFriendsReceived(new ArrayList<UserData>());
+
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    private void getUserData(final String uid, final UserData newUserData, final boolean isLast, final IGetFriendsCallback callback, final ArrayList<UserData> friends) {
+        final ArrayList<String> userString=new ArrayList<String>();
+        //final String uid = user.getUid();
+        databaseReference.child(uid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                userString.clear();
+                for(DataSnapshot snapshot : dataSnapshot.getChildren())
+                    userString.add(snapshot.getValue().toString());
+
+                createUserFromList(newUserData,userString);
+
+                try {
+                    getUserImageBitmap(uid,newUserData,isLast,callback,friends);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void getUserImageBitmap(String uid, final UserData newUserData, final boolean isLast, final IGetFriendsCallback callback, final ArrayList<UserData> friends) throws IOException {
+        StorageReference imageReference=storageReference.child(IMAGE+uid+".jpeg");
+
+        final File localFile=File.createTempFile(uid,".jpeg");
+        imageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                Bitmap bm=BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                newUserData.setUserImage(bm);
+                if(isLast)
+                    addLastFriendToList(newUserData,friends,callback);
+                else
+                    addFriendToList(newUserData,friends);
+
+            }
+        });
+    }
+
+    public void addFriendToList(UserData friend, ArrayList<UserData> friends) {
+        friends.add(friend);
+    }
+    public void addLastFriendToList(UserData lastFriend, ArrayList<UserData> friends, IGetFriendsCallback callback) {
+        friends.add(lastFriend);
+        callback.onFriendsReceived(friends);
+    }
 }

@@ -1,6 +1,8 @@
 package rs.elfak.mosis.greenforce;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -10,52 +12,102 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
+import android.os.Handler;
+import android.view.Menu;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import java.nio.channels.FileLock;
+import java.util.ArrayList;
 
-/********************************
-MyFriends ToDo:
- - open myfriends activity *
- - dimen xml *
- - fab menu *
- - listview design
- -
- - add static listview
- - scrolable
- - toolbar design
- - bluetooth toolbar
- - bluetooth acitivity
- - scan nearby devices
- - adding to friends list
-**********************************/
+
 
 public class MyFriendsActivity extends AppCompatActivity implements View.OnClickListener,IComponentInitializer{
     FloatingActionButton fabFriends;
     FloatingActionButton fabBluetooth;
     FloatingActionButton fabMaps;
     Toolbar toolbar;
+    ArrayList<UserData> friends;
+    IGetFriendsCallback clb;
+    ListView friendslist;
+    ProgressDialog progressDialog;
+    MyFriendsAdapter friendsAdapter;
+
 
     OvershootInterpolator overshootInterpolator= new OvershootInterpolator();
 
     boolean isFABOpen=false;
     float translationY;
 
+    public class GetFriendsCallback implements IGetFriendsCallback{
+        @Override
+        public void onFriendsReceived(ArrayList<UserData> myFriends) {
+            friends=myFriends;
+            progressDialog.dismiss();
+            displayFriends();
+        }
+    }
+
+    private void displayFriends() {
+        friendsAdapter=new MyFriendsAdapter(this,friends);
+        friendslist.setAdapter(friendsAdapter);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_friends);
+        clb=new GetFriendsCallback();
+        MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(),clb);
         initializeComponents();
+        setUpActionBar(R.string.friends_text);
+        loadFriendsList();
+
+        friendslist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                UserData user=friendsAdapter.getClickedItem(position);
+                viewClickedUserProfile(user);
+
+            }
+        });
 
     }
 
+    private void viewClickedUserProfile(UserData user) {
+        MyUserManager.getInstance().setVisitProfile(user);
+        Intent i=new Intent(this,MyProfileActivity.class);
+        i.putExtra("Visit","Visit");
+        startActivity(i);
+    }
 
-    private void showFABMenu()
+    private void loadFriendsList()
     {
+        progressDialog=new ProgressDialog(MyFriendsActivity.this);
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+
+    }
+
+    private void setUpActionBar(int rid) {
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(rid);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);
+    }
+
+    private void showFABMenu() {
         isFABOpen = !isFABOpen;
         setAnimationInterpolator(0,1);
         fabFriends.setImageDrawable(getResources().getDrawable(R.drawable.close_icon));
@@ -80,11 +132,12 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         fabFriends = findViewById(R.id.fabFriends);
         fabBluetooth = findViewById(R.id.fabBluetooth);
         fabMaps = findViewById(R.id.fabMaps);
-        toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.friends_toolbar);
+        friendslist=findViewById(R.id.my_friends_listview);
         setFABAlpha();
         setFABListeners();
         setFABTranslations();
-        setSupportActionBar(toolbar);
+        //setSupportActionBar(toolbar);
     }
     private void setFABAlpha()
     {
@@ -122,4 +175,19 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
             //
         }
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_friends_list,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.clear();
+        super.onPrepareOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.menu_friends_list,menu);
+        return true;
+    }
+
+
 }

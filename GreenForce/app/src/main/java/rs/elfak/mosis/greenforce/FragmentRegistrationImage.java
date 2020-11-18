@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -57,6 +58,9 @@ public class FragmentRegistrationImage extends Fragment implements IFragmentComp
         uploadPhoto = v.findViewById(R.id.textViewUploadPhoto);
         finish = v.findViewById(R.id.FinishButton);
         profilePhoto = v.findViewById(R.id.registrationImage);
+        //dodato ako ne odaberes sliku
+        imageBitmap = BitmapFactory.decodeResource(getActivity().getResources(),
+                R.drawable.profile_default);
 
     }
 

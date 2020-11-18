@@ -31,6 +31,7 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
         if(v.getId()==R.id.profile_card)
         {
             Intent i=new Intent(this,MyProfileActivity.class);
+            i.putExtra("Visit", "MyProfile");
             startActivity(i);
         }
         else if(v.getId()==R.id.friends_card)
