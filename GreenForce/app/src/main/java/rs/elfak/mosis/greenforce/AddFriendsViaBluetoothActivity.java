@@ -1,5 +1,6 @@
 package rs.elfak.mosis.greenforce;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,11 +12,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -36,7 +39,8 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
-public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements View.OnClickListener,IComponentInitializer {
+public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements View.OnClickListener,IComponentInitializer
+{
 
     Toolbar toolbar;
     FloatingActionButton refreshFAB;
@@ -65,20 +69,38 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         initializeComponents();
         setUpActionBar(R.string.bluetooth);
 
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        registerReceiver(myReceiverBondStateChanged,filter);//njemu 4 receiver
 
         bluetoothSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @SuppressLint("ResourceType")
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 isToggleOn=isChecked;
                 enableDisableBluetooth();
+                //getPairedDevices();
+                discoverDevices();
             }
         });
         checkIfBluetoothIsEnabled();
 
         pairedDevice.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            //@RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+               bluetoothAdapter.cancelDiscovery();
+                Log.d("AddFriendsViaBT","You clicked on a device");
+                String deviceName = listNearbyDevices.get(position).getName();
+                String deviceAddress = listNearbyDevices.get(position).getAddress();
+                Log.d("AddFriendsViaBT","Device name:"+deviceName);
+                Log.d("AddFriendsViaBT","Device address:"+deviceAddress);
+
+
+                listNearbyDevices.get(position).createBond();
+
 
             }
         });
@@ -138,7 +160,58 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
             }
         }
     };
-    private void setUpActionBar(int rid) {
+
+    private final BroadcastReceiver myReceiverForDiscovering = new BroadcastReceiver()
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            final String action = intent.getAction();
+            ArrayList<String> strings=new ArrayList<String>();
+            Log.d("AddFriendsViaBT","onReceive: Action found");
+
+            if(action.equals(BluetoothDevice.ACTION_FOUND))
+            {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                listNearbyDevices.add(device);
+                strings.add(device.getName());
+                Log.d("AddFriendsViaBT","onReceive:"+device.getName()+":"+device.getAddress());
+
+
+                adapter=new MyListViewAdapter(getApplicationContext(),strings,R.id.textViewDevice,R.drawable.add_friends_icon,R.layout.nearby_device);
+                pairedDevice.setAdapter(adapter);
+            }
+        }
+    };
+
+    private final BroadcastReceiver myReceiverBondStateChanged = new BroadcastReceiver()
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            final String action = intent.getAction();
+            if(action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED))
+            {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if(device.getBondState()==BluetoothDevice.BOND_BONDED)
+                {
+                    Log.d("AddFriendsViaBT","BRecv: State_Bonded");
+                }
+                else if(device.getBondState()==BluetoothDevice.BOND_BONDING)
+                {
+                    Log.d("AddFriendsViaBT","BRecv: State_Bonding");
+                }
+                else if(device.getBondState()==BluetoothDevice.BOND_NONE)
+                {
+                    Log.d("AddFriendsViaBT","BRecv: State_None");
+                }
+            }
+        }
+    };
+
+
+    private void setUpActionBar(int rid)
+    {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -154,7 +227,8 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         String id=MyUserManager.getInstance().getCurrentUserUid();
         String myData=name+" "+surname+" "+username+" "+id;
     }
-    private void checkIfBluetoothIsEnabled() {
+    private void checkIfBluetoothIsEnabled()
+    {
         if(bluetoothAdapter.isEnabled())
         {
             isToggleOn =true;
@@ -162,28 +236,34 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
             //getNearbyDevices();
         }
     }
-    private void getNearbyDevices() {
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void getPairedDevices()
+    {
         nearbyDevices = bluetoothAdapter.getBondedDevices();
         listNearbyDevices.clear();
         ArrayList<String> strings=new ArrayList<String>();
         if(nearbyDevices.size()>0)
         {
-            for(BluetoothDevice device:nearbyDevices) {
+            for(BluetoothDevice device:nearbyDevices)
+            {
                 strings.add(device.getName());
                 listNearbyDevices.add(device);
             }
 
+            //discoverDevices();
             adapter=new MyListViewAdapter(getApplicationContext(),strings,R.id.textViewDevice,R.drawable.add_friends_icon,R.layout.nearby_device);
             pairedDevice.setAdapter(adapter);
         }
     }
-    private void enableDisableBluetooth() {
+    private void enableDisableBluetooth()
+    {
         if(isToggleOn)
             enableBluetooth();
         else disableBluetooth();
     }
 
-    private void disableBluetooth() {
+    private void disableBluetooth()
+    {
         if(bluetoothAdapter.isEnabled()){
             if(adapter!=null){
                 adapter.clear();
@@ -195,7 +275,8 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
             registerReceiver(myReceiver,filter);
         }
     }
-    private void enableBluetooth() {
+    private void enableBluetooth()
+    {
         if(bluetoothAdapter==null)
             Toast.makeText(getApplicationContext(),"Bluetooth isn't supported on this device",Toast.LENGTH_LONG).show();
         else
@@ -210,39 +291,87 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
             }
         }
     }
-    private void enableDiscoverable(){
+    private void enableDiscoverable()
+    {
         Intent discoverableIntent=new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION,300);
         startActivity(discoverableIntent);
         //IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
        // registerReceiver(myReceiver2,filter);
     }
-    private void createServer(){
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void discoverDevices()
+    {
+        Log.d("AddFriendsViaBT","Looking for unpaired devices");
+        if(bluetoothAdapter.isDiscovering())
+        {
+            bluetoothAdapter.cancelDiscovery();
+            Log.d("AddFriendsViaBT","Canceling discovery...");
+            bluetoothAdapter.startDiscovery();
+
+            IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+            registerReceiver(myReceiverForDiscovering,discoverDevicesIntent);
+        }
+        if(!bluetoothAdapter.isDiscovering())
+        {
+            bluetoothPermissions();
+            bluetoothAdapter.startDiscovery();
+            IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+            registerReceiver(myReceiverForDiscovering,discoverDevicesIntent);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void bluetoothPermissions()
+    {
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+        {
+           int permissionCheck = this.checkSelfPermission("Manifest.permission.ACCESS_FINE_LOCATION");
+           permissionCheck+=this.checkSelfPermission("Manifest.permission.ACCESS_COARSE_LOCATION");
+           if(permissionCheck!=0)
+               this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},1001);
+           else
+               Log.d("AddFriendsViaBT","SDK version < LOLLIPOP");
+
+        }
+    }
+
+    private void createServer()
+    {
 
     }
-    public void startBTConnection(BluetoothDevice device,UUID uuid){
+    public void startBTConnection(BluetoothDevice device,UUID uuid)
+    {
         Log.d("AddFriendsViewBT","startBTConnection: Initializing BT Connection");
         bluetoothConnectionService.startClient(device,uuid);
     }
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
         getMenuInflater().inflate(R.menu.menu_main,menu);
         return true;
     }
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(Menu menu)
+    {
         menu.clear();
         super.onPrepareOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu_main,menu);
         return true;
     }
     @Override
-    protected void onDestroy() {
+    protected void onDestroy()
+    {
         unregisterReceiver(myReceiver);
+        unregisterReceiver(myReceiver2);
+        unregisterReceiver(myReceiverForDiscovering);
+        unregisterReceiver(myReceiverBondStateChanged);
         super.onDestroy();
     }
     @Override
-    public void initializeComponents() {
+    public void initializeComponents()
+    {
         toolbar = findViewById(R.id.bluetoothToolbar);
         refreshFAB = findViewById(R.id.fabRefresh);
         pairedDevice=findViewById(R.id.listViewDevic);
@@ -262,10 +391,15 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         listNearbyDevices=new ArrayList<BluetoothDevice>();
         //pairedDevice=findViewById(R.id.listViewNearbyDevice);
     }
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onClick(View v) {
         if(v.getId()==R.id.fabRefresh)
+        {
             enableDisableBluetooth();
+            discoverDevices();
+        }
+
     }
 
     @Override
