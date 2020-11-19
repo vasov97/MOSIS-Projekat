@@ -31,9 +31,10 @@ public class BluetoothConnectionService {
     private BluetoothDevice bluetoothDevice;
     private UUID deviceUUID;
     ProgressDialog progressDialog;
-    public BluetoothConnectionService(Context context, BluetoothAdapter bluetoothAdapter){
+    public BluetoothConnectionService(Context context){
         this.context=context;
-        this.bluetoothAdapter=bluetoothAdapter;
+        this.bluetoothAdapter=BluetoothAdapter.getDefaultAdapter();
+        start();
     }
 
    private class AcceptThread extends Thread{
@@ -60,7 +61,6 @@ public class BluetoothConnectionService {
             } catch (IOException e) {
                 Log.e(TAG,"AcceptThread: IOException"+e.getMessage());
             }
-            //nesto za treci klip
             if(socket==null){
                 connected(socket,bluetoothDevice);
             }
@@ -106,7 +106,6 @@ public class BluetoothConnectionService {
                 }
                 Log.e(TAG,"run: ConnectThread could not connect to UUID "+myUUID);
             }
-            //treci klip
             connected(socket,bluetoothDevice);
         }
 
@@ -159,8 +158,12 @@ public class BluetoothConnectionService {
            this.bluetoothSocket=bluetoothSocket;
            InputStream tmpIn=null;
            OutputStream tmpOut=null;
+           try{
+               progressDialog.dismiss();
+           }catch(NullPointerException e){
+                e.printStackTrace();
+           }
 
-           progressDialog.dismiss();
 
            try {
                tmpIn=bluetoothSocket.getInputStream();
@@ -184,6 +187,7 @@ public class BluetoothConnectionService {
                    numBytes = inputStream.read(buffer);
                    String incomingMessage = new String(buffer,0,numBytes);
                    Log.d(TAG,"InputStream"+incomingMessage);
+
                } catch (IOException e) {
                    Log.e(TAG,"Error reading inputstream"+e.getMessage());
                    break;

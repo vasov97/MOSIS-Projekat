@@ -29,12 +29,14 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
@@ -60,6 +62,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
     String receivedUser;
     boolean isToggleOn;
 
+    Button btsnd,btnconnect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -80,7 +83,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
                 isToggleOn=isChecked;
                 enableDisableBluetooth();
                 //getPairedDevices();
-                discoverDevices();
+                //discoverDevices();
             }
         });
         checkIfBluetoothIsEnabled();
@@ -97,13 +100,16 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
                 String deviceAddress = listNearbyDevices.get(position).getAddress();
                 Log.d("AddFriendsViaBT","Device name:"+deviceName);
                 Log.d("AddFriendsViaBT","Device address:"+deviceAddress);
-
-
                 listNearbyDevices.get(position).createBond();
-
-
+                bluetoothDevice=listNearbyDevices.get(position);
+                bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);
             }
         });
+
+        btnconnect=findViewById(R.id.btn_connect_via_bt);
+        btsnd=findViewById(R.id.btn_send_fried_request);
+        btnconnect.setOnClickListener(this);
+        btsnd.setOnClickListener(this);
 
     }
     private final BroadcastReceiver myReceiver=new BroadcastReceiver()
@@ -196,6 +202,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
                 if(device.getBondState()==BluetoothDevice.BOND_BONDED)
                 {
                     Log.d("AddFriendsViaBT","BRecv: State_Bonded");
+                    bluetoothDevice=device;
                 }
                 else if(device.getBondState()==BluetoothDevice.BOND_BONDING)
                 {
@@ -219,13 +226,14 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);
     }
 
-    private void sendFriendRequest()
-    {
+    private void sendFriendRequest() {
         String name=MyUserManager.getInstance().getUser().getName();
         String surname=MyUserManager.getInstance().getUser().getSurname();
         String username=MyUserManager.getInstance().getUser().getUsername();
         String id=MyUserManager.getInstance().getCurrentUserUid();
         String myData=name+" "+surname+" "+username+" "+id;
+        byte[] bytes=myData.getBytes(Charset.defaultCharset());
+        bluetoothConnectionService.write(bytes);
     }
     private void checkIfBluetoothIsEnabled()
     {
@@ -233,7 +241,6 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         {
             isToggleOn =true;
             bluetoothSwitch.setChecked(true);
-            //getNearbyDevices();
         }
     }
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -250,7 +257,6 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
                 listNearbyDevices.add(device);
             }
 
-            //discoverDevices();
             adapter=new MyListViewAdapter(getApplicationContext(),strings,R.id.textViewDevice,R.drawable.add_friends_icon,R.layout.nearby_device);
             pairedDevice.setAdapter(adapter);
         }
@@ -269,7 +275,6 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
                 adapter.clear();
                 adapter.notifyDataSetChanged();
             }
-           // isToggleOn =false;
             bluetoothAdapter.disable();
             IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
             registerReceiver(myReceiver,filter);
@@ -284,10 +289,8 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
             if(!bluetoothAdapter.isEnabled())
             {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                //startActivity(enableBtIntent);
+
                 startActivityForResult(enableBtIntent, this.requestCode);
-//                IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-//                registerReceiver(myReceiver,filter);
             }
         }
     }
@@ -337,9 +340,8 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         }
     }
 
-    private void createServer()
-    {
-
+    public void startConnection(){
+             startBTConnection(bluetoothDevice,myUUID);
     }
     public void startBTConnection(BluetoothDevice device,UUID uuid)
     {
@@ -389,19 +391,22 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
 
         enablingIntent =new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         listNearbyDevices=new ArrayList<BluetoothDevice>();
-        //pairedDevice=findViewById(R.id.listViewNearbyDevice);
     }
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onClick(View v) {
         if(v.getId()==R.id.fabRefresh)
         {
-            enableDisableBluetooth();
-            discoverDevices();
+            if(bluetoothAdapter.isEnabled())
+                 discoverDevices();
+        }else if(v.getId()==R.id.btn_connect_via_bt){
+            startConnection();
+        }else if(v.getId()==R.id.btn_send_fried_request){
+            sendFriendRequest();
         }
-
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onActivityResult(int requestCode,int resultCode,Intent data) {
         if(requestCode==this.requestCode)
@@ -411,7 +416,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
                 IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
                 registerReceiver(myReceiver,filter);
                 Toast.makeText(getApplicationContext(),"Bluetooth enabled",Toast.LENGTH_SHORT).show();
-                //getNearbyDevices();
+                discoverDevices();
             }
             else if(resultCode==RESULT_CANCELED)
                 Toast.makeText(getApplicationContext(),"Bluetooth enabling canceling",Toast.LENGTH_SHORT).show();
