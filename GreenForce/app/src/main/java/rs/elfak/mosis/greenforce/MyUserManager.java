@@ -462,4 +462,10 @@ public class MyUserManager {
         friends.add(lastFriend);
         callback.onFriendsReceived(friends);
     }
+
+    public void addFriend(String friendUid){
+        String uid = firebaseAuth.getCurrentUser().getUid();
+        databaseFriendsReference.child(uid).child(friendUid).child("status").setValue("friend");
+        databaseFriendsReference.child(friendUid).child(uid).child("status").setValue("friend");
+    }
 }

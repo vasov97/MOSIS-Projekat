@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.PorterDuff;
@@ -21,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.os.Handler;
 import android.os.Message;
@@ -60,9 +62,11 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
 
     UUID myUUID;
     String receivedUser;
-    boolean isToggleOn;
+    boolean isToggleOn,isServer;
 
     Button btsnd,btnconnect;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -74,6 +78,8 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
 
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         registerReceiver(myReceiverBondStateChanged,filter);//njemu 4 receiver
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(friendRequestReceiver,new IntentFilter("incomingMessage"));
 
         bluetoothSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
@@ -102,7 +108,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
                 Log.d("AddFriendsViaBT","Device address:"+deviceAddress);
                 listNearbyDevices.get(position).createBond();
                 bluetoothDevice=listNearbyDevices.get(position);
-                bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);
+                startConnection();
             }
         });
 
@@ -110,6 +116,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         btsnd=findViewById(R.id.btn_send_fried_request);
         btnconnect.setOnClickListener(this);
         btsnd.setOnClickListener(this);
+        bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);
 
     }
     private final BroadcastReceiver myReceiver=new BroadcastReceiver()
@@ -216,7 +223,15 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         }
     };
 
-
+    private final BroadcastReceiver friendRequestReceiver = new BroadcastReceiver()
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            final String text = intent.getStringExtra("requestMessage");
+            displayRequest(text);
+        }
+    };
     private void setUpActionBar(int rid)
     {
         setSupportActionBar(toolbar);
@@ -226,12 +241,13 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);
     }
 
-    private void sendFriendRequest() {
-        String name=MyUserManager.getInstance().getUser().getName();
-        String surname=MyUserManager.getInstance().getUser().getSurname();
+    public void sendFriendRequest() {
+        isServer=true;
+        //String name=MyUserManager.getInstance().getUser().getName();
+        //String surname=MyUserManager.getInstance().getUser().getSurname();
         String username=MyUserManager.getInstance().getUser().getUsername();
         String id=MyUserManager.getInstance().getCurrentUserUid();
-        String myData=name+" "+surname+" "+username+" "+id;
+        String myData=username+"*"+id;
         byte[] bytes=myData.getBytes(Charset.defaultCharset());
         bluetoothConnectionService.write(bytes);
     }
@@ -339,14 +355,43 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
 
         }
     }
+    public void displayRequest(String data){
+        final String[] strings = data.split("[*]");
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        MyUserManager.getInstance().addFriend(strings[1]);
+                        break;
 
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked
+                        break;
+                }
+            }
+        };
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setPositiveButton("Accept", dialogClickListener)
+                .setNegativeButton("Decline", dialogClickListener)
+                .setTitle("Friend request")
+                .setMessage("User "+strings[0]+" would like to add you.")
+                .create().show();
+
+
+
+
+    }
     public void startConnection(){
              startBTConnection(bluetoothDevice,myUUID);
     }
     public void startBTConnection(BluetoothDevice device,UUID uuid)
     {
         Log.d("AddFriendsViewBT","startBTConnection: Initializing BT Connection");
-        bluetoothConnectionService.startClient(device,uuid);
+        isServer=false;
+        bluetoothConnectionService.startClient(device,uuid,isServer);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -365,10 +410,20 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy()
     {
-        unregisterReceiver(myReceiver);
-        unregisterReceiver(myReceiver2);
-        unregisterReceiver(myReceiverForDiscovering);
-        unregisterReceiver(myReceiverBondStateChanged);
+        try
+        {
+            unregisterReceiver(myReceiver);
+            unregisterReceiver(myReceiver2);
+            unregisterReceiver(myReceiverForDiscovering);
+            unregisterReceiver(myReceiverBondStateChanged);
+            unregisterReceiver(friendRequestReceiver);
+        }
+        catch (IllegalArgumentException e)
+        {
+            e.printStackTrace();
+        }
+
+
         super.onDestroy();
     }
     @Override
@@ -381,6 +436,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
 
         myUUID=UUID.fromString(getResources().getString(R.string.app_uuid));
         isToggleOn = false;
+        isServer=true;
         requestCode=1;
 
         refreshFAB.setOnClickListener(this);
@@ -391,6 +447,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
 
         enablingIntent =new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         listNearbyDevices=new ArrayList<BluetoothDevice>();
+
     }
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -416,7 +473,9 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
                 IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
                 registerReceiver(myReceiver,filter);
                 Toast.makeText(getApplicationContext(),"Bluetooth enabled",Toast.LENGTH_SHORT).show();
+
                 discoverDevices();
+
             }
             else if(resultCode==RESULT_CANCELED)
                 Toast.makeText(getApplicationContext(),"Bluetooth enabling canceling",Toast.LENGTH_SHORT).show();

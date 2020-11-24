@@ -9,9 +9,12 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.Intent;
 import android.nfc.Tag;
 import android.renderscript.ScriptGroup;
 import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +33,7 @@ public class BluetoothConnectionService {
     private ConnectedThread connectedThread;
     private BluetoothDevice bluetoothDevice;
     private UUID deviceUUID;
-    ProgressDialog progressDialog;
+    private boolean isServer=true;
     public BluetoothConnectionService(Context context){
         this.context=context;
         this.bluetoothAdapter=BluetoothAdapter.getDefaultAdapter();
@@ -61,7 +64,7 @@ public class BluetoothConnectionService {
             } catch (IOException e) {
                 Log.e(TAG,"AcceptThread: IOException"+e.getMessage());
             }
-            if(socket==null){
+            if(socket!=null){
                 connected(socket,bluetoothDevice);
             }
             Log.d(TAG,"END AcceptThread");
@@ -97,6 +100,7 @@ public class BluetoothConnectionService {
             try {
                 socket.connect();
                 Log.d(TAG,"run: ConnectThread Connected");
+                connected(socket,bluetoothDevice);
             } catch (IOException e) {
                 try {
                     socket.close();
@@ -106,7 +110,7 @@ public class BluetoothConnectionService {
                 }
                 Log.e(TAG,"run: ConnectThread could not connect to UUID "+myUUID);
             }
-            connected(socket,bluetoothDevice);
+
         }
 
        public void cancel(){
@@ -133,14 +137,15 @@ public class BluetoothConnectionService {
         }
    }
 
-   public void startClient(BluetoothDevice device,UUID uuid){
+   public void startClient(BluetoothDevice device,UUID uuid,boolean isServer){
         Log.d(TAG,"StartClient: started");
-       progressDialog=new ProgressDialog(context);
-       progressDialog.show();
-       progressDialog.setContentView(R.layout.progress_dialog);
-       progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-       progressDialog.setCancelable(false);
-       progressDialog.setCanceledOnTouchOutside(false);
+        this.isServer=isServer;
+//       progressDialog=new ProgressDialog(context);
+//       progressDialog.show();
+//       progressDialog.setContentView(R.layout.progress_dialog);
+//       progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+//       progressDialog.setCancelable(false);
+//       progressDialog.setCanceledOnTouchOutside(false);
 
        connectThread=new ConnectThread(device,uuid);
        connectThread.start();
@@ -152,17 +157,18 @@ public class BluetoothConnectionService {
        private final InputStream inputStream;
        private final OutputStream outputStream;
 
+
        public ConnectedThread(BluetoothSocket bluetoothSocket)
        {
            Log.d(TAG,"Connected thread: Starting.");
            this.bluetoothSocket=bluetoothSocket;
            InputStream tmpIn=null;
            OutputStream tmpOut=null;
-           try{
-               progressDialog.dismiss();
-           }catch(NullPointerException e){
-                e.printStackTrace();
-           }
+//           try{
+//               progressDialog.dismiss();
+//           }catch(NullPointerException e){
+//                e.printStackTrace();
+//           }
 
 
            try {
@@ -179,14 +185,17 @@ public class BluetoothConnectionService {
        public void run() {
            byte[] buffer= new byte[1024];
            int numBytes;
-
            while (true)
            {
                try {
-
                    numBytes = inputStream.read(buffer);
                    String incomingMessage = new String(buffer,0,numBytes);
                    Log.d(TAG,"InputStream"+incomingMessage);
+                   Intent incomingMessageIntent=new Intent("incomingMessage");
+                   incomingMessageIntent.putExtra("requestMessage",incomingMessage);
+                   LocalBroadcastManager.getInstance(context).sendBroadcast(incomingMessageIntent);
+
+                  // ((AddFriendsViaBluetoothActivity)context).displayRequest(incomingMessage);
 
                } catch (IOException e) {
                    Log.e(TAG,"Error reading inputstream"+e.getMessage());
@@ -214,14 +223,17 @@ public class BluetoothConnectionService {
                Log.e(TAG,"Error writing to outputstream"+e.getMessage());
            }
        }
-
-
    }
 
     private void connected(BluetoothSocket socket, BluetoothDevice bluetoothDevice) {
         Log.d(TAG,"Connected: Starting.");
         connectedThread=new ConnectedThread(socket);
         connectedThread.start();
+        if(!isServer){
+            ((AddFriendsViaBluetoothActivity)context).sendFriendRequest();
+            isServer=true;
+        }
+
 
     }
     public void write(byte[] out)
