@@ -5,7 +5,6 @@
     tools:context=".AddFriendsViaMapsActivity">
 
     <item
-        android:id="@+id/menu_friends_search_friends"
         android:orderInCategory="100"
         android:icon="@drawable/search_icon"
         app:showAsAction="ifRoom"

@@ -8,14 +8,12 @@
 
 
         <item
-            android:id="@+id/menu_friends_search_friends"
             android:orderInCategory="100"
             android:icon="@drawable/search_icon"
             app:showAsAction="ifRoom"
             android:title=""
             />
         <item
-            android:id="@+id/menu_friends_notifications"
             android:orderInCategory="100"
             android:icon="@drawable/notifications_icon"
             app:showAsAction="ifRoom"
