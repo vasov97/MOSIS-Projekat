@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AddFriendsViaMapsActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarAddFriendsViaMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        tools:ignore="MissingConstraints">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/addFriendsViaMapToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+
+        app:popupTheme="@style/AppTheme.PopupOverlay" />
+    </com.google.android.material.appbar.AppBarLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+
+            app:layout_constraintEnd_toEndOf="@+id/appBarAddFriendsViaMap"
+            app:layout_constraintStart_toStartOf="@+id/appBarAddFriendsViaMap"
+            app:layout_constraintTop_toBottomOf="@+id/appBarAddFriendsViaMap">
+
+            <LinearLayout
+                android:id="@+id/linearLayoutMaps"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_weight="0.4"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/appBarAddFriendsViaMap">
+
+                <Spinner
+                    android:id="@+id/spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_weight="0.4" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_weight="0.3"
+                    android:gravity="right"
+                    android:text="@string/radius"
+                    android:textSize="19sp"
+
+                    />
+
+                <EditText
+                    android:layout_width="30dp"
+                    android:id="@+id/radius"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:layout_weight="0.3" />
+
+            </LinearLayout>
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/addFriendsMapsView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.6"
+                />
+        </LinearLayout>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

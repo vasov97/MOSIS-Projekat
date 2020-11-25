@@ -18,6 +18,14 @@ https://www.youtube.com/watch?v=CDv05EP45JQ
 
 
 //to DO
+
+za appbar neki interfejs 
+vidi sta se jos provlaci dosta da se sredi
+
+crash:
+ Failed to create RFCOM using UUID: a3d56928-fe48-4ad7-83d4-bf0d72ec9538
+62 linija, null ref obj
+
 skloni app bar--
 pokupi bitmap za default sliku
 fragmenti na back se baguju

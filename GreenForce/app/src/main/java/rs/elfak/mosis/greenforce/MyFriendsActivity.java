@@ -1,6 +1,9 @@
 package rs.elfak.mosis.greenforce;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Build;
@@ -28,7 +31,7 @@ import java.util.ArrayList;
 
 
 
-public class MyFriendsActivity extends AppCompatActivity implements View.OnClickListener,IComponentInitializer{
+public class MyFriendsActivity extends AppCompatActivity implements View.OnClickListener,IComponentInitializer,IOnClickNewIntent{
     FloatingActionButton fabFriends;
     FloatingActionButton fabBluetooth;
     FloatingActionButton fabMaps;
@@ -107,12 +110,14 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void showFABMenu() {
         isFABOpen = !isFABOpen;
         setAnimationInterpolator(0,1);
         fabFriends.setImageDrawable(getResources().getDrawable(R.drawable.close_icon));
 
     }
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void closeFABMenu()
     {
         isFABOpen = !isFABOpen;
@@ -158,6 +163,12 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
     }
 
     @Override
+    public void onClickNewIntent(Context context,Class<?> myClass)
+    {
+        Intent i=new Intent(context,myClass);
+        startActivity(i);
+    }
+    @Override
     public void onClick(View v)
     {
         if(v.getId()==R.id.fabFriends)
@@ -167,13 +178,15 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         }
         else if(v.getId()==R.id.fabBluetooth)
         {
-            Intent i=new Intent(this,AddFriendsViaBluetoothActivity.class);
-            startActivity(i);
+           onClickNewIntent(this,AddFriendsViaBluetoothActivity.class);
+            /*Intent i=new Intent(this,AddFriendsViaBluetoothActivity.class);
+            startActivity(i);*/
         }
         else if(v.getId()==R.id.fabMaps)
-        {
-            //
-        }
+            onClickNewIntent(this,AddFriendsViaMapsActivity.class);
+            /*Intent i=new Intent(this,AddFriendsViaMapsActivity.class);
+            startActivity(i);*/
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
