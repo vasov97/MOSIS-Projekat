@@ -48,5 +48,6 @@
     <string name="loading">Loading...</string>
     <string name="radius">Radius:</string>
     <string name="maps">Maps</string>
+    <string name="maps_api_key">AIzaSyCOndUlXir9aIy6EHnEhdfnVWUAUqfjciY</string>
 
 </resources>

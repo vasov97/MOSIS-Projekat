@@ -52,9 +52,11 @@ public class MyUserManager {
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
     private DatabaseReference databaseFriendsReference;
+    private DatabaseReference databaseCoordinatesReference;
     private StorageReference storageReference;
     private static final String USER = "user";
     private static final String FRIENDS = "friends";
+    private static final String COORDINATES="coordinates";
     private static final String IMAGE = "profileImage/";
     private UserData userData,visitProfile;
 
@@ -65,6 +67,7 @@ public class MyUserManager {
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference(USER);
         databaseFriendsReference=firebaseDatabase.getReference(FRIENDS);
+        databaseCoordinatesReference=firebaseDatabase.getReference(COORDINATES);
         storageReference = FirebaseStorage.getInstance().getReference();
 
     }
@@ -467,5 +470,10 @@ public class MyUserManager {
         String uid = firebaseAuth.getCurrentUser().getUid();
         databaseFriendsReference.child(uid).child(friendUid).child("status").setValue("friend");
         databaseFriendsReference.child(friendUid).child(uid).child("status").setValue("friend");
+    }
+    public void saveUserCoordinates(double lat,double lon){
+        String uid = firebaseAuth.getCurrentUser().getUid();
+        MyLatLong latlong=new MyLatLong(lat,lon);
+        databaseCoordinatesReference.child(uid).setValue(latlong);
     }
 }
