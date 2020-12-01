@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.location.Location;
@@ -41,11 +42,14 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-public class AddFriendsViaMapsActivity extends AppCompatActivity implements IComponentInitializer, OnMapReadyCallback
+public class AddFriendsViaMapsActivity extends AppCompatActivity implements Serializable,IComponentInitializer, OnMapReadyCallback
 {
 
     Spinner addFriendsSpinner;
@@ -58,7 +62,8 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements ICom
     Location lastLocation;
     LatLng latLng;
     String TAG="AddFriendsMapActivity";
-
+    ArrayList<UserData> myFriends;
+    ArrayList<UserData> allUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -67,10 +72,28 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements ICom
         setContentView(R.layout.activity_add_friends_via_maps);
         initializeComponents();
         setUpActionBar(R.string.maps);
+        /*Bundle bundle=getIntent().getBundleExtra("Bundle");
+        myFriends=(ArrayList<UserData>)bundle.getSerializable("MyFriends");*/
+        myFriends=MyUserManager.getInstance().getMyFriends();
+
+        /*for(UserData user:myFriends)
+            Log.d("tag","#######________######"+user.surname);*/
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.google_maps_fragment_view_location);
         mapFragment.getMapAsync(this);
 
+    }
+
+    public class GetAllUsersCallback implements IGetAllUsersCallback
+    {
+
+        @Override
+        public void onUsersReceived(ArrayList<UserData> users)
+        {
+            allUsers=users;
+
+        }
     }
 
     LocationCallback locationCallback=new LocationCallback(){
@@ -122,7 +145,9 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements ICom
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(GoogleMap googleMap)
+    {
+
         map = googleMap;
 
        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -130,6 +155,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements ICom
        locationRequest.setInterval(7000);
        locationRequest.setFastestInterval(10000);
        locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
+
 
 
        //requestLocationDialog(); nista za sad

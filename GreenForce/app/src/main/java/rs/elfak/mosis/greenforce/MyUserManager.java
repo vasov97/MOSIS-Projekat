@@ -59,7 +59,7 @@ public class MyUserManager {
     private static final String COORDINATES="coordinates";
     private static final String IMAGE = "profileImage/";
     private UserData userData,visitProfile;
-
+    ArrayList<UserData> myFriends;
 
     private MyUserManager()
     {
@@ -81,6 +81,8 @@ public class MyUserManager {
    public static MyUserManager getInstance(){
         return SingletonHolder.instance;
     }
+   public ArrayList<UserData> getMyFriends(){return myFriends;}
+   public void setMyFriends(ArrayList<UserData> friends){myFriends=friends;}
 
     public void loginUser(String emailText, String passwordText, final Activity enclosingActivity){
         firebaseAuth.signInWithEmailAndPassword(emailText,passwordText).addOnCompleteListener(enclosingActivity,
@@ -382,7 +384,8 @@ public class MyUserManager {
                 });
     }
 
-    public void getFriends(String uid, final IGetFriendsCallback callback){
+    public void getFriends(String uid, final IGetFriendsCallback callback)
+    {
         databaseFriendsReference.child(uid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -412,6 +415,74 @@ public class MyUserManager {
 
     }
 
+    public void getAllUsers(final IGetAllUsersCallback callback)
+    {
+       // final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference(USER);
+
+        usersRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+            {
+                ArrayList<UserData> allUsers=new ArrayList<>();
+                long childrenCount=dataSnapshot.getChildrenCount();
+                for(DataSnapshot ds:dataSnapshot.getChildren())
+                {
+                    UserData user=ds.getValue(UserData.class);
+                    if(!user.getUserUUID().equals(getCurrentUserUid()))
+                    {
+                        allUsers.add(user);
+                        childrenCount--;
+                        if(childrenCount==0)
+                            getSingleUserData(user.getUserUUID(),user,true,callback,allUsers);
+                        else
+                            getSingleUserData(user.getUserUUID(),user,false,callback,allUsers);
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError)
+            {
+
+            }
+        });
+
+
+    }
+    private void getSingleUserData(final String uid, final UserData newUserData,final boolean isLast, final IGetAllUsersCallback callback, final ArrayList<UserData> users)
+    {
+        final ArrayList<String> userString=new ArrayList<String>();
+        //final String uid = user.getUid();
+        databaseReference.child(uid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                userString.clear();
+                for(DataSnapshot snapshot : dataSnapshot.getChildren())
+                    userString.add(snapshot.getValue().toString());
+
+                newUserData.setUserUUID((uid));
+                createUserFromList(newUserData,userString);
+
+
+
+                /*try {
+                    getUserImageBitmap(uid,newUserData,isLast,callback,users);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }*/
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     private void getUserData(final String uid, final UserData newUserData, final boolean isLast, final IGetFriendsCallback callback, final ArrayList<UserData> friends) {
         final ArrayList<String> userString=new ArrayList<String>();
         //final String uid = user.getUid();
@@ -422,6 +493,7 @@ public class MyUserManager {
                 for(DataSnapshot snapshot : dataSnapshot.getChildren())
                     userString.add(snapshot.getValue().toString());
 
+                newUserData.setUserUUID((uid));
                 createUserFromList(newUserData,userString);
 
                 try {

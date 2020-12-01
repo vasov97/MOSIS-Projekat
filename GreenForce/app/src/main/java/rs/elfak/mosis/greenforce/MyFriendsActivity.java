@@ -11,6 +11,7 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,12 +27,13 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import java.io.Serializable;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 
 
 
-public class MyFriendsActivity extends AppCompatActivity implements View.OnClickListener,IComponentInitializer,IOnClickNewIntent{
+public class MyFriendsActivity extends AppCompatActivity implements View.OnClickListener,Serializable,IComponentInitializer,IOnClickNewIntent {
     FloatingActionButton fabFriends;
     FloatingActionButton fabBluetooth;
     FloatingActionButton fabMaps;
@@ -49,12 +51,16 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
     float translationY;
 
     public class GetFriendsCallback implements IGetFriendsCallback{
+
+
         @Override
         public void onFriendsReceived(ArrayList<UserData> myFriends) {
             friends=myFriends;
             progressDialog.dismiss();
             displayFriends();
         }
+
+
     }
 
     private void displayFriends() {
@@ -183,9 +189,17 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
             startActivity(i);*/
         }
         else if(v.getId()==R.id.fabMaps)
-            onClickNewIntent(this,AddFriendsViaMapsActivity.class);
-            /*Intent i=new Intent(this,AddFriendsViaMapsActivity.class);
-            startActivity(i);*/
+        {
+
+            Intent i=new Intent(this,AddFriendsViaMapsActivity.class);
+            /*Bundle bundle=new Bundle();
+            bundle.putSerializable("MyFriends",(Serializable)friends);
+            i.putExtra("Bundle",bundle);*/
+            MyUserManager.getInstance().setMyFriends(friends);
+            startActivity(i);
+        }
+
+
 
     }
     @Override

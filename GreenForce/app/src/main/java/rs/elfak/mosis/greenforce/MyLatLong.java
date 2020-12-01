@@ -4,13 +4,17 @@ import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 @IgnoreExtraProperties
-public class MyLatLong {
+public class MyLatLong
+{
     double latitude;
     double longitude;
     @Exclude
     String uid;
 
-    public MyLatLong(double lat, double lon) {
+
+    public MyLatLong(double lat, double lon)
+    {
+
         this.latitude=lat;
         this.longitude=lon;
     }

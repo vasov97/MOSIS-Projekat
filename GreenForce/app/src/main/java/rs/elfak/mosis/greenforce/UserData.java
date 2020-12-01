@@ -1,12 +1,16 @@
 package rs.elfak.mosis.greenforce;
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.io.Serializable;
+
 @IgnoreExtraProperties
-public class UserData
+public class UserData implements Serializable
 {
     String email;
     String name;
@@ -17,6 +21,8 @@ public class UserData
 
     @Exclude
     Bitmap userImage;
+    @Exclude
+    String uuid;
 
 
     public UserData(){}
@@ -30,6 +36,12 @@ public class UserData
     this.userImage = userImage;
     this.points="0";
     }
+
+
+
+
+
+
 
 
     public String getEmail() {
@@ -72,6 +84,15 @@ public class UserData
     public Bitmap getUserImage() {
         return userImage;
     }
+
+    @Exclude
+    public void setUserUUID(String uuid){this.uuid=uuid;}
+
+    @Exclude
+    public String getUserUUID() {
+        return uuid;
+    }
+
 
 
 }
