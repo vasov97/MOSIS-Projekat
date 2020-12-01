@@ -43,6 +43,7 @@ import java.net.URL;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -417,28 +418,32 @@ public class MyUserManager {
 
     public void getAllUsers(final IGetAllUsersCallback callback)
     {
-       // final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference(USER);
-
-        usersRef.addValueEventListener(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
             {
                 ArrayList<UserData> allUsers=new ArrayList<>();
                 long childrenCount=dataSnapshot.getChildrenCount();
-                for(DataSnapshot ds:dataSnapshot.getChildren())
+                for(DataSnapshot snapshot:dataSnapshot.getChildren())
                 {
-                    UserData user=ds.getValue(UserData.class);
-                    if(!user.getUserUUID().equals(getCurrentUserUid()))
-                    {
-                        allUsers.add(user);
-                        childrenCount--;
-                        if(childrenCount==0)
-                            getSingleUserData(user.getUserUUID(),user,true,callback,allUsers);
-                        else
-                            getSingleUserData(user.getUserUUID(),user,false,callback,allUsers);
+                    UserData user=snapshot.getValue(UserData.class);
+                    user.setUserUUID(snapshot.getKey());
+                    childrenCount--;
+                        if(childrenCount==0) {
+                            try {
+                                getUserImageBitmap(user,true,callback,allUsers);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else {
+                            try {
+                                getUserImageBitmap(user,false,callback,allUsers);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
 
-                    }
                 }
             }
 
@@ -451,29 +456,37 @@ public class MyUserManager {
 
 
     }
-    private void getSingleUserData(final String uid, final UserData newUserData,final boolean isLast, final IGetAllUsersCallback callback, final ArrayList<UserData> users)
-    {
-        final ArrayList<String> userString=new ArrayList<String>();
-        //final String uid = user.getUid();
-        databaseReference.child(uid).addValueEventListener(new ValueEventListener() {
+
+    private void getUserImageBitmap(final UserData user, final boolean isLast, final IGetAllUsersCallback callback, final ArrayList<UserData> allUsers) throws IOException {
+        StorageReference imageReference=storageReference.child(IMAGE+user.getUserUUID()+".jpeg");
+
+        final File localFile=File.createTempFile(user.getUserUUID(),".jpeg");
+        imageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                Bitmap bm=BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                user.setUserImage(bm);
+                getUserLocation(user,isLast,callback,allUsers);
+            }
+        });
+    }
+
+    private void getUserLocation(final UserData user, final boolean isLast, final IGetAllUsersCallback callback, final ArrayList<UserData> allUsers) {
+        databaseCoordinatesReference.child(user.getUserUUID()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                userString.clear();
-                for(DataSnapshot snapshot : dataSnapshot.getChildren())
-                    userString.add(snapshot.getValue().toString());
-
-                newUserData.setUserUUID((uid));
-                createUserFromList(newUserData,userString);
-
-
-
-                /*try {
-                    getUserImageBitmap(uid,newUserData,isLast,callback,users);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }*/
-
+                if(dataSnapshot.exists()){
+                    if(!user.getUserUUID().equals(getCurrentUserUid())){
+                        MyLatLong userLatLong=dataSnapshot.getValue(MyLatLong.class);
+                        user.setMyLatLong(userLatLong);
+                        allUsers.add(user);
+                    }
+                    if(isLast)
+                        callback.onUsersReceived(allUsers);
+                }else{
+                    if(isLast)
+                        callback.onUsersReceived(allUsers);
+                }
             }
 
             @Override
@@ -482,6 +495,7 @@ public class MyUserManager {
             }
         });
     }
+
 
     private void getUserData(final String uid, final UserData newUserData, final boolean isLast, final IGetFriendsCallback callback, final ArrayList<UserData> friends) {
         final ArrayList<String> userString=new ArrayList<String>();
@@ -521,10 +535,13 @@ public class MyUserManager {
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                 Bitmap bm=BitmapFactory.decodeFile(localFile.getAbsolutePath());
                 newUserData.setUserImage(bm);
+                friends.add(newUserData);
                 if(isLast)
-                    addLastFriendToList(newUserData,friends,callback);
-                else
-                    addFriendToList(newUserData,friends);
+                    callback.onFriendsReceived(friends);
+//                if(isLast)
+//                    addLastFriendToList(newUserData,friends,callback);
+//                else
+//                    addFriendToList(newUserData,friends);
 
             }
         });

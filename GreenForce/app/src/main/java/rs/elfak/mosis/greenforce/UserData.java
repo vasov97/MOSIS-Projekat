@@ -10,7 +10,7 @@ import com.google.firebase.database.IgnoreExtraProperties;
 import java.io.Serializable;
 
 @IgnoreExtraProperties
-public class UserData implements Serializable
+public class UserData
 {
     String email;
     String name;
@@ -23,6 +23,8 @@ public class UserData implements Serializable
     Bitmap userImage;
     @Exclude
     String uuid;
+    @Exclude
+    MyLatLong myLatLong;
 
 
     public UserData(){}
@@ -36,13 +38,6 @@ public class UserData implements Serializable
     this.userImage = userImage;
     this.points="0";
     }
-
-
-
-
-
-
-
 
     public String getEmail() {
         return email;
@@ -91,6 +86,32 @@ public class UserData implements Serializable
     @Exclude
     public String getUserUUID() {
         return uuid;
+    }
+    @Exclude
+    public MyLatLong getMyLatLong(){return this.myLatLong;}
+    @Exclude
+    public void setMyLatLong(MyLatLong myLatLong){this.myLatLong=myLatLong;}
+
+    @Exclude
+    @Override
+    public boolean equals(Object o) {
+
+        // If the object is compared with itself then return true
+        if (o == this) {
+            return true;
+        }
+
+        /* Check if o is an instance of Complex or not
+          "null instanceof [type]" also returns false */
+        if (!(o instanceof UserData)) {
+            return false;
+        }
+
+        // typecast o to Complex so that we can compare data members
+        UserData c = (UserData) o;
+
+        // Compare the data members and return accordingly
+        return this.uuid.equals(c.getUserUUID());
     }
 
 

@@ -1,9 +1,11 @@
 package rs.elfak.mosis.greenforce;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
@@ -36,18 +38,21 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.gson.Gson;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AddFriendsViaMapsActivity extends AppCompatActivity implements Serializable,IComponentInitializer, OnMapReadyCallback
 {
@@ -55,15 +60,21 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     Spinner addFriendsSpinner;
     EditText radius;
     Toolbar toolbar;
+    ProgressDialog progressDialog;
     FusedLocationProviderClient fusedLocationProviderClient;
-    GoogleMap map;
-    Marker myMarker;
     LocationRequest locationRequest;
+    GoogleMap map;
+
+   // Marker myMarker;
     Location lastLocation;
     LatLng latLng;
+    LatLngBounds myMapBoundary;
+
     String TAG="AddFriendsMapActivity";
     ArrayList<UserData> myFriends;
     ArrayList<UserData> allUsers;
+    Map<String,Marker> userMarkers;
+    IGetAllUsersCallback clb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -72,26 +83,23 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         setContentView(R.layout.activity_add_friends_via_maps);
         initializeComponents();
         setUpActionBar(R.string.maps);
-        /*Bundle bundle=getIntent().getBundleExtra("Bundle");
-        myFriends=(ArrayList<UserData>)bundle.getSerializable("MyFriends");*/
         myFriends=MyUserManager.getInstance().getMyFriends();
-
-        /*for(UserData user:myFriends)
-            Log.d("tag","#######________######"+user.surname);*/
+        clb=new GetAllUsersCallback();
+        MyUserManager.getInstance().getAllUsers(clb);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.google_maps_fragment_view_location);
         mapFragment.getMapAsync(this);
+        loadAllUsers();
 
     }
 
-    public class GetAllUsersCallback implements IGetAllUsersCallback
-    {
-
+    public class GetAllUsersCallback implements IGetAllUsersCallback {
         @Override
-        public void onUsersReceived(ArrayList<UserData> users)
-        {
+        public void onUsersReceived(ArrayList<UserData> users) {
             allUsers=users;
+            progressDialog.dismiss();
+            drawAllMarkers();//zbog testiranja tu
 
         }
     }
@@ -107,19 +115,6 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
 
         }
     };
-
-    private void drawMyMarker() {
-        if(myMarker!=null)
-            myMarker.remove();
-        latLng=new LatLng(lastLocation.getLatitude(),lastLocation.getLongitude());
-        MarkerOptions markerOptions=new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Location");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-        myMarker=map.addMarker(markerOptions);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,14));
-    }
-
     @Override
     public void initializeComponents()
     {
@@ -127,6 +122,8 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
          radius=findViewById(R.id.radius);
          toolbar=findViewById(R.id.addFriendsViaMapToolbar);
          fusedLocationProviderClient= LocationServices.getFusedLocationProviderClient(this);
+
+        userMarkers=new HashMap<String,Marker>();
     }
 
     @Override
@@ -161,6 +158,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
        //requestLocationDialog(); nista za sad
        //permissionAndRequestLocation(); //na svakih 10 sekunde vraca trenutnu lokaciju
         getLastKnownLocation(); // samo 1 vrati lokaciju
+
 
     }
 
@@ -216,6 +214,16 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         });
 
     }
+    private void loadAllUsers()
+    {
+        progressDialog=new ProgressDialog(AddFriendsViaMapsActivity.this);
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+
+    }
 
     private void setUpActionBar(int rid)
     {
@@ -238,6 +246,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                     Location location = task.getResult();
                     lastLocation=location;
                     drawMyMarker();
+                    setCameraView();
                     MyUserManager.getInstance().saveUserCoordinates(lastLocation.getLatitude(),lastLocation.getLongitude());
                     Log.d(TAG, "onComplete: latitude: " + location.getLatitude());
                     Log.d(TAG, "onComplete: longitude: " + location.getLongitude());
@@ -247,4 +256,63 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         });
 
     }
+
+    private void setCameraView(){
+        double bottomBoundary=lastLocation.getLatitude()-.1;
+        double leftBoundary=lastLocation.getLongitude()-.1;
+        double topBoundary=lastLocation.getLatitude()+.1;
+        double rightBoundary=lastLocation.getLongitude()+.1;
+
+        myMapBoundary=new LatLngBounds(new LatLng(bottomBoundary,leftBoundary),new LatLng(topBoundary,rightBoundary));
+        map.moveCamera(CameraUpdateFactory.newLatLngBounds(myMapBoundary,0));
+    }
+
+    private void drawAllMarkers(){
+        for(UserData user : allUsers){
+            if(myFriends.contains(user))
+               drawFriendMarker(user);
+            else
+                Log.d(TAG, "onComplete: User: " + user.getUserUUID() +"is NOT your friend");
+        }
+
+    }
+    private void drawMyMarker() {
+        String myUUid=MyUserManager.getInstance().getCurrentUserUid();
+        Marker myMarker=userMarkers.get(myUUid);
+        if(myMarker!=null)
+            myMarker.remove();
+        latLng=new LatLng(lastLocation.getLatitude(),lastLocation.getLongitude());
+        MarkerOptions markerOptions=new MarkerOptions();
+        markerOptions.position(latLng);
+        markerOptions.title("Current Location");
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+        myMarker=map.addMarker(markerOptions);
+        userMarkers.put(myUUid,myMarker);
+        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,14));
+    }
+
+    private void drawFriendMarker(UserData userToDisplay){
+        Marker userMarker=userMarkers.get(userToDisplay.getUserUUID());
+       if(userMarker!=null)
+           userMarker.remove();
+        MyLatLong myUserLatLong=userToDisplay.getMyLatLong();
+        LatLng userLatLng=new LatLng(myUserLatLong.getLatitude(),myUserLatLong.getLongitude());
+        MarkerOptions markerOptions=new MarkerOptions();
+        markerOptions.position(userLatLng);
+        markerOptions.title("Friend Location");
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(userToDisplay.getUserImage()));
+
+        userMarker=map.addMarker(markerOptions);
+        userMarkers.put(userToDisplay.getUserUUID(),userMarker);
+    }
+
+    private UserData getUserFromList(ArrayList<UserData> allUsers, String uuid) {
+        for(UserData u: allUsers){
+            if(u.getUserUUID().equals(uuid))
+                return u;
+        }
+        return null;
+    }
+
+
 }
