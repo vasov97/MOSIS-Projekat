@@ -1,4 +1,7 @@
 <resources>
     <dimen name="fab_margin">4dp</dimen>
     <dimen name="submenuMargin">10dp</dimen>
+    <dimen name="custom_marker_image">30dp</dimen>
+    <dimen name="custom_marker_padding">2dp</dimen>
+    <dimen name="custom_marker_left_right_padding">1</dimen>
 </resources>

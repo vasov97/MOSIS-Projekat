@@ -49,18 +49,19 @@ import java.util.concurrent.CompletableFuture;
 
 public class MyUserManager {
 
-    private FirebaseAuth firebaseAuth;
+    private final FirebaseAuth firebaseAuth;
     private FirebaseDatabase firebaseDatabase;
-    private DatabaseReference databaseReference;
-    private DatabaseReference databaseFriendsReference;
-    private DatabaseReference databaseCoordinatesReference;
-    private StorageReference storageReference;
+    private final DatabaseReference databaseReference;
+    private final DatabaseReference databaseFriendsReference;
+    private final DatabaseReference databaseCoordinatesReference;
+    private final StorageReference storageReference;
     private static final String USER = "user";
     private static final String FRIENDS = "friends";
     private static final String COORDINATES="coordinates";
     private static final String IMAGE = "profileImage/";
     private UserData userData,visitProfile;
     ArrayList<UserData> myFriends;
+    //ArrayList<UserData> allUsers;
 
     private MyUserManager()
     {
@@ -84,6 +85,8 @@ public class MyUserManager {
     }
    public ArrayList<UserData> getMyFriends(){return myFriends;}
    public void setMyFriends(ArrayList<UserData> friends){myFriends=friends;}
+   //public void setAllUsers(ArrayList<UserData> allUsers){this.allUsers=allUsers;}
+   //public ArrayList<UserData> getAllUsers(){return allUsers;}
 
     public void loginUser(String emailText, String passwordText, final Activity enclosingActivity){
         firebaseAuth.signInWithEmailAndPassword(emailText,passwordText).addOnCompleteListener(enclosingActivity,
@@ -418,11 +421,12 @@ public class MyUserManager {
 
     public void getAllUsers(final IGetAllUsersCallback callback)
     {
+
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
             {
-                ArrayList<UserData> allUsers=new ArrayList<>();
+                 ArrayList<UserData> allUsers= new ArrayList<UserData>();
                 long childrenCount=dataSnapshot.getChildrenCount();
                 for(DataSnapshot snapshot:dataSnapshot.getChildren())
                 {
@@ -431,6 +435,7 @@ public class MyUserManager {
                     childrenCount--;
                         if(childrenCount==0) {
                             try {
+
                                 getUserImageBitmap(user,true,callback,allUsers);
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -445,6 +450,8 @@ public class MyUserManager {
                         }
 
                 }
+               // setAllUsers(allUsers);
+
             }
 
             @Override
