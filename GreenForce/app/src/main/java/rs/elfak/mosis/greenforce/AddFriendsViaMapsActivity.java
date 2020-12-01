@@ -80,7 +80,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements ICom
                 lastLocation=location;
 
             drawMyMarker();
-            MyUserManager.getInstance().saveUserCoordinates(lastLocation.getLatitude(),lastLocation.getLongitude());
+            //MyUserManager.getInstance().saveUserCoordinates(lastLocation.getLatitude(),lastLocation.getLongitude());
 
         }
     };
@@ -215,7 +215,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements ICom
                     MyUserManager.getInstance().saveUserCoordinates(lastLocation.getLatitude(),lastLocation.getLongitude());
                     Log.d(TAG, "onComplete: latitude: " + location.getLatitude());
                     Log.d(TAG, "onComplete: longitude: " + location.getLongitude());
-                   // MyUserManager.getInstance().saveUserCoordinates(lastLocation.getLatitude(),lastLocation.getLongitude());
+                   //MyUserManager.getInstance().saveUserCoordinates(lastLocation.getLatitude(),lastLocation.getLongitude());
                 }
             }
         });

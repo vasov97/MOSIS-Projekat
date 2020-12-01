@@ -11,8 +11,8 @@ public class MyLatLong {
     String uid;
 
     public MyLatLong(double lat, double lon) {
-        this.latitude=latitude;
-        this.longitude=longitude;
+        this.latitude=lat;
+        this.longitude=lon;
     }
 
     public double getLatitude(){return latitude;}
