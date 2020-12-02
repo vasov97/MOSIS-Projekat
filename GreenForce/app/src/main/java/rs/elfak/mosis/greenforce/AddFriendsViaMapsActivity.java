@@ -85,7 +85,6 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
 
         clb=new GetAllUsersCallback();
         MyUserManager.getInstance().getAllUsers(clb);
-       // allUsers=MyUserManager.getInstance().getAllUsers();
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.google_maps_fragment_view_location);
         mapFragment.getMapAsync(this);
@@ -147,10 +146,10 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         this.googleMap = googleMap;
 
        this.googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-       locationRequest=new LocationRequest();
-       locationRequest.setInterval(7000);
-       locationRequest.setFastestInterval(10000);
-       locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
+//       locationRequest=new LocationRequest();
+//       locationRequest.setInterval(7000);
+//       locationRequest.setFastestInterval(10000);
+//       locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
 
 
 
@@ -161,58 +160,58 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
 
     }
 
-    private void permissionAndRequestLocation() {
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
-            if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)== PackageManager.PERMISSION_GRANTED){
-                fusedLocationProviderClient.requestLocationUpdates(locationRequest,locationCallback, Looper.myLooper());
-                googleMap.setMyLocationEnabled(true);
-            }else{
-                checkForLocationPermission();
-            }
-        }else{
-            fusedLocationProviderClient.requestLocationUpdates(locationRequest,locationCallback, Looper.myLooper());
-            googleMap.setMyLocationEnabled(true);
-        }
-    }
+//    private void permissionAndRequestLocation() {
+//        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
+//            if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)== PackageManager.PERMISSION_GRANTED){
+//                fusedLocationProviderClient.requestLocationUpdates(locationRequest,locationCallback, Looper.myLooper());
+//                googleMap.setMyLocationEnabled(true);
+//            }else{
+//                checkForLocationPermission();
+//            }
+//        }else{
+//            fusedLocationProviderClient.requestLocationUpdates(locationRequest,locationCallback, Looper.myLooper());
+//            googleMap.setMyLocationEnabled(true);
+//        }
+//    }
 
-    private void checkForLocationPermission() {
-        if(!checkPermissions()){
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION},1001);
-        }
-    }
+//    private void checkForLocationPermission() {
+//        if(!checkPermissions()){
+//            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION},1001);
+//        }
+//    }
 
-    private boolean checkPermissions() {
-        if(Build.VERSION.SDK_INT>=23){
-            int result=ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION);
-            if(result==PackageManager.PERMISSION_GRANTED){
-                return true;
-            }else
-                return false;
-        }
-        return true;
-    }
+//    private boolean checkPermissions() {
+//        if(Build.VERSION.SDK_INT>=23){
+//            int result=ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION);
+//            if(result==PackageManager.PERMISSION_GRANTED){
+//                return true;
+//            }else
+//                return false;
+//        }
+//        return true;
+//    }
 
-    private void requestLocationDialog() {
-        LocationSettingsRequest.Builder builder=new LocationSettingsRequest.Builder();
-        builder.addAllLocationRequests(Collections.singleton(locationRequest));
-        builder.setAlwaysShow(true);
-        LocationSettingsRequest locationSettingsRequest=builder.build();
-        SettingsClient client=LocationServices.getSettingsClient(this);
-        Task<LocationSettingsResponse> task=client.checkLocationSettings(locationSettingsRequest);
-        task.addOnSuccessListener(new OnSuccessListener<LocationSettingsResponse>() {
-            @Override
-            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-
-            }
-        });
-        task.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-            }
-        });
-
-    }
+//    private void requestLocationDialog() {
+//        LocationSettingsRequest.Builder builder=new LocationSettingsRequest.Builder();
+//        builder.addAllLocationRequests(Collections.singleton(locationRequest));
+//        builder.setAlwaysShow(true);
+//        LocationSettingsRequest locationSettingsRequest=builder.build();
+//        SettingsClient client=LocationServices.getSettingsClient(this);
+//        Task<LocationSettingsResponse> task=client.checkLocationSettings(locationSettingsRequest);
+//        task.addOnSuccessListener(new OnSuccessListener<LocationSettingsResponse>() {
+//            @Override
+//            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+//
+//            }
+//        });
+//        task.addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//
+//            }
+//        });
+//
+//    }
     private void loadAllUsers()
     {
         progressDialog=new ProgressDialog(AddFriendsViaMapsActivity.this);
@@ -232,7 +231,6 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);
     }
-   //ne treba??
     private void getLastKnownLocation() {
         Log.d(TAG, "getLastKnownLocation: called.");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -244,17 +242,18 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                 if (task.isSuccessful()) {
                     Location location = task.getResult();
                     lastLocation=location;
+                    MyLatLong myLatLong=new MyLatLong(location.getLatitude(),location.getLongitude());
+                    MyUserManager.getInstance().getUser().setMyLatLong(myLatLong);
 
                     drawMyMarker();
                     setCameraView();
-                    MyUserManager.getInstance().saveUserCoordinates(lastLocation.getLatitude(),lastLocation.getLongitude());
+                    MyUserManager.getInstance().saveUserCoordinates();
                     Log.d(TAG, "onComplete: latitude: " + location.getLatitude());
                     Log.d(TAG, "onComplete: longitude: " + location.getLongitude());
                    //MyUserManager.getInstance().saveUserCoordinates(lastLocation.getLatitude(),lastLocation.getLongitude());
                 }
             }
         });
-
     }
 
     private void setCameraView(){
@@ -281,7 +280,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                 if (myFriends.contains(user))
                     drawFriendMarker(user);
                 else
-                    Log.d(TAG, "onComplete: User: " + user.getUserUUID() + "is NOT your friend");
+                    drawUserMarker(user);
             }
         clusterManager.cluster();
     }
@@ -311,7 +310,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                     if(user.getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid()))
                         snippet="This is you";
                     else
-                        snippet="Determine route to"+user.getUsername();
+                        snippet="Determine route to "+user.getUsername();
 
 //                    try{
 //                        avatar = Integer.parseInt(String.valueOf(user.getUserImage()));
@@ -325,6 +324,19 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                 }catch (NullPointerException e){
                     Log.e(TAG, "addMapMarkers: NullPointerException: " + e.getMessage() );
                 }
+    }
+    private void drawUserMarker(UserData user){
+        Marker userMarker=(Marker)userMarkers.get(user.getUserUUID());
+        if(userMarker!=null)
+            userMarker.remove();
+
+        LatLng userLatLng = new LatLng(user.getMyLatLong().getLatitude(),user.getMyLatLong().getLongitude());
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(userLatLng);
+        markerOptions.title("User Location");
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        userMarker = googleMap.addMarker(markerOptions);
+        userMarkers.put(user.getUserUUID(), userMarker);
     }
 
     private UserData getUserFromList(ArrayList<UserData> allUsers, String uuid) {

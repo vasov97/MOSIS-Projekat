@@ -1,12 +1,12 @@
 package rs.elfak.mosis.greenforce;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -38,14 +38,11 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+
+import rs.elfak.mosis.greenforce.services.LocationService;
 
 public class MyUserManager {
 
@@ -61,7 +58,7 @@ public class MyUserManager {
     private static final String IMAGE = "profileImage/";
     private UserData userData,visitProfile;
     ArrayList<UserData> myFriends;
-    //ArrayList<UserData> allUsers;
+
 
     private MyUserManager()
     {
@@ -85,8 +82,6 @@ public class MyUserManager {
     }
    public ArrayList<UserData> getMyFriends(){return myFriends;}
    public void setMyFriends(ArrayList<UserData> friends){myFriends=friends;}
-   //public void setAllUsers(ArrayList<UserData> allUsers){this.allUsers=allUsers;}
-   //public ArrayList<UserData> getAllUsers(){return allUsers;}
 
     public void loginUser(String emailText, String passwordText, final Activity enclosingActivity){
         firebaseAuth.signInWithEmailAndPassword(emailText,passwordText).addOnCompleteListener(enclosingActivity,
@@ -549,27 +544,52 @@ public class MyUserManager {
 //                    addLastFriendToList(newUserData,friends,callback);
 //                else
 //                    addFriendToList(newUserData,friends);
-
             }
         });
     }
 
-    public void addFriendToList(UserData friend, ArrayList<UserData> friends) {
-        friends.add(friend);
-    }
-    public void addLastFriendToList(UserData lastFriend, ArrayList<UserData> friends, IGetFriendsCallback callback) {
-        friends.add(lastFriend);
-        callback.onFriendsReceived(friends);
-    }
+//    public void addFriendToList(UserData friend, ArrayList<UserData> friends) {
+//        friends.add(friend);
+//    }
+//    public void addLastFriendToList(UserData lastFriend, ArrayList<UserData> friends, IGetFriendsCallback callback) {
+//        friends.add(lastFriend);
+//        callback.onFriendsReceived(friends);
+//    }
 
     public void addFriend(String friendUid){
         String uid = firebaseAuth.getCurrentUser().getUid();
         databaseFriendsReference.child(uid).child(friendUid).child("status").setValue("friend");
         databaseFriendsReference.child(friendUid).child(uid).child("status").setValue("friend");
     }
-    public void saveUserCoordinates(double lat,double lon){
+    public void saveUserCoordinates(){
         String uid = firebaseAuth.getCurrentUser().getUid();
-        MyLatLong latlong=new MyLatLong(lat,lon);
+        MyLatLong latlong=userData.getMyLatLong();
         databaseCoordinatesReference.child(uid).setValue(latlong);
+    }
+
+
+    public void startLocationService(Activity serviceHolder){
+        if(!isLocationServiceRunning(serviceHolder)){
+            Intent serviceIntent = new Intent(serviceHolder, LocationService.class);
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
+
+                serviceHolder.startForegroundService(serviceIntent);
+            }else{
+                serviceHolder.startService(serviceIntent);
+            }
+        }
+    }
+
+    private boolean isLocationServiceRunning(Activity serviceHolder) {
+        ActivityManager manager = (ActivityManager) serviceHolder.getSystemService(serviceHolder.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){
+            if("LocationService".equals(service.service.getClassName())) {
+                Log.d("LocationSERVICE", "isLocationServiceRunning: location service is already running.");
+                return true;
+            }
+        }
+        Log.d("LocationSERVICE", "isLocationServiceRunning: location service is not running.");
+        return false;
     }
 }

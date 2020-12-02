@@ -7,6 +7,8 @@ import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -24,6 +26,8 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import rs.elfak.mosis.greenforce.services.LocationService;
+
 import static rs.elfak.mosis.greenforce.Constants.ERROR_DIALOG_REQUEST;
 import static rs.elfak.mosis.greenforce.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 import static rs.elfak.mosis.greenforce.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
@@ -34,6 +38,7 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
     CardView friendsListCard;
     boolean mLocationPermissionGranted;
     String TAG="HomePageActivity";
+    LocationManager locationManager;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -42,6 +47,12 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
         initializeComponents();
         profileCard.setOnClickListener(this);
         friendsListCard.setOnClickListener(this);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                 MyUserManager.getInstance().startLocationService(this);
+            }
+        }
 
     }
     @Override
@@ -161,6 +172,10 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mLocationPermissionGranted = true;
+
+                    if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                         MyUserManager.getInstance().startLocationService(this);
+                    }
                 }
             }
         }
@@ -172,8 +187,8 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
         Log.d(TAG, "onActivityResult: called.");
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ENABLE_GPS: {
-                if(mLocationPermissionGranted){
-                    //getChatrooms();
+                if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+                    MyUserManager.getInstance().startLocationService(this);
                 }
                 else{
                     getLocationPermission();
@@ -182,4 +197,7 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
         }
 
     }
+
+
+
 }

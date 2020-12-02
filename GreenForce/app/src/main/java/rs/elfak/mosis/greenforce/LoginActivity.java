@@ -30,7 +30,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     TextView forgotPassword;
     EditText email;
     EditText password;
-    FirebaseAuth firebaseAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -59,9 +58,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
        }
        else if(v.getId() == R.id.loginButton)
        {
-//           Toast.makeText(this, "LoginButton", Toast.LENGTH_SHORT).show();
-//           Intent i = new Intent(this,HomePageActivity.class);
-//           startActivity(i);
            loginUser();
        }
     }
