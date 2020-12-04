@@ -1,10 +1,12 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
+import rs.elfak.mosis.greenforce.R;
 
 public class SplashScreenActivity extends AppCompatActivity {
      private static int SPLASH_TIME_OUT=4000;

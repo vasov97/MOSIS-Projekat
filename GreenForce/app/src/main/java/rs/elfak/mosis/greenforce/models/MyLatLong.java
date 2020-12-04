@@ -1,4 +1,4 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.models;
 
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;

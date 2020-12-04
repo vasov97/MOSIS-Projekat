@@ -1,10 +1,8 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -18,32 +16,33 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
-public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements View.OnClickListener,IComponentInitializer
+import rs.elfak.mosis.greenforce.managers.MyUserManager;
+import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.adapters.MyListViewAdapter;
+import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
+import rs.elfak.mosis.greenforce.services.BluetoothConnectionService;
+
+public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements View.OnClickListener, IComponentInitializer
 {
 
     Toolbar toolbar;
@@ -243,9 +242,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
 
     public void sendFriendRequest() {
         isServer=true;
-        //String name=MyUserManager.getInstance().getUser().getName();
-        //String surname=MyUserManager.getInstance().getUser().getSurname();
-        String username=MyUserManager.getInstance().getUser().getUsername();
+        String username= MyUserManager.getInstance().getUser().getUsername();
         String id=MyUserManager.getInstance().getCurrentUserUid();
         String myData=username+"*"+id;
         byte[] bytes=myData.getBytes(Charset.defaultCharset());

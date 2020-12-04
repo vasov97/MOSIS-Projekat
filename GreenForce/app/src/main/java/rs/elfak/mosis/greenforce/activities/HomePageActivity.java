@@ -1,14 +1,12 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -18,21 +16,21 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import rs.elfak.mosis.greenforce.services.LocationService;
+import rs.elfak.mosis.greenforce.managers.MyUserManager;
+import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 
 import static rs.elfak.mosis.greenforce.Constants.ERROR_DIALOG_REQUEST;
 import static rs.elfak.mosis.greenforce.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 import static rs.elfak.mosis.greenforce.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
 
-public class HomePageActivity extends AppCompatActivity implements View.OnClickListener,IComponentInitializer {
+public class HomePageActivity extends AppCompatActivity implements View.OnClickListener, IComponentInitializer {
 
     CardView profileCard;
     CardView friendsListCard;
@@ -70,13 +68,13 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
     {
         if(v.getId()==R.id.profile_card)
         {
-            Intent i=new Intent(this,MyProfileActivity.class);
+            Intent i=new Intent(this, MyProfileActivity.class);
             i.putExtra("Visit", "MyProfile");
             startActivity(i);
         }
         else if(v.getId()==R.id.friends_card)
         {
-            Intent i=new Intent(this,MyFriendsActivity.class);
+            Intent i=new Intent(this, MyFriendsActivity.class);
             startActivity(i);
         }
     }

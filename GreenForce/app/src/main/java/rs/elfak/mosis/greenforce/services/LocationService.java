@@ -26,8 +26,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
-import rs.elfak.mosis.greenforce.MyLatLong;
-import rs.elfak.mosis.greenforce.MyUserManager;
+import rs.elfak.mosis.greenforce.models.MyLatLong;
+import rs.elfak.mosis.greenforce.managers.MyUserManager;
 
 
 public class LocationService extends Service {

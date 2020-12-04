@@ -1,8 +1,10 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import rs.elfak.mosis.greenforce.R;
 
 public class MainActivity extends AppCompatActivity {
 

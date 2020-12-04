@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddFriendsViaMapsActivity">
+    tools:context=".activities.AddFriendsViaMapsActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarAddFriendsViaMap"
@@ -75,7 +75,7 @@
         android:layout_width="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        tools:context=".AddFriendsViaMapsActivity"
+        tools:context=".activities.AddFriendsViaMapsActivity"
         android:layout_height="0dp" />
 
 

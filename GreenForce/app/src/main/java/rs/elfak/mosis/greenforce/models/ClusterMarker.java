@@ -1,8 +1,10 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.models;
 
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
+
+import rs.elfak.mosis.greenforce.models.UserData;
 
 public class ClusterMarker implements ClusterItem
 {
@@ -11,7 +13,7 @@ public class ClusterMarker implements ClusterItem
      private String snippet;
      private UserData userData;
 
-    ClusterMarker(String snippet,UserData userData)
+    public ClusterMarker(String snippet, UserData userData)
     {
 
         this.position=new LatLng(userData.getMyLatLong().getLatitude(),userData.getMyLatLong().getLongitude());
@@ -21,6 +23,7 @@ public class ClusterMarker implements ClusterItem
     }
 
     ClusterMarker(){}
+
 
     public void setPosition(LatLng position) {
         this.position = position;

@@ -1,13 +1,9 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.models;
 
 import android.graphics.Bitmap;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
-
-import java.io.Serializable;
 
 @IgnoreExtraProperties
 public class UserData

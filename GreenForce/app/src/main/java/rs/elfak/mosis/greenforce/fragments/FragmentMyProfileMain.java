@@ -1,6 +1,5 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -10,9 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import rs.elfak.mosis.greenforce.activities.MyProfileActivity;
+import rs.elfak.mosis.greenforce.managers.MyUserManager;
+import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.models.UserData;
+import rs.elfak.mosis.greenforce.interfaces.IFragmentComponentInitializer;
 
 
-public class FragmentMyProfileMain extends Fragment implements IFragmentComponentInitializer{
+public class FragmentMyProfileMain extends Fragment implements IFragmentComponentInitializer {
 
       TextView myProfileRank;
       TextView myProfilePoints;

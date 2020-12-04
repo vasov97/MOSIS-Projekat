@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/homepage_screen"
-    tools:context=".HomePageActivity"
+    tools:context=".activities.HomePageActivity"
     tools:ignore="Overdraw">
 
     <TextView

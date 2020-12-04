@@ -1,6 +1,7 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
@@ -8,25 +9,17 @@ import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.EditText;
 import android.widget.Spinner;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -37,18 +30,27 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AddFriendsViaMapsActivity extends AppCompatActivity implements Serializable,IComponentInitializer, OnMapReadyCallback
+import rs.elfak.mosis.greenforce.models.ClusterMarker;
+import rs.elfak.mosis.greenforce.managers.MyClusterManagerRenderer;
+import rs.elfak.mosis.greenforce.models.MyLatLong;
+import rs.elfak.mosis.greenforce.managers.MyUserManager;
+import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.models.UserData;
+import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
+import rs.elfak.mosis.greenforce.interfaces.IGetAllUsersCallback;
+
+public class AddFriendsViaMapsActivity extends AppCompatActivity implements Serializable, IComponentInitializer, OnMapReadyCallback
 {
 
     Spinner addFriendsSpinner;
@@ -60,7 +62,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     GoogleMap googleMap;
 
    // Marker myMarker;
-    Location lastLocation;
+   // Location lastLocation;
     LatLng latLng;
     LatLngBounds myMapBoundary;
 
@@ -81,7 +83,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         setContentView(R.layout.activity_add_friends_via_maps);
         initializeComponents();
         setUpActionBar(R.string.maps);
-        myFriends=MyUserManager.getInstance().getMyFriends();
+        myFriends= MyUserManager.getInstance().getMyFriends();
 
         clb=new GetAllUsersCallback();
         MyUserManager.getInstance().getAllUsers(clb);
@@ -90,29 +92,65 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         mapFragment.getMapAsync(this);
         loadAllUsers();
 
+        MyUserManager.getInstance().getDatabaseCoordinatesReference().addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                       if(dataSnapshot.exists()){
+                           String uuid=dataSnapshot.getKey();
+                           MyLatLong myLatLong=dataSnapshot.getValue(MyLatLong.class);
+                           if(uuid.equals(MyUserManager.getInstance().getCurrentUserUid())){
+                               MyUserManager.getInstance().getUser().setMyLatLong(myLatLong);
+                               drawMyMarker();
+                           }else
+                               updateMarker(uuid,myLatLong);
+                       }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
+
 
     public class GetAllUsersCallback implements IGetAllUsersCallback {
         @Override
         public void onUsersReceived(ArrayList<UserData> users) {
-            allUsers=users;
+           checkForInvalidLocations(users);
             progressDialog.dismiss();
             drawAllMarkers();//zbog testiranja tu
 
         }
     }
 
-    LocationCallback locationCallback=new LocationCallback(){
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            for(Location location : locationResult.getLocations())
-                lastLocation=location;
-
-          //  drawMyMarker();
-            //MyUserManager.getInstance().saveUserCoordinates(lastLocation.getLatitude(),lastLocation.getLongitude());
-
-        }
-    };
+//    LocationCallback locationCallback=new LocationCallback(){
+//        @Override
+//        public void onLocationResult(LocationResult locationResult) {
+//            for(Location location : locationResult.getLocations())
+//                //lastLocation=location;
+//
+//          //  drawMyMarker();
+//            //MyUserManager.getInstance().saveUserCoordinates(lastLocation.getLatitude(),lastLocation.getLongitude());
+//
+//        }
+//    };
     @Override
     public void initializeComponents()
     {
@@ -241,12 +279,11 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
             public void onComplete(@NonNull Task<android.location.Location> task) {
                 if (task.isSuccessful()) {
                     Location location = task.getResult();
-                    lastLocation=location;
                     MyLatLong myLatLong=new MyLatLong(location.getLatitude(),location.getLongitude());
                     MyUserManager.getInstance().getUser().setMyLatLong(myLatLong);
 
                     drawMyMarker();
-                    setCameraView();
+                    setCameraView(myLatLong);
                     MyUserManager.getInstance().saveUserCoordinates();
                     Log.d(TAG, "onComplete: latitude: " + location.getLatitude());
                     Log.d(TAG, "onComplete: longitude: " + location.getLongitude());
@@ -256,11 +293,12 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         });
     }
 
-    private void setCameraView(){
-        double bottomBoundary=lastLocation.getLatitude()-.1;
-        double leftBoundary=lastLocation.getLongitude()-.1;
-        double topBoundary=lastLocation.getLatitude()+.1;
-        double rightBoundary=lastLocation.getLongitude()+.1;
+    private void setCameraView(MyLatLong location){
+
+        double bottomBoundary=location.getLatitude()-.1;
+        double leftBoundary=location.getLongitude()-.1;
+        double topBoundary=location.getLatitude()+.1;
+        double rightBoundary=location.getLongitude()+.1;
 
         myMapBoundary=new LatLngBounds(new LatLng(bottomBoundary,leftBoundary),new LatLng(topBoundary,rightBoundary));
         googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(myMapBoundary,0));
@@ -286,19 +324,19 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     }
     private void drawMyMarker()
     {
-        String myUUid = MyUserManager.getInstance().getCurrentUserUid();
-        Marker myMarker = (Marker)userMarkers.get(myUUid);
+        UserData currentUser = MyUserManager.getInstance().getUser();
+        Marker myMarker = (Marker)userMarkers.get(currentUser.getUserUUID());
 
             if (myMarker != null)
                 myMarker.remove();
 
-           latLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+            LatLng latLng = new LatLng(currentUser.getMyLatLong().getLatitude(),currentUser.getMyLatLong().getLongitude());
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
             markerOptions.title("Current Location");
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
             myMarker = googleMap.addMarker(markerOptions);
-            userMarkers.put(myUUid, myMarker);
+            userMarkers.put(currentUser.getUserUUID(), myMarker);
             //map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,14));
 
     }
@@ -318,6 +356,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
 //                        Log.d(TAG, "addMapMarkers: no avatar for " + user.getUsername() + ", setting default.");
 //                    }
                     ClusterMarker newClusterMarker = new ClusterMarker(snippet, user);
+                    userMarkers.put(user.getUserUUID(),newClusterMarker);
                     clusterManager.addItem(newClusterMarker);
                     clusterMarkers.add(newClusterMarker);
 
@@ -327,16 +366,17 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     }
     private void drawUserMarker(UserData user){
         Marker userMarker=(Marker)userMarkers.get(user.getUserUUID());
-        if(userMarker!=null)
-            userMarker.remove();
-
         LatLng userLatLng = new LatLng(user.getMyLatLong().getLatitude(),user.getMyLatLong().getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(userLatLng);
-        markerOptions.title("User Location");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        userMarker = googleMap.addMarker(markerOptions);
-        userMarkers.put(user.getUserUUID(), userMarker);
+        if(userMarker!=null)
+            userMarker.setPosition(userLatLng);
+        else{
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(userLatLng);
+            markerOptions.title("User Location");
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            userMarker = googleMap.addMarker(markerOptions);
+            userMarkers.put(user.getUserUUID(), userMarker);
+        }
     }
 
     private UserData getUserFromList(ArrayList<UserData> allUsers, String uuid) {
@@ -346,6 +386,46 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         }
         return null;
     }
+
+    private void updateMarker(String uuid, MyLatLong myLatLong) {
+        UserData user=getUserFromList(myFriends,uuid);
+        if(user!=null){
+            user.setMyLatLong(myLatLong);
+            updateFriendMarker(user);
+        }else{
+            user=getUserFromList(allUsers,uuid);
+            if(user!=null){
+                user.setMyLatLong(myLatLong);
+                drawUserMarker(user);
+            }
+        }
+    }
+
+    private void updateFriendMarker(UserData user){
+        try{
+            ClusterMarker clusterMarker=(ClusterMarker) userMarkers.get(user.getUserUUID());
+            LatLng userLatLng = new LatLng(user.getMyLatLong().getLatitude(),user.getMyLatLong().getLongitude());
+            if(clusterMarker!=null){
+                myClusterManagerRenderer.setUpdateMarker(clusterMarker,userLatLng);
+            }
+        }catch (IllegalStateException e){
+            Log.e(TAG, "retrieveUserLocations: Fragment was destroyed during Firestore query. Ending query." + e.getMessage() );
+        }
+
+    }
+    private void checkForInvalidLocations(ArrayList<UserData> userList){
+        if(allUsers==null)
+            allUsers=new ArrayList<UserData>();
+        else{
+            allUsers.clear();
+        }
+        for(UserData user: userList){
+            if(user.getMyLatLong()!=null){
+                allUsers.add(user);
+            }
+        }
+    }
+
 
 
 }

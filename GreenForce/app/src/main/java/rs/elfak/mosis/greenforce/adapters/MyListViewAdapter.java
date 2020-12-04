@@ -1,4 +1,4 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.adapters;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+
+import rs.elfak.mosis.greenforce.R;
 
 public class MyListViewAdapter extends ArrayAdapter<String>
 {

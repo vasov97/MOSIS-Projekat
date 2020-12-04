@@ -1,4 +1,4 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.fragments;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -17,8 +17,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import rs.elfak.mosis.greenforce.activities.MyProfileActivity;
+import rs.elfak.mosis.greenforce.managers.MyUserManager;
+import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.models.UserData;
+import rs.elfak.mosis.greenforce.interfaces.IFragmentComponentInitializer;
 
-public class FragmentMyProfileEdit extends Fragment implements IFragmentComponentInitializer{
+
+public class FragmentMyProfileEdit extends Fragment implements IFragmentComponentInitializer {
 
     EditText myProfileName;
     EditText myProfileSurname;

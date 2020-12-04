@@ -1,4 +1,4 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.managers;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -42,6 +42,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
+import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.activities.HomePageActivity;
+import rs.elfak.mosis.greenforce.activities.LoginActivity;
+import rs.elfak.mosis.greenforce.activities.RegisterActivity;
+import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
+import rs.elfak.mosis.greenforce.interfaces.IGetAllUsersCallback;
+import rs.elfak.mosis.greenforce.interfaces.IGetDataCallback;
+import rs.elfak.mosis.greenforce.interfaces.IGetFriendsCallback;
+import rs.elfak.mosis.greenforce.models.MyLatLong;
+import rs.elfak.mosis.greenforce.models.UserData;
 import rs.elfak.mosis.greenforce.services.LocationService;
 
 public class MyUserManager {
@@ -60,8 +70,7 @@ public class MyUserManager {
     ArrayList<UserData> myFriends;
 
 
-    private MyUserManager()
-    {
+    private MyUserManager() {
         firebaseAuth=FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference(USER);
@@ -82,6 +91,7 @@ public class MyUserManager {
     }
    public ArrayList<UserData> getMyFriends(){return myFriends;}
    public void setMyFriends(ArrayList<UserData> friends){myFriends=friends;}
+   public DatabaseReference getDatabaseCoordinatesReference(){return databaseCoordinatesReference;}
 
     public void loginUser(String emailText, String passwordText, final Activity enclosingActivity){
         firebaseAuth.signInWithEmailAndPassword(emailText,passwordText).addOnCompleteListener(enclosingActivity,
@@ -90,19 +100,16 @@ public class MyUserManager {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task)
                     {
-                        if(!task.isSuccessful())
-                        {
+                        if(!task.isSuccessful()) {
                             FirebaseAuthException e=(FirebaseAuthException)task.getException();
                             Toast.makeText(enclosingActivity,"Login failed", Toast.LENGTH_SHORT).show();
                             Log.e("LoginActivity","Login Registration",e);
                         }
-                        else
-                        {
+                        else {
                             FirebaseUser user=firebaseAuth.getCurrentUser();
                             String uid=user.getUid();
-                            userData=new UserData();
-                            getUserData(uid,userData);
-                            enclosingActivity.startActivity(new Intent(enclosingActivity,HomePageActivity.class));
+                            getUserData(uid);
+                            enclosingActivity.startActivity(new Intent(enclosingActivity, HomePageActivity.class));
                         }
                     }
                 }
@@ -117,25 +124,17 @@ public class MyUserManager {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task)
                         {
-                            if(!task.isSuccessful())
-                            {
+                            if(!task.isSuccessful()) {
                                 FirebaseAuthException e=(FirebaseAuthException)task.getException();
                                 Log.e("RegistrationActivity","Failed Registration",e);
                                 createUserProfileFailed(enclosingActivity);
                             }
-                            else
-                            {
-
-
+                            else {
                                 userData = new UserData(params.get("email"),params.get("name"),params.get("surname"),params.get("username"),params.get("phoneNumber"),imageBitmap);
                                 createUserProfileSuccess(enclosingActivity);
-
                             }
                         }
-                    }
-            );
-
-
+                    });
     }
 
     private void createUserProfileSuccess(final Activity enclosingActivity) {
@@ -147,13 +146,13 @@ public class MyUserManager {
                 try {
                     Thread.sleep(Toast.LENGTH_SHORT);
                     enclosingActivity.finish();
-                    enclosingActivity.startActivity(new Intent(enclosingActivity,LoginActivity.class));
+                    enclosingActivity.startActivity(new Intent(enclosingActivity, LoginActivity.class));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         };
-        Toast.makeText(enclosingActivity,R.string.registrationCompleted,Toast.LENGTH_SHORT).show();
+        Toast.makeText(enclosingActivity, R.string.registrationCompleted,Toast.LENGTH_SHORT).show();
         thread.start();
     }
 
@@ -228,7 +227,6 @@ public class MyUserManager {
         };
         Toast.makeText(enclosingActivity,R.string.registrationFailed,Toast.LENGTH_SHORT).show();
         thread.start();
-
     }
 
     public void recoverPassword(String email, final Activity enclosingActivity) {
@@ -238,15 +236,12 @@ public class MyUserManager {
                     @Override
                     public void onComplete(@NonNull Task<Void> task)
                     {
-                        if(task.isSuccessful())
-                        {
+                        if(task.isSuccessful()) {
                             Toast.makeText(enclosingActivity,R.string.emailSent,Toast.LENGTH_SHORT).show();
                         }
-                        else
-                        {
+                        else {
                             Toast.makeText(enclosingActivity,R.string.emailFailed,Toast.LENGTH_SHORT).show();
                         }
-
                     }
                 }).addOnFailureListener(new OnFailureListener()
         {
@@ -275,68 +270,31 @@ public class MyUserManager {
         databaseReference.child(uid).setValue(userData);
     }
 
-    private void getUserData(final String uid,final UserData newUserData){
-        final ArrayList<String> userString=new ArrayList<String>();
-        //final String uid = user.getUid();
+    private void getUserData(final String uid){
+
         databaseReference.child(uid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                userString.clear();
-                for(DataSnapshot snapshot : dataSnapshot.getChildren())
-                    userString.add(snapshot.getValue().toString());
-
-                createUserFromList(newUserData,userString);
-
+                userData=dataSnapshot.getValue(UserData.class);
+                userData.setUserUUID(uid);
                 try {
-                    getUserImageBitmap(uid,newUserData);
-
+                    getUserImageBitmap(DataRetriveAction.GET_SELF,userData,0,null,null);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
-
     }
-    public void createUserFromList(UserData user,ArrayList<String> userString){
-        user.setEmail(userString.get(0));
-        user.setName(userString.get(1));
-        user.setPhoneNumber(userString.get(2));
-        user.setPoints(userString.get(3));
-        user.setSurname(userString.get(4));
-        user.setUsername(userString.get(5));
 
-    }
-    private void getUserImageBitmap(String uid, final UserData newUserData) throws IOException {
-
-        //String uid=user.getUid();
-        StorageReference imageReference=storageReference.child(IMAGE+uid+".jpeg");
-
-        final File localFile=File.createTempFile(uid,".jpeg");
-        imageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                Bitmap bm=BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                newUserData.setUserImage(bm);
-            }
-        });
-
-
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void editProfileChanges(HashMap<String,String> userData) {
-
         this.userData.setEmail(userData.get("email"));
         this.userData.setName(userData.get("name"));
         this.userData.setSurname(userData.get("surname"));
         this.userData.setPhoneNumber(userData.get("phoneNumber"));
-
         saveProfileChangesToDatabase(userData);
     }
 
@@ -391,170 +349,161 @@ public class MyUserManager {
                 final ArrayList<UserData> friends=new ArrayList<UserData>();
                 if(dataSnapshot.exists())
                 {
-                    //friends.clear();
                     long childrenCount=dataSnapshot.getChildrenCount();
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         String uid = snapshot.getKey();
-                        UserData newUser=new UserData();
-                        childrenCount--;
-                        if(childrenCount==0)
-                            getUserData(uid,newUser,true,callback,friends);
-                        else
-                            getUserData(uid,newUser,false,callback,friends);
+                        getUserData(uid,childrenCount,callback,friends);
                    }
-                }else
-                  callback.onFriendsReceived(new ArrayList<UserData>());
-
+                }else{
+                    callback.onFriendsReceived(new ArrayList<UserData>());
+                }
             }
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
-
     }
 
     public void getAllUsers(final IGetAllUsersCallback callback)
     {
-
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
             {
-                 ArrayList<UserData> allUsers= new ArrayList<UserData>();
+                databaseReference.removeEventListener(this);
+                ArrayList<UserData> allUsers= new ArrayList<UserData>();
                 long childrenCount=dataSnapshot.getChildrenCount();
                 for(DataSnapshot snapshot:dataSnapshot.getChildren())
                 {
                     UserData user=snapshot.getValue(UserData.class);
                     user.setUserUUID(snapshot.getKey());
-                    childrenCount--;
-                        if(childrenCount==0) {
-                            try {
-
-                                getUserImageBitmap(user,true,callback,allUsers);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        else {
-                            try {
-                                getUserImageBitmap(user,false,callback,allUsers);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                }
-               // setAllUsers(allUsers);
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError)
-            {
-
-            }
-        });
-
-
-    }
-
-    private void getUserImageBitmap(final UserData user, final boolean isLast, final IGetAllUsersCallback callback, final ArrayList<UserData> allUsers) throws IOException {
-        StorageReference imageReference=storageReference.child(IMAGE+user.getUserUUID()+".jpeg");
-
-        final File localFile=File.createTempFile(user.getUserUUID(),".jpeg");
-        imageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                Bitmap bm=BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                user.setUserImage(bm);
-                getUserLocation(user,isLast,callback,allUsers);
-            }
-        });
-    }
-
-    private void getUserLocation(final UserData user, final boolean isLast, final IGetAllUsersCallback callback, final ArrayList<UserData> allUsers) {
-        databaseCoordinatesReference.child(user.getUserUUID()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    if(!user.getUserUUID().equals(getCurrentUserUid())){
-                        MyLatLong userLatLong=dataSnapshot.getValue(MyLatLong.class);
-                        user.setMyLatLong(userLatLong);
-                        allUsers.add(user);
+                    try {
+                       // getUserImageBitmap(user,childrenCount-1,callback,allUsers);
+                        getUserImageBitmap(DataRetriveAction.GET_USER,user,childrenCount-1,callback,allUsers);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    if(isLast)
-                        callback.onUsersReceived(allUsers);
-                }else{
-                    if(isLast)
-                        callback.onUsersReceived(allUsers);
                 }
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
     }
 
+//    private void getUserImageBitmap(final UserData user, final long count, final IGetAllUsersCallback callback, final ArrayList<UserData> allUsers) throws IOException {
+//        StorageReference imageReference=storageReference.child(IMAGE+user.getUserUUID()+".jpeg");
+//
+//        final File localFile=File.createTempFile(user.getUserUUID(),".jpeg");
+//        imageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+//            @Override
+//            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+//                Bitmap bm=BitmapFactory.decodeFile(localFile.getAbsolutePath());
+//                user.setUserImage(bm);
+//                getUserLocation(user,count,callback,allUsers);
+//            }
+//        });
+//    }
+//    private void getUserImageBitmap(final UserData newUserData) throws IOException {
+//        String uid=newUserData.getUserUUID();
+//        StorageReference imageReference=storageReference.child(IMAGE+uid+".jpeg");
+//
+//        final File localFile=File.createTempFile(uid,".jpeg");
+//        imageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+//            @Override
+//            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+//                Bitmap bm=BitmapFactory.decodeFile(localFile.getAbsolutePath());
+//                newUserData.setUserImage(bm);
+//            }
+//        });
+//    }
+//    private void getUserImageBitmap(final UserData newUserData, final long count, final IGetFriendsCallback callback, final ArrayList<UserData> friends) throws IOException {
+//        String uid=newUserData.getUserUUID();
+//        StorageReference imageReference=storageReference.child(IMAGE+uid+".jpeg");
+//
+//        final File localFile=File.createTempFile(uid,".jpeg");
+//        imageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+//            @Override
+//            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+//                Bitmap bm=BitmapFactory.decodeFile(localFile.getAbsolutePath());
+//                newUserData.setUserImage(bm);
+//                friends.add(newUserData);
+//                if(friends.size()==count)
+//                    callback.onFriendsReceived(friends);
+//            }
+//        });
+//    }
 
-    private void getUserData(final String uid, final UserData newUserData, final boolean isLast, final IGetFriendsCallback callback, final ArrayList<UserData> friends) {
-        final ArrayList<String> userString=new ArrayList<String>();
-        //final String uid = user.getUid();
-        databaseReference.child(uid).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                userString.clear();
-                for(DataSnapshot snapshot : dataSnapshot.getChildren())
-                    userString.add(snapshot.getValue().toString());
-
-                newUserData.setUserUUID((uid));
-                createUserFromList(newUserData,userString);
-
-                try {
-                    getUserImageBitmap(uid,newUserData,isLast,callback,friends);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private void getUserImageBitmap(String uid, final UserData newUserData, final boolean isLast, final IGetFriendsCallback callback, final ArrayList<UserData> friends) throws IOException {
+    private void getUserImageBitmap(final DataRetriveAction action, final UserData user, final long count, final IGetDataCallback callback, final ArrayList<UserData> usersArray) throws IOException {
+        String uid=user.getUserUUID();
         StorageReference imageReference=storageReference.child(IMAGE+uid+".jpeg");
 
         final File localFile=File.createTempFile(uid,".jpeg");
         imageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                Bitmap bm=BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                newUserData.setUserImage(bm);
-                friends.add(newUserData);
-                if(isLast)
-                    callback.onFriendsReceived(friends);
-//                if(isLast)
-//                    addLastFriendToList(newUserData,friends,callback);
-//                else
-//                    addFriendToList(newUserData,friends);
+                Bitmap bm = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                user.setUserImage(bm);
+                switch (action) {
+                    case GET_SELF:
+                        break;
+                    case GET_FRIEND:
+                        usersArray.add(user);
+                        if (usersArray.size() == count)
+                            ((IGetFriendsCallback) callback).onFriendsReceived(usersArray);
+                        break;
+                    case GET_USER:
+                        getUserLocation(user, count,(IGetAllUsersCallback)callback, usersArray);
+                        break;
+                }
             }
         });
     }
 
-//    public void addFriendToList(UserData friend, ArrayList<UserData> friends) {
-//        friends.add(friend);
-//    }
-//    public void addLastFriendToList(UserData lastFriend, ArrayList<UserData> friends, IGetFriendsCallback callback) {
-//        friends.add(lastFriend);
-//        callback.onFriendsReceived(friends);
-//    }
+    private void getUserLocation(final UserData user, final long count, final IGetAllUsersCallback callback, final ArrayList<UserData> allUsers) {
+        databaseCoordinatesReference.child(user.getUserUUID()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseCoordinatesReference.child(user.getUserUUID()).removeEventListener(this);
+                if(dataSnapshot.exists()){
+                    if(!user.getUserUUID().equals(getCurrentUserUid())){
+                        MyLatLong userLatLong=dataSnapshot.getValue(MyLatLong.class);
+                        user.setMyLatLong(userLatLong);
+                        allUsers.add(user);
+
+                        if(allUsers.size()==count)
+                           callback.onUsersReceived(allUsers);
+                    }
+                }else{
+                    allUsers.add(user);
+                    if(allUsers.size()==count)
+                       callback.onUsersReceived(allUsers);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
+        });
+    }
+
+    private void getUserData(final String uid, final long count, final IGetFriendsCallback callback, final ArrayList<UserData> friends) {
+        databaseReference.child(uid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserData newUserData=dataSnapshot.getValue(UserData.class);
+                newUserData.setUserUUID((uid));
+                try {
+                   // getUserImageBitmap(newUserData,count,callback,friends);
+                    getUserImageBitmap(DataRetriveAction.GET_FRIEND,newUserData,count,callback,friends);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
+        });
+    }
+
+
+
 
     public void addFriend(String friendUid){
         String uid = firebaseAuth.getCurrentUser().getUid();

@@ -1,17 +1,12 @@
-package rs.elfak.mosis.greenforce;
-
-import android.app.Activity;
+package rs.elfak.mosis.greenforce.services;
 
 
-import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
-import android.nfc.Tag;
-import android.renderscript.ScriptGroup;
 import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -21,6 +16,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.UUID;
+
+import rs.elfak.mosis.greenforce.activities.AddFriendsViaBluetoothActivity;
 
 public class BluetoothConnectionService {
     private static final String TAG="BluetoothConnectionServ";

@@ -1,6 +1,5 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.activities;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,14 +14,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
+import rs.elfak.mosis.greenforce.managers.MyUserManager;
+import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener,IComponentInitializer{
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener, IComponentInitializer {
 
     Button loginButton;
     TextView dontHaveAnAccount;
@@ -49,7 +44,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     {
        if(v.getId() == R.id.dontHaveAnAccount)
        {
-           Intent i = new Intent(this,RegisterActivity.class);
+           Intent i = new Intent(this, RegisterActivity.class);
            startActivity(i);
        }
        else if(v.getId() == R.id.forgotPassword)

@@ -1,4 +1,4 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -15,6 +15,10 @@ import androidx.fragment.app.Fragment;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+
+import rs.elfak.mosis.greenforce.managers.MyUserManager;
+import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.interfaces.IFragmentComponentInitializer;
 
 public class FragmentRegistrationData extends Fragment implements IFragmentComponentInitializer
 {

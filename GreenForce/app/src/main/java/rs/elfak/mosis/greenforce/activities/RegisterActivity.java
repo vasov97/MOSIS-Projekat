@@ -1,4 +1,4 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -7,21 +7,15 @@ import androidx.fragment.app.FragmentManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
-public class RegisterActivity extends AppCompatActivity implements FragmentRegistrationImage.FragmentRegistrationImageListener,FragmentRegistrationData.FragmentRegistrationDataListener{
+import rs.elfak.mosis.greenforce.managers.MyUserManager;
+import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.fragments.FragmentRegistrationData;
+import rs.elfak.mosis.greenforce.fragments.FragmentRegistrationImage;
+
+public class RegisterActivity extends AppCompatActivity implements FragmentRegistrationImage.FragmentRegistrationImageListener, FragmentRegistrationData.FragmentRegistrationDataListener{
 
     private FragmentRegistrationImage imageFragment;
     private FragmentRegistrationData dataFragment;

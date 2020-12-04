@@ -1,38 +1,36 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.activities;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
-import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
-import android.os.Handler;
 import android.view.Menu;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
 import java.io.Serializable;
-import java.nio.channels.FileLock;
 import java.util.ArrayList;
 
+import rs.elfak.mosis.greenforce.managers.MyUserManager;
+import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.models.UserData;
+import rs.elfak.mosis.greenforce.adapters.MyFriendsAdapter;
+import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
+import rs.elfak.mosis.greenforce.interfaces.IGetFriendsCallback;
+import rs.elfak.mosis.greenforce.interfaces.IOnClickNewIntent;
 
 
-public class MyFriendsActivity extends AppCompatActivity implements View.OnClickListener,Serializable,IComponentInitializer,IOnClickNewIntent {
+public class MyFriendsActivity extends AppCompatActivity implements View.OnClickListener,Serializable, IComponentInitializer, IOnClickNewIntent {
     FloatingActionButton fabFriends;
     FloatingActionButton fabBluetooth;
     FloatingActionButton fabMaps;
@@ -91,7 +89,7 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
 
     private void viewClickedUserProfile(UserData user) {
         MyUserManager.getInstance().setVisitProfile(user);
-        Intent i=new Intent(this,MyProfileActivity.class);
+        Intent i=new Intent(this, MyProfileActivity.class);
         i.putExtra("Visit","Visit");
         startActivity(i);
     }
@@ -183,14 +181,14 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         }
         else if(v.getId()==R.id.fabBluetooth)
         {
-           onClickNewIntent(this,AddFriendsViaBluetoothActivity.class);
+           onClickNewIntent(this, AddFriendsViaBluetoothActivity.class);
             /*Intent i=new Intent(this,AddFriendsViaBluetoothActivity.class);
             startActivity(i);*/
         }
         else if(v.getId()==R.id.fabMaps)
         {
 
-            Intent i=new Intent(this,AddFriendsViaMapsActivity.class);
+            Intent i=new Intent(this, AddFriendsViaMapsActivity.class);
             /*Bundle bundle=new Bundle();
             bundle.putSerializable("MyFriends",(Serializable)friends);
             i.putExtra("Bundle",bundle);*/
