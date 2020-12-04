@@ -50,4 +50,9 @@
     <string name="maps">Maps</string>
     <string name="maps_api_key">AIzaSyCOndUlXir9aIy6EHnEhdfnVWUAUqfjciY</string>
 
+    <string-array name="spinner_data">
+        <item>Me</item>
+        <item>All users</item>
+    </string-array>
+
 </resources>

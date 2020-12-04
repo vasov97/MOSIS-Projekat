@@ -5,17 +5,25 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.location.Location;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
@@ -25,6 +33,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -46,14 +56,15 @@ import rs.elfak.mosis.greenforce.managers.MyClusterManagerRenderer;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.Constants;
 import rs.elfak.mosis.greenforce.models.UserData;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.interfaces.IGetAllUsersCallback;
 
-public class AddFriendsViaMapsActivity extends AppCompatActivity implements Serializable, IComponentInitializer, OnMapReadyCallback
+public class AddFriendsViaMapsActivity extends AppCompatActivity implements Serializable, IComponentInitializer, OnMapReadyCallback, AdapterView.OnItemSelectedListener
 {
 
-    Spinner addFriendsSpinner;
+    Spinner allUsersOrMeSpinner;
     EditText radius;
     Toolbar toolbar;
     ProgressDialog progressDialog;
@@ -67,6 +78,8 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     LatLngBounds myMapBoundary;
 
     String TAG="AddFriendsMapActivity";
+    String ALL_USERS="All users";
+    String ME="Me";
     ArrayList<UserData> myFriends;
     ArrayList<UserData> allUsers;
     Map<String,Object> userMarkers;
@@ -76,6 +89,8 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     private MyClusterManagerRenderer myClusterManagerRenderer;
     private ArrayList<ClusterMarker> clusterMarkers = new ArrayList<ClusterMarker>();
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -83,6 +98,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         setContentView(R.layout.activity_add_friends_via_maps);
         initializeComponents();
         setUpActionBar(R.string.maps);
+
         myFriends= MyUserManager.getInstance().getMyFriends();
 
         clb=new GetAllUsersCallback();
@@ -127,15 +143,93 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
             }
         });
 
+        radius.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                MyLatLong myLatLong=MyUserManager.getInstance().getUser().getMyLatLong();
+                LatLng latLng = new LatLng(myLatLong.getLatitude(),myLatLong.getLongitude());
+                CircleOptions circle = new CircleOptions().center(latLng).radius(Double.parseDouble(s.toString()));
+
+                Circle circle1 = googleMap.addCircle(circle);
+                circle1.setStrokeColor(Color.BLUE);
+
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+
+            }
+        });
+
     }
 
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+    {
+        if(allUsersOrMeSpinner.getSelectedItem().toString().equals(ALL_USERS))
+        {
+            drawAllMarkers();
+        }
+        else if(allUsersOrMeSpinner.getSelectedItem().toString().equals(ME))
+        {
+            removeAllMarkers();
+            //drawMyMarker();
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    private void removeAllMarkers()
+    {
+        if(allUsers!=null)
+        {
+             for (UserData user : allUsers)
+        {
+            if (!myFriends.contains(user))
+                removeUserMarker(user);
+        }
+        }
+
+        if(clusterManager!=null)
+        {
+            clusterManager.clearItems();
+            clusterManager.cluster();
+        }
+
+    }
+
+    private void removeFriendMarker(UserData user)
+    {
+
+
+    }
+    private void removeUserMarker(UserData user)
+    {
+        Marker marker = (Marker)userMarkers.get(user.getUserUUID());
+        if(marker!=null){
+            marker.remove();
+            userMarkers.remove(user.getUserUUID());
+        }
+
+    }
 
     public class GetAllUsersCallback implements IGetAllUsersCallback {
         @Override
         public void onUsersReceived(ArrayList<UserData> users) {
            checkForInvalidLocations(users);
             progressDialog.dismiss();
-            drawAllMarkers();//zbog testiranja tu
+           // drawAllMarkers();//zbog testiranja tu
 
         }
     }
@@ -154,12 +248,18 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     @Override
     public void initializeComponents()
     {
-         addFriendsSpinner=findViewById(R.id.spinner);
+         allUsersOrMeSpinner=findViewById(R.id.spinner);
          radius=findViewById(R.id.radius);
          toolbar=findViewById(R.id.addFriendsViaMapToolbar);
          fusedLocationProviderClient= LocationServices.getFusedLocationProviderClient(this);
 
         userMarkers=new HashMap<String,Object>();
+
+        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,R.array.spinner_data,R.layout.support_simple_spinner_dropdown_item);
+        allUsersOrMeSpinner.setAdapter(spinnerAdapter);
+        allUsersOrMeSpinner.setOnItemSelectedListener(this);
+
+
     }
 
     @Override
