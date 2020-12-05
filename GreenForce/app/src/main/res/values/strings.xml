@@ -49,6 +49,9 @@
     <string name="radius">Radius:</string>
     <string name="maps">Maps</string>
     <string name="maps_api_key">AIzaSyCOndUlXir9aIy6EHnEhdfnVWUAUqfjciY</string>
+    <string name="username">Username</string>
+    <string name="all_users">All users</string>
+    <string name="me">Me</string>
 
     <string-array name="spinner_data">
         <item>Me</item>

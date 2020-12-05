@@ -47,7 +47,7 @@ import rs.elfak.mosis.greenforce.activities.HomePageActivity;
 import rs.elfak.mosis.greenforce.activities.LoginActivity;
 import rs.elfak.mosis.greenforce.activities.RegisterActivity;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
-import rs.elfak.mosis.greenforce.interfaces.IGetAllUsersCallback;
+import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetDataCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetFriendsCallback;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
@@ -79,6 +79,9 @@ public class MyUserManager {
         storageReference = FirebaseStorage.getInstance().getReference();
 
     }
+
+
+
     private static class SingletonHolder{
         public static final MyUserManager instance=new MyUserManager();
     }
@@ -108,8 +111,9 @@ public class MyUserManager {
                         else {
                             FirebaseUser user=firebaseAuth.getCurrentUser();
                             String uid=user.getUid();
-                            getUserData(uid);
-                            enclosingActivity.startActivity(new Intent(enclosingActivity, HomePageActivity.class));
+                            getUserData(uid,DataRetriveAction.GET_SELF,0,null,null,enclosingActivity);
+                            //getUserData(uid,enclosingActivity);
+                            //enclosingActivity.startActivity(new Intent(enclosingActivity, HomePageActivity.class));
                         }
                     }
                 }
@@ -270,23 +274,7 @@ public class MyUserManager {
         databaseReference.child(uid).setValue(userData);
     }
 
-    private void getUserData(final String uid){
 
-        databaseReference.child(uid).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                userData=dataSnapshot.getValue(UserData.class);
-                userData.setUserUUID(uid);
-                try {
-                    getUserImageBitmap(DataRetriveAction.GET_SELF,userData,0,null,null);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) { }
-        });
-    }
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -352,7 +340,8 @@ public class MyUserManager {
                     long childrenCount=dataSnapshot.getChildrenCount();
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         String uid = snapshot.getKey();
-                        getUserData(uid,childrenCount,callback,friends);
+                        getUserData(uid,DataRetriveAction.GET_FRIENDS,childrenCount,callback,friends,null);
+                        //getUserData(uid,childrenCount,callback,friends);
                    }
                 }else{
                     callback.onFriendsReceived(new ArrayList<UserData>());
@@ -363,7 +352,7 @@ public class MyUserManager {
         });
     }
 
-    public void getAllUsers(final IGetAllUsersCallback callback)
+    public void getAllUsers(final IGetUsersCallback callback)
     {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -378,7 +367,7 @@ public class MyUserManager {
                     user.setUserUUID(snapshot.getKey());
                     try {
                        // getUserImageBitmap(user,childrenCount-1,callback,allUsers);
-                        getUserImageBitmap(DataRetriveAction.GET_USER,user,childrenCount-1,callback,allUsers);
+                        getUserImageBitmap(DataRetriveAction.GET_USERS,user,childrenCount-1,callback,allUsers,null);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -432,7 +421,7 @@ public class MyUserManager {
 //        });
 //    }
 
-    private void getUserImageBitmap(final DataRetriveAction action, final UserData user, final long count, final IGetDataCallback callback, final ArrayList<UserData> usersArray) throws IOException {
+    private void getUserImageBitmap(final DataRetriveAction action, final UserData user, final long count, final IGetDataCallback callback, final ArrayList<UserData> usersArray, final Activity enclosingActivity) throws IOException {
         String uid=user.getUserUUID();
         StorageReference imageReference=storageReference.child(IMAGE+uid+".jpeg");
 
@@ -444,21 +433,25 @@ public class MyUserManager {
                 user.setUserImage(bm);
                 switch (action) {
                     case GET_SELF:
+                        enclosingActivity.startActivity(new Intent(enclosingActivity, HomePageActivity.class));
                         break;
-                    case GET_FRIEND:
+                    case GET_FRIENDS:
                         usersArray.add(user);
                         if (usersArray.size() == count)
                             ((IGetFriendsCallback) callback).onFriendsReceived(usersArray);
                         break;
+                    case GET_USERS:
+                        getUserLocation(user, count,(IGetUsersCallback)callback, usersArray);
+                        break;
                     case GET_USER:
-                        getUserLocation(user, count,(IGetAllUsersCallback)callback, usersArray);
+                        ((IGetUsersCallback)callback).onUserReceived(user);
                         break;
                 }
             }
         });
     }
 
-    private void getUserLocation(final UserData user, final long count, final IGetAllUsersCallback callback, final ArrayList<UserData> allUsers) {
+    private void getUserLocation(final UserData user, final long count, final IGetUsersCallback callback, final ArrayList<UserData> allUsers) {
         databaseCoordinatesReference.child(user.getUserUUID()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -483,16 +476,60 @@ public class MyUserManager {
         });
     }
 
-    private void getUserData(final String uid, final long count, final IGetFriendsCallback callback, final ArrayList<UserData> friends) {
+//    private void getUserData(final String uid, final long count, final IGetFriendsCallback callback, final ArrayList<UserData> friends) {
+//        databaseReference.child(uid).addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                UserData newUserData=dataSnapshot.getValue(UserData.class);
+//                newUserData.setUserUUID((uid));
+//                try {
+//                   // getUserImageBitmap(newUserData,count,callback,friends);
+//                    getUserImageBitmap(DataRetriveAction.GET_FRIENDS,newUserData,count,callback,friends,null);
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) { }
+//        });
+//    }
+//    private void getUserData(final String uid, final Activity enclosingActivity){
+//
+//        databaseReference.child(uid).addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                userData=dataSnapshot.getValue(UserData.class);
+//                userData.setUserUUID(uid);
+//                try {
+//                    getUserImageBitmap(DataRetriveAction.GET_SELF,userData,0,null,null,enclosingActivity);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) { }
+//        });
+//    }
+    public void getSingleUser(DataRetriveAction action, String uid, IGetUsersCallback clb) {
+        getUserData(uid,action,0,clb,null,null);
+    }
+    private void getUserData(final String uid,final DataRetriveAction action, final long count, final IGetDataCallback callback, final ArrayList<UserData> friends, final Activity enclosingActivity) {
         databaseReference.child(uid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                UserData newUserData=dataSnapshot.getValue(UserData.class);
-                newUserData.setUserUUID((uid));
-                try {
-                   // getUserImageBitmap(newUserData,count,callback,friends);
-                    getUserImageBitmap(DataRetriveAction.GET_FRIEND,newUserData,count,callback,friends);
+                UserData userToSend;
+                if(action==DataRetriveAction.GET_SELF){
+                    userData=dataSnapshot.getValue(UserData.class);
+                    userData.setUserUUID(uid);
+                    userToSend=userData;
+                }else{
+                    userToSend=dataSnapshot.getValue(UserData.class);
+                    userToSend.setUserUUID((uid));
 
+                }
+                try {
+                    getUserImageBitmap(action,userToSend,count,callback,friends,enclosingActivity);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -510,10 +547,11 @@ public class MyUserManager {
         databaseFriendsReference.child(uid).child(friendUid).child("status").setValue("friend");
         databaseFriendsReference.child(friendUid).child(uid).child("status").setValue("friend");
     }
-    public void saveUserCoordinates(){
+    public void saveUserCoordinates(MyLatLong myLatLong){
         String uid = firebaseAuth.getCurrentUser().getUid();
-        MyLatLong latlong=userData.getMyLatLong();
-        databaseCoordinatesReference.child(uid).setValue(latlong);
+        userData.setMyLatLong(myLatLong);
+       // MyLatLong latlong=userData.getMyLatLong();
+        databaseCoordinatesReference.child(uid).setValue(myLatLong);
     }
 
 

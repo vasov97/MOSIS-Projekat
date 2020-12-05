@@ -28,6 +28,7 @@ import com.google.android.gms.location.LocationServices;
 
 import rs.elfak.mosis.greenforce.models.MyLatLong;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
+import rs.elfak.mosis.greenforce.models.UserData;
 
 
 public class LocationService extends Service {
@@ -99,17 +100,19 @@ public class LocationService extends Service {
 
                         Location location = locationResult.getLastLocation();
 
-                        if (location != null) {
+                        if (location != null && MyUserManager.getInstance().getUser()!=null) {
                             MyLatLong myLatLong=new MyLatLong(location.getLatitude(),location.getLongitude());
-                            MyUserManager.getInstance().getUser().setMyLatLong(myLatLong);
-                            saveUserLocation();
+//                            UserData user= MyUserManager.getInstance().getUser();
+//                            if(user!=null)
+//                                user.setMyLatLong(myLatLong);
+                            saveUserLocation(myLatLong);
                         }
                     }
                 },
                 Looper.myLooper()); // Looper.myLooper tells this to repeat forever until thread is destroyed
     }
 
-    private void saveUserLocation(){
-        MyUserManager.getInstance().saveUserCoordinates();
+    private void saveUserLocation(MyLatLong myLatLong){
+        MyUserManager.getInstance().saveUserCoordinates(myLatLong);
     }
 }

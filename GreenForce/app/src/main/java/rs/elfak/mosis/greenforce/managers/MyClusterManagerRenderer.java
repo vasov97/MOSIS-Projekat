@@ -94,4 +94,10 @@ public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMark
             marker.setPosition(clusterMarker.getPosition());
         }
     }
+    public void setMarkerVisibility(ClusterMarker clusterMarker,boolean visible){
+        Marker marker = getMarker(clusterMarker);
+        if (marker != null) {
+            marker.setVisible(visible);
+        }
+    }
 }
