@@ -94,10 +94,12 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                 String uid=dataSnapshot.getKey();
                 if(tmpChildAddedLatLng==null)
                     tmpChildAddedLatLng=new HashMap<String,MyLatLong>();
-                tmpChildAddedLatLng.put(uid,dataSnapshot.getValue(MyLatLong.class));
                 if(allUsers!=null){
-                    if(!checkIfUserExists(uid,allUsers))
+                    if(!checkIfUserExists(uid,allUsers)){
+                        tmpChildAddedLatLng.put(uid,dataSnapshot.getValue(MyLatLong.class));
                         MyUserManager.getInstance().getSingleUser(DataRetriveAction.GET_USER,uid,clb);
+                    }
+
                 }
             }
             @Override
@@ -427,7 +429,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                     userMarkers.put(user.getUserUUID(),newClusterMarker);
                     clusterManager.addItem(newClusterMarker);
                     clusterMarkers.add(newClusterMarker);
-                    myClusterManagerRenderer.setTag(newClusterMarker);
+                    //myClusterManagerRenderer.setTag(newClusterMarker);
 
                 }catch (NullPointerException e){
                     Log.e(TAG, "addMapMarkers: NullPointerException: " + e.getMessage() );

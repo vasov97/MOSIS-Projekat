@@ -78,6 +78,11 @@ public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMark
                 title(item.getTitle());
     }
 
+    @Override
+    protected void onClusterItemRendered(ClusterMarker clusterItem, Marker marker) {
+        super.onClusterItemRendered(clusterItem, marker);
+        marker.setTag(clusterItem.getUserData());
+    }
 
     @Override
     protected boolean shouldRenderAsCluster(Cluster<ClusterMarker> cluster)
@@ -101,13 +106,4 @@ public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMark
             marker.setVisible(visible);
         }
     }
-
-    public void setTag(ClusterMarker clusterMarker)
-    {
-        Marker marker = getMarker(clusterMarker);
-        if(marker!=null)
-            marker.setTag(clusterMarker.getUserData());
-    }
-
-
 }
