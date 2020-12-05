@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -44,6 +45,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.io.Serializable;
@@ -63,7 +66,8 @@ import rs.elfak.mosis.greenforce.models.UserData;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 
-public class AddFriendsViaMapsActivity extends AppCompatActivity implements Serializable, IComponentInitializer, OnMapReadyCallback, AdapterView.OnItemSelectedListener, IFindUserOnMapDialogListener
+public class AddFriendsViaMapsActivity extends AppCompatActivity implements Serializable, IComponentInitializer,
+        OnMapReadyCallback, AdapterView.OnItemSelectedListener, IFindUserOnMapDialogListener, GoogleMap.OnMarkerClickListener
 {
     Spinner mySpinner;
     EditText radius;
@@ -148,7 +152,15 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
 
         MyUserManager.getInstance().getDatabaseCoordinatesReference().addChildEventListener(myChildEventListener);
         radius.addTextChangedListener(myTextWatcher);
+
+
+
+
+
     }
+
+
+
     public class GetUsersCallback implements IGetUsersCallback {
         @Override
         public void onUsersReceived(ArrayList<UserData> users) {
@@ -253,7 +265,21 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
         this.googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        getLastKnownLocation(); // samo 1 vrati lokaciju
+        getLastKnownLocation();// samo 1 vrati lokaciju
+        googleMap.setOnMarkerClickListener(this);
+
+    }
+
+    @Override
+    public boolean onMarkerClick(final Marker marker)
+    {
+        UserData user = (UserData)marker.getTag();
+        if(myFriends.contains(user))
+            Toast.makeText(this,"Friend:"+user.getUsername(),Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(this,"Not Friend:"+user.getUsername(),Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this,"Clicked on cluster",Toast.LENGTH_SHORT).show();
+        return false;
     }
 
 
@@ -351,6 +377,8 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                 myClusterManagerRenderer = new MyClusterManagerRenderer(this, googleMap, clusterManager);
                 clusterManager.setRenderer(myClusterManagerRenderer);
             }
+
+
         }
     }
 
@@ -377,6 +405,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
             markerOptions.title("Current Location");
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
             myMarker = googleMap.addMarker(markerOptions);
+            myMarker.setTag(currentUser);
             userMarkers.put(currentUser.getUserUUID(), myMarker);
     }
 
@@ -398,6 +427,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                     userMarkers.put(user.getUserUUID(),newClusterMarker);
                     clusterManager.addItem(newClusterMarker);
                     clusterMarkers.add(newClusterMarker);
+                    myClusterManagerRenderer.setTag(newClusterMarker);
 
                 }catch (NullPointerException e){
                     Log.e(TAG, "addMapMarkers: NullPointerException: " + e.getMessage() );
@@ -414,6 +444,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
             markerOptions.title("User Location");
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
             userMarker = googleMap.addMarker(markerOptions);
+            userMarker.setTag(user);
             userMarkers.put(user.getUserUUID(), userMarker);
         }
     }

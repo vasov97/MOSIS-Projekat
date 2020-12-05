@@ -3,6 +3,7 @@ package rs.elfak.mosis.greenforce.managers;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -100,4 +101,13 @@ public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMark
             marker.setVisible(visible);
         }
     }
+
+    public void setTag(ClusterMarker clusterMarker)
+    {
+        Marker marker = getMarker(clusterMarker);
+        if(marker!=null)
+            marker.setTag(clusterMarker.getUserData());
+    }
+
+
 }
