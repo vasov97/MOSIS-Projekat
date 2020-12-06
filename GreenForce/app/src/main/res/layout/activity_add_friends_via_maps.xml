@@ -79,6 +79,41 @@
         tools:context=".activities.AddFriendsViaMapsActivity"
         android:layout_height="0dp" />
 
+    <LinearLayout
+        android:id="@+id/userMapInfoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:id="@+id/userMapUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:text="aaaa"
+            android:textColor="@color/colorBlack"
+            android:textSize="15dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/viewFriendOnMap"
+                android:layout_width="40dp"
+                android:layout_height="25dp"
+                android:layout_marginLeft="90dp"
+                android:text="View" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

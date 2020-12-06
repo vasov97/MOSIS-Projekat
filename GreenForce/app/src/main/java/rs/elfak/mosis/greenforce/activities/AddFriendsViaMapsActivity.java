@@ -6,24 +6,33 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.Layout;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 
 
@@ -57,6 +66,7 @@ import java.util.Map;
 import rs.elfak.mosis.greenforce.dialogs.FindUserOnMapDialog;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
 import rs.elfak.mosis.greenforce.interfaces.IFindUserOnMapDialogListener;
+import rs.elfak.mosis.greenforce.interfaces.IOnClickNewIntent;
 import rs.elfak.mosis.greenforce.models.ClusterMarker;
 import rs.elfak.mosis.greenforce.managers.MyClusterManagerRenderer;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
@@ -67,7 +77,7 @@ import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 
 public class AddFriendsViaMapsActivity extends AppCompatActivity implements Serializable, IComponentInitializer,
-        OnMapReadyCallback, AdapterView.OnItemSelectedListener, IFindUserOnMapDialogListener, GoogleMap.OnMarkerClickListener
+        OnMapReadyCallback, AdapterView.OnItemSelectedListener, IFindUserOnMapDialogListener, GoogleMap.OnMarkerClickListener, IOnClickNewIntent
 {
     Spinner mySpinner;
     EditText radius;
@@ -80,10 +90,14 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     String TAG="AddFriendsMapActivity";
     ArrayList<UserData> myFriends;
     ArrayList<UserData> allUsers;
+
     Map<String,Object> userMarkers;
     Map<String,MyLatLong> tmpChildAddedLatLng;
     IGetUsersCallback clb;
-
+    private LinearLayout userInfoLayout;
+    private Button viewUserButton;
+    boolean isClicked=false;
+    private TextView usernameView;
     private ClusterManager clusterManager;
     private MyClusterManagerRenderer myClusterManagerRenderer;
     private ArrayList<ClusterMarker> clusterMarkers = new ArrayList<ClusterMarker>();
@@ -163,6 +177,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
 
 
 
+
     public class GetUsersCallback implements IGetUsersCallback {
         @Override
         public void onUsersReceived(ArrayList<UserData> users) {
@@ -236,8 +251,19 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         mySpinner=findViewById(R.id.spinner);
         radius=findViewById(R.id.radius);
         toolbar=findViewById(R.id.addFriendsViaMapToolbar);
-        fusedLocationProviderClient= LocationServices.getFusedLocationProviderClient(this);
 
+        //pitanje dal ovo radi, nisam proveravao na net
+        //da bude layout tamo odmah, pa ga set da je nevidljiv,a da se dole ukljuci
+        //bolje je verovatno da se inflate preko adaptera ili tako nesto
+        userInfoLayout=findViewById(R.id.userMapInfoLayout);
+        ViewGroup.LayoutParams params = userInfoLayout.getLayoutParams();
+        params.height=100;
+        userInfoLayout.setLayoutParams(params);
+        userInfoLayout.setVisibility(View.INVISIBLE);
+        //-----------
+        fusedLocationProviderClient= LocationServices.getFusedLocationProviderClient(this);
+        viewUserButton=findViewById(R.id.viewFriendOnMap);
+        usernameView=findViewById(R.id.userMapUsername);
         userMarkers=new HashMap<String,Object>();
 
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,R.array.spinner_data,R.layout.support_simple_spinner_dropdown_item);
@@ -275,16 +301,47 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     @Override
     public boolean onMarkerClick(final Marker marker)
     {
+
         UserData user = (UserData)marker.getTag();
         if(myFriends.contains(user))
-            Toast.makeText(this,"Friend:"+user.getUsername(),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,"Friend:"+user.getUsername(),Toast.LENGTH_SHORT).show();
+            showUserInfo(user,isClicked);
         else
-            Toast.makeText(this,"Not Friend:"+user.getUsername(),Toast.LENGTH_SHORT).show();
-        //Toast.makeText(this,"Clicked on cluster",Toast.LENGTH_SHORT).show();
+            showUserInfo(user,isClicked);
         return false;
     }
+    @Override
+    public void onClickNewIntent(Context context, Class<?> myClass)
+    {
+         Intent i =new Intent(context,myClass);
+         startActivity(i);
+    }
+   private void showUserInfo(UserData user,boolean isClicked)
+   {
+       //ako imamo ono add/remove onda fji treba i dal je friend ili user obican,
+       //da bi se promenio i tekst na dugmetu add/remove
+       isClicked=!isClicked;
+       if(isClicked)
+       {
+           userInfoLayout.setVisibility(View.VISIBLE);
+           usernameView.setText(user.getUsername());
+           viewUserButton.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View v)
+               {
+                   onClickNewIntent(getApplicationContext(),MyProfileActivity.class);
+                   //myprofile cisto da bi otvorio nesto
+               }
+           });
+       }
+       else
+       {
+           userInfoLayout.setVisibility(View.INVISIBLE);
+       }
 
 
+
+   }
     private void removeAllMarkers() {
         if(allUsers!=null) {
             for (UserData user : allUsers) {
