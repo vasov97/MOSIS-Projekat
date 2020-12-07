@@ -189,9 +189,6 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         {
 
             Intent i=new Intent(this, AddFriendsViaMapsActivity.class);
-            /*Bundle bundle=new Bundle();
-            bundle.putSerializable("MyFriends",(Serializable)friends);
-            i.putExtra("Bundle",bundle);*/
             MyUserManager.getInstance().setMyFriends(friends);
             startActivity(i);
         }

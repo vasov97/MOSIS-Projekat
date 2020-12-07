@@ -579,4 +579,8 @@ public class MyUserManager {
         Log.d("LocationSERVICE", "isLocationServiceRunning: location service is not running.");
         return false;
     }
+
+    public void removeFriend(String uuid){
+        databaseFriendsReference.child(getCurrentUserUid()).child(uuid).removeValue();
+    }
 }

@@ -106,4 +106,12 @@ public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMark
             marker.setVisible(visible);
         }
     }
+
+    public void removeClusterMarker(ClusterMarker clusterMarker)
+    {
+        Marker marker = getMarker(clusterMarker);
+        if (marker != null) {
+            marker.remove();
+        }
+    }
 }

@@ -52,6 +52,9 @@
     <string name="username">Username</string>
     <string name="all_users">All users</string>
     <string name="me">Me</string>
+    <string name="sendFriendRequest">Send request</string>
+    <string name="view">View</string>
+    <string name="remove">Remove</string>
 
     <string-array name="spinner_data">
         <item>Me</item>

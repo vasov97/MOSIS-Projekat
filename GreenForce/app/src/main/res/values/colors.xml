@@ -8,4 +8,5 @@
     <color name="greenBlue">#09F18C</color>
     <color name="greyColor">#777777</color>
     <color name="colorBlack">#000000</color>
+    <color name="colorTextDark">#100F0F</color>
 </resources>

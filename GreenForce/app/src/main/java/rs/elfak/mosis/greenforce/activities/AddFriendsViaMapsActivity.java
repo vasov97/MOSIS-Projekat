@@ -2,6 +2,7 @@ package rs.elfak.mosis.greenforce.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
@@ -11,6 +12,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Layout;
@@ -51,6 +53,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -63,10 +66,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import rs.elfak.mosis.greenforce.dialogs.DisplayUserInformationOnMapDialog;
 import rs.elfak.mosis.greenforce.dialogs.FindUserOnMapDialog;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
 import rs.elfak.mosis.greenforce.interfaces.IFindUserOnMapDialogListener;
 import rs.elfak.mosis.greenforce.interfaces.IOnClickNewIntent;
+import rs.elfak.mosis.greenforce.interfaces.IRemoveUserFromFriends;
 import rs.elfak.mosis.greenforce.models.ClusterMarker;
 import rs.elfak.mosis.greenforce.managers.MyClusterManagerRenderer;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
@@ -77,12 +82,13 @@ import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 
 public class AddFriendsViaMapsActivity extends AppCompatActivity implements Serializable, IComponentInitializer,
-        OnMapReadyCallback, AdapterView.OnItemSelectedListener, IFindUserOnMapDialogListener, GoogleMap.OnMarkerClickListener, IOnClickNewIntent
+        OnMapReadyCallback, AdapterView.OnItemSelectedListener, IFindUserOnMapDialogListener, GoogleMap.OnMarkerClickListener, IRemoveUserFromFriends
 {
     Spinner mySpinner;
     EditText radius;
     Toolbar toolbar;
     ProgressDialog progressDialog;
+    DisplayUserInformationOnMapDialog myDialog;
     FusedLocationProviderClient fusedLocationProviderClient;
     GoogleMap googleMap;
     Circle myCircle;
@@ -94,10 +100,6 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     Map<String,Object> userMarkers;
     Map<String,MyLatLong> tmpChildAddedLatLng;
     IGetUsersCallback clb;
-    private LinearLayout userInfoLayout;
-    private Button viewUserButton;
-    boolean isClicked=false;
-    private TextView usernameView;
     private ClusterManager clusterManager;
     private MyClusterManagerRenderer myClusterManagerRenderer;
     private ArrayList<ClusterMarker> clusterMarkers = new ArrayList<ClusterMarker>();
@@ -176,6 +178,18 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     }
 
 
+    @Override
+    public void onUserRemoved(UserData user)
+    {
+        if(myDialog!=null)
+            myDialog.dismissDialog();
+        ClusterMarker clusterMarker=(ClusterMarker)userMarkers.get(user.getUserUUID());
+        userMarkers.remove(user.getUserUUID());
+        myFriends.remove(user);
+        myClusterManagerRenderer.removeClusterMarker(clusterMarker);
+        MyUserManager.getInstance().removeFriend(user.getUserUUID());
+        drawUserMarker(user);
+    }
 
 
     public class GetUsersCallback implements IGetUsersCallback {
@@ -252,18 +266,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         radius=findViewById(R.id.radius);
         toolbar=findViewById(R.id.addFriendsViaMapToolbar);
 
-        //pitanje dal ovo radi, nisam proveravao na net
-        //da bude layout tamo odmah, pa ga set da je nevidljiv,a da se dole ukljuci
-        //bolje je verovatno da se inflate preko adaptera ili tako nesto
-        userInfoLayout=findViewById(R.id.userMapInfoLayout);
-        ViewGroup.LayoutParams params = userInfoLayout.getLayoutParams();
-        params.height=100;
-        userInfoLayout.setLayoutParams(params);
-        userInfoLayout.setVisibility(View.INVISIBLE);
-        //-----------
         fusedLocationProviderClient= LocationServices.getFusedLocationProviderClient(this);
-        viewUserButton=findViewById(R.id.viewFriendOnMap);
-        usernameView=findViewById(R.id.userMapUsername);
         userMarkers=new HashMap<String,Object>();
 
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,R.array.spinner_data,R.layout.support_simple_spinner_dropdown_item);
@@ -301,47 +304,16 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     @Override
     public boolean onMarkerClick(final Marker marker)
     {
-
         UserData user = (UserData)marker.getTag();
-        if(myFriends.contains(user))
-            //Toast.makeText(this,"Friend:"+user.getUsername(),Toast.LENGTH_SHORT).show();
-            showUserInfo(user,isClicked);
-        else
-            showUserInfo(user,isClicked);
+        if(!user.equals(MyUserManager.getInstance().getUser())){
+            if(myFriends.contains(user))
+                showUser(user,true);
+            else
+                showUser(user,false);
+        }
         return false;
     }
-    @Override
-    public void onClickNewIntent(Context context, Class<?> myClass)
-    {
-         Intent i =new Intent(context,myClass);
-         startActivity(i);
-    }
-   private void showUserInfo(UserData user,boolean isClicked)
-   {
-       //ako imamo ono add/remove onda fji treba i dal je friend ili user obican,
-       //da bi se promenio i tekst na dugmetu add/remove
-       isClicked=!isClicked;
-       if(isClicked)
-       {
-           userInfoLayout.setVisibility(View.VISIBLE);
-           usernameView.setText(user.getUsername());
-           viewUserButton.setOnClickListener(new View.OnClickListener() {
-               @Override
-               public void onClick(View v)
-               {
-                   onClickNewIntent(getApplicationContext(),MyProfileActivity.class);
-                   //myprofile cisto da bi otvorio nesto
-               }
-           });
-       }
-       else
-       {
-           userInfoLayout.setVisibility(View.INVISIBLE);
-       }
 
-
-
-   }
     private void removeAllMarkers() {
         if(allUsers!=null) {
             for (UserData user : allUsers) {
@@ -616,6 +588,12 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
             FindUserOnMapDialog dialog=new FindUserOnMapDialog();
             dialog.show(getSupportFragmentManager(),"Find user dialog");
         }
+
+    }
+
+    public void showUser(UserData user,boolean isFriend){
+        myDialog=new DisplayUserInformationOnMapDialog(this);
+        myDialog.showDialog(user,isFriend);
 
     }
 }
