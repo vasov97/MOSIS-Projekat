@@ -30,7 +30,7 @@ public class FindUserOnMapDialog extends AppCompatDialogFragment implements IFra
 
         builder.setView(view)
                 .setTitle("Locate user")
-                .setNegativeButton("Cancle", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 

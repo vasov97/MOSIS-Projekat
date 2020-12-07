@@ -99,13 +99,20 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("This application requires GPS to work properly, do you want to enable it?")
-                .setCancelable(false)
+                .setCancelable(true)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         Intent enableGpsIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivityForResult(enableGpsIntent, PERMISSIONS_REQUEST_ENABLE_GPS);
                     }
-                });
+                }).setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //finishAffinity();
+                finish();
+                System.exit(0);
+            }
+        }) ;
         final AlertDialog alert = builder.create();
         alert.show();
     }
@@ -175,6 +182,10 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
                          MyUserManager.getInstance().startLocationService(this);
                     }
                 }
+                else if(grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_DENIED){
+                    finish();
+                }
             }
         }
     }
@@ -197,5 +208,9 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
     }
 
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //android.os.Process.killProcess(android.os.Process.myPid());
+    }
 }

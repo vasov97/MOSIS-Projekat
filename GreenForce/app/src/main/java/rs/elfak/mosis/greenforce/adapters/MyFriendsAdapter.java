@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,7 +18,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.models.UserData;
 
-public class MyFriendsAdapter extends ArrayAdapter<UserData>
+public class MyFriendsAdapter extends ArrayAdapter<UserData> implements Filterable
 {
     Context context;
     ArrayList<UserData> users;
@@ -51,5 +53,47 @@ public class MyFriendsAdapter extends ArrayAdapter<UserData>
 
     public UserData getClickedItem(int position){
         return users.get(position);
+    }
+
+    @NonNull
+    @Override
+    public Filter getFilter() {
+        Filter filter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint)
+            {
+                FilterResults filterResults = new FilterResults();
+                if(constraint==null || constraint.length()==0)
+                {
+                    filterResults.count=users.size();
+                    filterResults.values=users;
+                }
+                else
+                {
+                    String searchString = constraint.toString().toLowerCase();
+                    ArrayList<UserData> resultData = new ArrayList<UserData>();
+                    for(UserData user:users)
+                    {
+                        if(user.getUsername().toLowerCase().contains(searchString))
+                        {
+                            resultData.add(user);
+                        }
+                    }
+
+                    filterResults.count=resultData.size();
+                    filterResults.values=resultData;
+                }
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results)
+            {
+                users= (ArrayList<UserData>)results.values;
+                notifyDataSetChanged();
+
+            }
+        };
+        return filter;
     }
 }

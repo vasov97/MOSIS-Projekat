@@ -2,6 +2,7 @@ package rs.elfak.mosis.greenforce.activities;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -9,14 +10,17 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.SearchView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -37,7 +41,7 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
     Toolbar toolbar;
     ArrayList<UserData> friends;
     IGetFriendsCallback clb;
-    ListView friendslist;
+    ListView friendsList;
     ProgressDialog progressDialog;
     MyFriendsAdapter friendsAdapter;
 
@@ -60,9 +64,22 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
 
     }
 
+    SearchView.OnQueryTextListener mySearchListener=new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            friendsAdapter.getFilter().filter(newText);
+            return true;
+        }
+    };
+
     private void displayFriends() {
         friendsAdapter=new MyFriendsAdapter(this,friends);
-        friendslist.setAdapter(friendsAdapter);
+        friendsList.setAdapter(friendsAdapter);
     }
 
     @Override
@@ -76,7 +93,7 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         setUpActionBar(R.string.friends_text);
         loadFriendsList();
 
-        friendslist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        friendsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 UserData user=friendsAdapter.getClickedItem(position);
@@ -141,7 +158,7 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         fabBluetooth = findViewById(R.id.fabBluetooth);
         fabMaps = findViewById(R.id.fabMaps);
         toolbar = findViewById(R.id.friends_toolbar);
-        friendslist=findViewById(R.id.my_friends_listview);
+        friendsList=findViewById(R.id.my_friends_listview);
         setFABAlpha();
         setFABListeners();
         setFABTranslations();
@@ -199,7 +216,19 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_friends_list,menu);
+        MenuItem searchBar = menu.findItem(R.id.app_bar_search);
+        SearchView searchView = (SearchView)searchBar.getActionView();
+        searchView.setOnQueryTextListener(mySearchListener);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item)
+    {
+        int id = item.getItemId();
+        if(id==R.id.app_bar_search)
+            return  true;
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

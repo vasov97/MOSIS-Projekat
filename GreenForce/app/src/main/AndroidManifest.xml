@@ -35,7 +35,12 @@
         <activity
             android:name=".activities.MyFriendsActivity"
             android:label="@string/title_activity_my_friends"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+        <intent-filter>
+            <action android:name="android.intent.action.SEARCH" />
+        </intent-filter>
+        </activity>
+
         <activity android:name=".activities.MyProfileActivity" />
         <activity android:name=".activities.HomePageActivity" />
         <activity android:name=".activities.RegisterActivity" />
