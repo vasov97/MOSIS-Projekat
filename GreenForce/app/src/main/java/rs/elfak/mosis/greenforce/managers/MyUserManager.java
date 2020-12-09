@@ -7,7 +7,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.renderscript.Sampler;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -18,6 +20,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -46,10 +49,13 @@ import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.activities.HomePageActivity;
 import rs.elfak.mosis.greenforce.activities.LoginActivity;
 import rs.elfak.mosis.greenforce.activities.RegisterActivity;
+import rs.elfak.mosis.greenforce.dialogs.DisplayUserInformationOnMapDialog;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
+import rs.elfak.mosis.greenforce.interfaces.IGetNotifications;
 import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetDataCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetFriendsCallback;
+import rs.elfak.mosis.greenforce.models.FriendsRequestNotification;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
 import rs.elfak.mosis.greenforce.models.UserData;
 import rs.elfak.mosis.greenforce.services.LocationService;
@@ -61,11 +67,14 @@ public class MyUserManager {
     private final DatabaseReference databaseReference;
     private final DatabaseReference databaseFriendsReference;
     private final DatabaseReference databaseCoordinatesReference;
+    private final DatabaseReference databaseNotificationsReference;
     private final StorageReference storageReference;
     private static final String USER = "user";
     private static final String FRIENDS = "friends";
     private static final String COORDINATES="coordinates";
     private static final String IMAGE = "profileImage/";
+    private static final String NOTIFICATIONS="notifications";
+    private static final String FRIEND_REQUESTS="friendRequests";
     private UserData userData,visitProfile;
     ArrayList<UserData> myFriends;
 
@@ -76,9 +85,11 @@ public class MyUserManager {
         databaseReference = firebaseDatabase.getReference(USER);
         databaseFriendsReference=firebaseDatabase.getReference(FRIENDS);
         databaseCoordinatesReference=firebaseDatabase.getReference(COORDINATES);
+        databaseNotificationsReference=firebaseDatabase.getReference(NOTIFICATIONS);
         storageReference = FirebaseStorage.getInstance().getReference();
 
     }
+
 
 
 
@@ -95,6 +106,7 @@ public class MyUserManager {
    public ArrayList<UserData> getMyFriends(){return myFriends;}
    public void setMyFriends(ArrayList<UserData> friends){myFriends=friends;}
    public DatabaseReference getDatabaseCoordinatesReference(){return databaseCoordinatesReference;}
+   public DatabaseReference getDatabaseFriendsReference(){return databaseFriendsReference;}
 
     public void loginUser(String emailText, String passwordText, final Activity enclosingActivity){
         firebaseAuth.signInWithEmailAndPassword(emailText,passwordText).addOnCompleteListener(enclosingActivity,
@@ -582,5 +594,88 @@ public class MyUserManager {
 
     public void removeFriend(String uuid){
         databaseFriendsReference.child(getCurrentUserUid()).child(uuid).removeValue();
+        databaseFriendsReference.child(uuid).child(getCurrentUserUid()).removeValue();
     }
+
+    public void checkForFriendRequestAndSendRequest(final String receiver, final Object objectToDismiss){
+        databaseNotificationsReference.child(getCurrentUserUid()).child(FRIEND_REQUESTS).child(receiver).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseNotificationsReference.child(getCurrentUserUid()).child(FRIEND_REQUESTS).child(receiver).removeEventListener(this);
+                if(dataSnapshot.exists()){
+                    addFriend(receiver);
+                    deleteNotifications(receiver);
+                    if(objectToDismiss!=null)
+                        ((DisplayUserInformationOnMapDialog)objectToDismiss).dismissDialog();
+                }else{
+                    sendRequest(receiver);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+
+    public void sendRequest(final String receiver){
+        databaseNotificationsReference.child(receiver).child(FRIEND_REQUESTS).child(getCurrentUserUid()).addValueEventListener(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseNotificationsReference.child(receiver).child(FRIEND_REQUESTS).child(getCurrentUserUid()).removeEventListener(this);
+                if(!dataSnapshot.exists()){
+                    FriendsRequestNotification notification=new FriendsRequestNotification(userData.getUsername(),false);
+                    databaseNotificationsReference.child(receiver).child(FRIEND_REQUESTS).child(getCurrentUserUid()).setValue(notification);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
+        });
+    }
+
+    public void checkIfRequestSent(final String receiver,final Button btn){
+        databaseNotificationsReference.child(receiver).child(FRIEND_REQUESTS).child(getCurrentUserUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    btn.setEnabled(false);
+                    btn.setText(R.string.pending);
+                }else{
+                    btn.setText(R.string.sendFriendRequest);
+                    btn.setEnabled(true);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
+        });
+    }
+
+    public void getFriendRequestNotifications(String uuid, final IGetNotifications notificationsClb) {
+        databaseNotificationsReference.child(uuid).child(FRIEND_REQUESTS).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    ArrayList<FriendsRequestNotification> notifications=new ArrayList<FriendsRequestNotification>();
+                    for(DataSnapshot child : dataSnapshot.getChildren()){
+                        FriendsRequestNotification notification=child.getValue(FriendsRequestNotification.class);
+                        notifications.add(notification);
+                    }
+                    notificationsClb.onFriendRequestsReceived(notifications);
+                }else
+                {
+                    notificationsClb.onFriendRequestsReceived(null);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
+        });
+    }
+    public void deleteNotifications(String receiver) {
+        databaseNotificationsReference.child(receiver).child(FRIEND_REQUESTS).child(getCurrentUserUid()).removeValue();
+        databaseNotificationsReference.child(getCurrentUserUid()).child(FRIEND_REQUESTS).child(receiver).removeValue();
+    }
+
 }

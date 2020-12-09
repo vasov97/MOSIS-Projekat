@@ -104,7 +104,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     private MyClusterManagerRenderer myClusterManagerRenderer;
     private ArrayList<ClusterMarker> clusterMarkers = new ArrayList<ClusterMarker>();
 
-        ChildEventListener myChildEventListener=new ChildEventListener() {
+        ChildEventListener locationsChildEventListener=new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 String uid=dataSnapshot.getKey();
@@ -115,7 +115,6 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                         tmpChildAddedLatLng.put(uid,dataSnapshot.getValue(MyLatLong.class));
                         MyUserManager.getInstance().getSingleUser(DataRetriveAction.GET_USER,uid,clb);
                     }
-
                 }
             }
             @Override
@@ -138,6 +137,50 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) { }
+        };
+        ChildEventListener friendsChildEventListener= new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if(allUsers!=null && myFriends!=null){
+                    UserData user=getUserFromList(allUsers,dataSnapshot.getKey());
+                    if(!myFriends.contains(user)){
+                        removeUserMarker(user);
+                        drawFriendMarker(user);
+                        setUpClusterManager();
+                        clusterManager.cluster();
+                        myFriends.add(user);
+                    }
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                    String key=dataSnapshot.getKey();
+                    UserData user=getUserFromList(allUsers,key);
+                    myFriends.remove(user);
+                    ClusterMarker marker=(ClusterMarker) userMarkers.get(user.getUserUUID());
+                    if(marker!=null){
+                        myClusterManagerRenderer.removeClusterMarker(marker);
+                        userMarkers.remove(key);
+                    }
+
+                    drawUserMarker(user);
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
         };
        TextWatcher myTextWatcher=new TextWatcher() {
            @Override
@@ -168,13 +211,9 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         mapFragment.getMapAsync(this);
         loadAllUsers();
 
-        MyUserManager.getInstance().getDatabaseCoordinatesReference().addChildEventListener(myChildEventListener);
+        MyUserManager.getInstance().getDatabaseCoordinatesReference().addChildEventListener(locationsChildEventListener);
+        MyUserManager.getInstance().getDatabaseFriendsReference().child(MyUserManager.getInstance().getCurrentUserUid()).addChildEventListener(friendsChildEventListener);
         radius.addTextChangedListener(myTextWatcher);
-
-
-
-
-
     }
 
 

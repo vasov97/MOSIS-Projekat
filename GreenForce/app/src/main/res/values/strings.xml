@@ -55,6 +55,7 @@
     <string name="sendFriendRequest">Send request</string>
     <string name="view">View</string>
     <string name="remove">Remove</string>
+    <string name="pending">Pending</string>
 
     <string-array name="spinner_data">
         <item>Me</item>

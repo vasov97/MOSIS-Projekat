@@ -1,11 +1,10 @@
 package rs.elfak.mosis.greenforce.activities;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.app.ProgressDialog;
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -19,14 +18,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import rs.elfak.mosis.greenforce.interfaces.IGetNotifications;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.models.FriendsRequestNotification;
 import rs.elfak.mosis.greenforce.models.UserData;
 import rs.elfak.mosis.greenforce.adapters.MyFriendsAdapter;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
@@ -34,34 +38,60 @@ import rs.elfak.mosis.greenforce.interfaces.IGetFriendsCallback;
 import rs.elfak.mosis.greenforce.interfaces.IOnClickNewIntent;
 
 
-public class MyFriendsActivity extends AppCompatActivity implements View.OnClickListener,Serializable, IComponentInitializer, IOnClickNewIntent {
+public class MyFriendsActivity extends AppCompatActivity implements View.OnClickListener,Serializable, IComponentInitializer,
+        IOnClickNewIntent {
     FloatingActionButton fabFriends;
     FloatingActionButton fabBluetooth;
     FloatingActionButton fabMaps;
     Toolbar toolbar;
     ArrayList<UserData> friends;
-    IGetFriendsCallback clb;
+    IGetFriendsCallback friendsClb;
+    IGetNotifications notificationsClb;
     ListView friendsList;
     ProgressDialog progressDialog;
     MyFriendsAdapter friendsAdapter;
-
+    SearchView searchView;
+    ImageView notificationIcon;
+    TextView notificationNumber;
+    ArrayList<FriendsRequestNotification> friendsRequestNotifications;
 
     OvershootInterpolator overshootInterpolator= new OvershootInterpolator();
 
     boolean isFABOpen=false;
     float translationY;
 
+
     public class GetFriendsCallback implements IGetFriendsCallback{
-
-
         @Override
         public void onFriendsReceived(ArrayList<UserData> myFriends) {
             friends=myFriends;
             progressDialog.dismiss();
-            displayFriends();
+            if(searchView==null || searchView.getQuery().toString().equals(""))
+               displayFriends(friends);
         }
+    }
 
+    public class GetNotificationsCallback implements IGetNotifications{
+        @Override
+        public void onFriendRequestsReceived(ArrayList<FriendsRequestNotification> notifications) {
+            if(notifications!=null){
+                friendsRequestNotifications=notifications;
+                notificationIcon.setEnabled(true);
+                int notSeenCount=0;
+                for(FriendsRequestNotification notification :notifications){
+                    if(notification.getSeen()==false)
+                        notSeenCount++;
+                }
+                if(notSeenCount!=0) {
+                    notificationNumber.setText(String.valueOf(notSeenCount));
+                    notificationNumber.setVisibility(View.VISIBLE);
+                }
+            }else{
+                notificationNumber.setVisibility(View.INVISIBLE);
+                notificationIcon.setEnabled(false);
+            }
 
+        }
     }
 
     SearchView.OnQueryTextListener mySearchListener=new SearchView.OnQueryTextListener() {
@@ -71,13 +101,28 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         }
 
         @Override
-        public boolean onQueryTextChange(String newText) {
-            friendsAdapter.getFilter().filter(newText);
+        public boolean onQueryTextChange(String newText)
+        {
+            if(newText.isEmpty())
+                displayFriends(friends);
+            else{
+                ArrayList<UserData> resultData = new ArrayList<UserData>();
+                for(UserData user:friends)
+                {
+                    if(user.getUsername().toLowerCase().contains(newText.toLowerCase()))
+                    {
+                        resultData.add(user);
+                    }
+                }
+                displayFriends(resultData);
+            }
+
+
             return true;
         }
     };
 
-    private void displayFriends() {
+    private void displayFriends(ArrayList<UserData> friends) {
         friendsAdapter=new MyFriendsAdapter(this,friends);
         friendsList.setAdapter(friendsAdapter);
     }
@@ -87,9 +132,12 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_friends);
-        clb=new GetFriendsCallback();
-        MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(),clb);
         initializeComponents();
+        friendsClb =new GetFriendsCallback();
+        notificationsClb=new GetNotificationsCallback();
+        MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(), friendsClb);
+        MyUserManager.getInstance().getFriendRequestNotifications(MyUserManager.getInstance().getCurrentUserUid(),notificationsClb);
+
         setUpActionBar(R.string.friends_text);
         loadFriendsList();
 
@@ -125,7 +173,7 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
     private void setUpActionBar(int rid) {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+       // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         /*getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);*/
     }
@@ -159,6 +207,9 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         fabMaps = findViewById(R.id.fabMaps);
         toolbar = findViewById(R.id.friends_toolbar);
         friendsList=findViewById(R.id.my_friends_listview);
+        notificationIcon=findViewById(R.id.notificationIcon);
+        notificationNumber=findViewById(R.id.notificationNumber);
+        notificationIcon.setOnClickListener(this);
         setFABAlpha();
         setFABListeners();
         setFABTranslations();
@@ -199,8 +250,6 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         else if(v.getId()==R.id.fabBluetooth)
         {
            onClickNewIntent(this, AddFriendsViaBluetoothActivity.class);
-            /*Intent i=new Intent(this,AddFriendsViaBluetoothActivity.class);
-            startActivity(i);*/
         }
         else if(v.getId()==R.id.fabMaps)
         {
@@ -209,6 +258,9 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
             MyUserManager.getInstance().setMyFriends(friends);
             startActivity(i);
         }
+        else if(v.getId()==R.id.notificationIcon){
+            Toast.makeText(this, "Bell", Toast.LENGTH_SHORT).show();
+        }
 
 
 
@@ -216,9 +268,6 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_friends_list,menu);
-        MenuItem searchBar = menu.findItem(R.id.app_bar_search);
-        SearchView searchView = (SearchView)searchBar.getActionView();
-        searchView.setOnQueryTextListener(mySearchListener);
         return true;
     }
 
@@ -236,6 +285,9 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         menu.clear();
         super.onPrepareOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu_friends_list,menu);
+        MenuItem searchBar = menu.findItem(R.id.app_bar_search);
+        searchView = (SearchView)searchBar.getActionView();
+        searchView.setOnQueryTextListener(mySearchListener);
         return true;
     }
 

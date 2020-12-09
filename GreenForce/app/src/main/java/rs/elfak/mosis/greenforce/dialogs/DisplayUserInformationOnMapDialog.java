@@ -63,7 +63,10 @@ public class DisplayUserInformationOnMapDialog extends BottomSheetDialog impleme
             removeUseButton.setEnabled(false);
             viewUserButton.setVisibility(View.INVISIBLE);
             viewUserButton.setEnabled(false);
+            sendRequestButton.setEnabled(false);
             sendRequestButton.setOnClickListener(this);
+            MyUserManager.getInstance().checkIfRequestSent(user.getUserUUID(),sendRequestButton);
+
         }
         setUpData(isFriend);
     }
@@ -84,7 +87,8 @@ public class DisplayUserInformationOnMapDialog extends BottomSheetDialog impleme
     {
        if(v.getId()==R.id.sendRequestButton)
        {
-           Toast.makeText(getContext(), "Send request ", Toast.LENGTH_SHORT).show();
+           MyUserManager.getInstance().checkForFriendRequestAndSendRequest(user.getUserUUID(),this);
+           Toast.makeText(getContext(), "Request sent", Toast.LENGTH_SHORT).show();
        }
        else if(v.getId()==R.id.viewUserButton)
        {
