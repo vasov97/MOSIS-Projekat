@@ -38,7 +38,7 @@ import rs.elfak.mosis.greenforce.interfaces.IGetFriendsCallback;
 import rs.elfak.mosis.greenforce.interfaces.IOnClickNewIntent;
 
 
-public class MyFriendsActivity extends AppCompatActivity implements View.OnClickListener,Serializable, IComponentInitializer,
+public class MyFriendsActivity extends AppCompatActivity implements View.OnClickListener, IComponentInitializer,
         IOnClickNewIntent {
     FloatingActionButton fabFriends;
     FloatingActionButton fabBluetooth;
@@ -53,7 +53,7 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
     SearchView searchView;
     ImageView notificationIcon;
     TextView notificationNumber;
-    ArrayList<FriendsRequestNotification> friendsRequestNotifications;
+    ArrayList<Object> friendsRequestNotifications;
 
     OvershootInterpolator overshootInterpolator= new OvershootInterpolator();
 
@@ -73,14 +73,18 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
 
     public class GetNotificationsCallback implements IGetNotifications{
         @Override
-        public void onFriendRequestsReceived(ArrayList<FriendsRequestNotification> notifications) {
+        public void onFriendRequestsReceived(ArrayList<Object> notifications) {
             if(notifications!=null){
                 friendsRequestNotifications=notifications;
                 notificationIcon.setEnabled(true);
                 int notSeenCount=0;
-                for(FriendsRequestNotification notification :notifications){
-                    if(notification.getSeen()==false)
-                        notSeenCount++;
+                for(Object notification :notifications){
+                    if(notification instanceof FriendsRequestNotification)
+                    {
+                        if(!((FriendsRequestNotification) notification).getSeen())
+                            notSeenCount++;
+                    }
+
                 }
                 if(notSeenCount!=0) {
                     notificationNumber.setText(String.valueOf(notSeenCount));
@@ -259,7 +263,8 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
             startActivity(i);
         }
         else if(v.getId()==R.id.notificationIcon){
-            Toast.makeText(this, "Bell", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Bell", Toast.LENGTH_SHORT).show();
+            onClickNewIntent(this,NotificationsActivity.class);
         }
 
 

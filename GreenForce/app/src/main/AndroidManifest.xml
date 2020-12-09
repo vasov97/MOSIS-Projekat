@@ -45,6 +45,7 @@
         <activity android:name=".activities.HomePageActivity" />
         <activity android:name=".activities.RegisterActivity" />
         <activity android:name=".activities.LoginActivity" />
+        <activity android:name=".activities.NotificationsActivity"/>
         <activity android:name=".activities.SplashScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

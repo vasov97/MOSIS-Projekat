@@ -658,9 +658,10 @@ public class MyUserManager {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
-                    ArrayList<FriendsRequestNotification> notifications=new ArrayList<FriendsRequestNotification>();
+                    ArrayList<Object> notifications=new ArrayList<Object>();
                     for(DataSnapshot child : dataSnapshot.getChildren()){
                         FriendsRequestNotification notification=child.getValue(FriendsRequestNotification.class);
+                        notification.setSenderUid(child.getKey());
                         notifications.add(notification);
                     }
                     notificationsClb.onFriendRequestsReceived(notifications);

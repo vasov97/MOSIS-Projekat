@@ -56,6 +56,9 @@
     <string name="view">View</string>
     <string name="remove">Remove</string>
     <string name="pending">Pending</string>
+    <string name="friend_request">Friend request</string>
+    <string name="friend_req_text">would like to add you as a friend</string>
+    <string name="notifications">Notifications</string>
 
     <string-array name="spinner_data">
         <item>Me</item>

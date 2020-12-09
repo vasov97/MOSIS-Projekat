@@ -31,6 +31,11 @@ public class DisplayUserInformationOnMapDialog extends BottomSheetDialog impleme
     BottomSheetDialog bottomSheetDialog;
 
     UserData user;
+
+    public UserData getUser() {
+        return user;
+    }
+
     public DisplayUserInformationOnMapDialog(@NonNull Context context)
     {
         super(context);

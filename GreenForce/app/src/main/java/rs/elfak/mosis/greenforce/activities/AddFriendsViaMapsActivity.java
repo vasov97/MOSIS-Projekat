@@ -144,6 +144,8 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                 if(allUsers!=null && myFriends!=null){
                     UserData user=getUserFromList(allUsers,dataSnapshot.getKey());
                     if(!myFriends.contains(user)){
+                        if(myDialog!=null && myDialog.getUser().getUserUUID().equals(user.getUserUUID()))
+                            myDialog.dismissDialog();
                         removeUserMarker(user);
                         drawFriendMarker(user);
                         setUpClusterManager();
