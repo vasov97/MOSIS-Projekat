@@ -41,6 +41,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
@@ -390,6 +391,50 @@ public class MyUserManager {
         });
     }
 
+    public void getRankedUsers(final IGetUsersCallback callback,final long totalCount)
+    {
+        databaseReference.orderByChild("points").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+            {
+                long totalChildren = dataSnapshot.getChildrenCount();
+                long i = 0;
+                long usersToReturn = Math.min(totalChildren, totalCount);
+                ArrayList<UserData> rankedUsers=new ArrayList<UserData>();
+                // loop through dataSnapshot
+                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                    UserData user=childSnapshot.getValue(UserData.class);
+                    if (user.getUserUUID().equals(getCurrentUserUid())){
+                        long userPlace = totalChildren - i;
+                        userData.setCurrentRank(userPlace);
+                        if(usersToReturn<userPlace){
+                            callback.onUserReceived(user);
+                            break;
+                        }else{
+                            try {
+                                getUserImageBitmap(DataRetriveAction.GET_RANKED_USERS,user,usersToReturn,callback,rankedUsers,null);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    } else {
+                        i++;
+                        user.setCurrentRank(i);
+                        if(i<=usersToReturn) {
+                            try {
+                                getUserImageBitmap(DataRetriveAction.GET_RANKED_USERS,user,usersToReturn,callback,rankedUsers,null);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
+        });
+    }
+
 //    private void getUserImageBitmap(final UserData user, final long count, final IGetAllUsersCallback callback, final ArrayList<UserData> allUsers) throws IOException {
 //        StorageReference imageReference=storageReference.child(IMAGE+user.getUserUUID()+".jpeg");
 //
@@ -458,6 +503,12 @@ public class MyUserManager {
                     case GET_USER:
                         ((IGetUsersCallback)callback).onUserReceived(user);
                         break;
+                    case GET_RANKED_USERS:
+                        usersArray.add(user);
+                        if (usersArray.size() == count)
+                            ((IGetUsersCallback) callback).onUsersReceived(usersArray);
+                        break;
+
                 }
             }
         });
@@ -538,7 +589,6 @@ public class MyUserManager {
                 }else{
                     userToSend=dataSnapshot.getValue(UserData.class);
                     userToSend.setUserUUID((uid));
-
                 }
                 try {
                     getUserImageBitmap(action,userToSend,count,callback,friends,enclosingActivity);

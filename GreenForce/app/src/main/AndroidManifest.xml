@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-feature android:name="android.hardware.bluetooth" />
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -18,7 +19,7 @@
 
     <uses-feature
         android:glEsVersion="0x00020000"
-        android:required="true"/>
+        android:required="true" />
 
     <application
         android:hardwareAccelerated="true"
@@ -27,6 +28,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".activities.RankingsActivity"></activity>
         <activity android:name=".activities.AddFriendsViaMapsActivity" />
         <activity
             android:name=".activities.AddFriendsViaBluetoothActivity"
@@ -36,16 +38,15 @@
             android:name=".activities.MyFriendsActivity"
             android:label="@string/title_activity_my_friends"
             android:theme="@style/AppTheme.NoActionBar">
-        <intent-filter>
-            <action android:name="android.intent.action.SEARCH" />
-        </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
         </activity>
-
         <activity android:name=".activities.MyProfileActivity" />
         <activity android:name=".activities.HomePageActivity" />
         <activity android:name=".activities.RegisterActivity" />
         <activity android:name=".activities.LoginActivity" />
-        <activity android:name=".activities.NotificationsActivity"/>
+        <activity android:name=".activities.NotificationsActivity" />
         <activity android:name=".activities.SplashScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -54,17 +55,17 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.MainActivity" />
-      <meta-data
-          android:name="com.google.android.gms.version"
-          android:value="@integer/google_play_services_version"/>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/maps_api_key" />
 
-
-
-           <service android:name=".services.LocationService"
-                    android:stopWithTask="true"/>
-
+        <service
+            android:name=".services.LocationService"
+            android:stopWithTask="true" />
     </application>
+
 </manifest>

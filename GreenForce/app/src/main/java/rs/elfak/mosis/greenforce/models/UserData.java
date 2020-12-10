@@ -11,9 +11,9 @@ public class UserData
     String email;
     String name;
     String phoneNumber;
-    String points;
     String surname;
     String username;
+    int points;
 
     @Exclude
     Bitmap userImage;
@@ -21,6 +21,11 @@ public class UserData
     String uuid;
     @Exclude
     MyLatLong myLatLong;
+
+
+
+    @Exclude
+    long currentRank;
 
 
     public UserData(){}
@@ -32,7 +37,7 @@ public class UserData
     this.username = username;
     this.phoneNumber = phoneNumber;
     this.userImage = userImage;
-    this.points="0";
+    this.points=0;
     }
 
     public String getEmail() {
@@ -55,7 +60,10 @@ public class UserData
         return phoneNumber;
     }
 
-    public String getPoints(){return points;}
+    public int getPoints(){return points;}
+
+    @Exclude
+    public long getCurrentRank() { return currentRank; }
 
     public void setEmail(String email){ this.email=email;}
 
@@ -63,9 +71,12 @@ public class UserData
 
     public void setPhoneNumber(String phoneNumber){ this.phoneNumber=phoneNumber;}
 
-    public void setPoints(String points){this.points=points;}
+    public void setPoints(int points){this.points=points;}
 
     public void setSurname(String surname){ this.surname=surname;}
+
+    @Exclude
+    public void setCurrentRank(long currentRank) { this.currentRank = currentRank; }
 
     public void setUsername(String username){ this.username=username;}
     @Exclude

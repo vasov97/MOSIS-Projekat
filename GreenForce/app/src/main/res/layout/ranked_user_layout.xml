@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="5dp">
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_weight="0.8"
+        >
+    <TextView
+        android:id="@+id/textViewRank"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorBlack"
+        android:layout_margin="5dp"
+        android:textSize="15sp"
+        android:text="1"
+        android:layout_weight="0.1"
+        />
+    <TextView
+        android:id="@+id/textViewRankedUsername"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:textColor="@color/colorBlack"
+        android:layout_margin="5dp"
+        android:textSize="15sp"
+        android:text="Username"
+        android:layout_weight="0.3"
+        />
+    <TextView
+        android:id="@+id/textViewUserPoints"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:textColor="@color/colorBlack"
+        android:layout_margin="5dp"
+        android:textSize="15sp"
+        android:text="100 pts"
+        android:layout_weight="0.3"
+        />
+
+    </LinearLayout>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/ranked_user_image"
+        android:layout_width="60dp"
+        android:layout_height="70dp"
+        android:src="@drawable/profile_default"
+        app:civ_border_width="0dp"
+        android:layout_margin="5dp"
+
+        />
+
+
+</LinearLayout>
