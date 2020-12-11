@@ -5,8 +5,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
 import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.adapters.NotificationsAdapter;
+import rs.elfak.mosis.greenforce.adapters.RankingsAdapter;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.interfaces.IGetFriendsCallback;
+import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 import rs.elfak.mosis.greenforce.models.UserData;
 
 import android.os.Bundle;
@@ -31,6 +34,9 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
     TextView currentPoints;
     ArrayList<UserData> rankedFriends;
     ArrayList<UserData> rankedUsers;
+    GetFriendsCallback getFriendsCallback;
+    GetUsersCallback getUsersCallback;
+    RankingsAdapter rankingsAdapter;
 
     public class GetFriendsCallback implements IGetFriendsCallback{
 
@@ -38,10 +44,40 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
         public void onFriendsReceived(ArrayList<UserData> myFriends) {
             if(myFriends!=null){
                 rankedFriends=myFriends;
+                //displayRankedUsers(myFriends);
             }
         }
     }
 
+    public class GetUsersCallback implements IGetUsersCallback
+    {
+
+        @Override
+        public void onUsersReceived(ArrayList<UserData> allUsers) {
+            if(allUsers!=null)
+            {
+                rankedUsers=allUsers;
+                //displayRankedUsers(allUsers);
+            }
+
+
+        }
+
+        @Override
+        public void onUserReceived(UserData user) {
+
+        }
+    }
+    @Override
+    public void initializeComponents()
+    {
+        radioButtonAll=findViewById(R.id.radio_button_all);
+        radioButtonFriends=findViewById(R.id.radio_button_friends);
+        rankingsListView=findViewById(R.id.rankings_listview);
+        currentPoints=findViewById(R.id.your_curent_points);
+        currentRank=findViewById(R.id.your_current_rank);
+        toolbar=findViewById(R.id.rankings_toolbar);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -49,6 +85,9 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
         setContentView(R.layout.activity_rankings);
         initializeComponents();
         setUpActionBar(R.string.rankings);
+
+        getFriendsCallback=new GetFriendsCallback();
+        getUsersCallback=new GetUsersCallback();
     }
     private void setUpActionBar(int rid)
     {
@@ -71,10 +110,23 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
         return true;
     }
 
-    @Override
-    public void initializeComponents() {
+    private void displayRankedUsers(ArrayList<UserData> rankedUsers)
+    {
+        if(rankedUsers!=null)
+        {
+            rankingsAdapter =new RankingsAdapter(this,rankedUsers);
+            rankingsListView.setAdapter(rankingsAdapter);
+            //showRank();
+        }
 
     }
 
+    private void showRank()
+    {
+        if(radioButtonAll.isSelected())
+            displayRankedUsers(rankedUsers);
+        else if(radioButtonFriends.isSelected())
+            displayRankedUsers(rankedFriends);
+    }
 
 }
