@@ -79,7 +79,7 @@ public class DisplayUserInformationOnMapDialog extends BottomSheetDialog impleme
     private void setUpData(boolean isFriend) {
         username.setText(user.getUsername());
         name.setText(user.getName()+" "+user.getSurname());
-        userPoints.setText(user.getPoints().toString()+" points");
+        userPoints.setText(user.getPoints()+" points");
         userImage.setImageBitmap(user.getUserImage());
         if(isFriend){
             userEmail.setText("Mail: "+user.getEmail());

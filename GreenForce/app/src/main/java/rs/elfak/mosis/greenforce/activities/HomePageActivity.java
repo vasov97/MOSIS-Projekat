@@ -34,6 +34,7 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
 
     CardView profileCard;
     CardView friendsListCard;
+    CardView rankCard;
     boolean mLocationPermissionGranted;
     String TAG="HomePageActivity";
     LocationManager locationManager;
@@ -45,6 +46,7 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
         initializeComponents();
         profileCard.setOnClickListener(this);
         friendsListCard.setOnClickListener(this);
+        rankCard.setOnClickListener(this);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -77,6 +79,10 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
             Intent i=new Intent(this, MyFriendsActivity.class);
             startActivity(i);
         }
+        else if(v.getId()==R.id.rank_card){
+            Intent i=new Intent(this, RankingsActivity.class);
+            startActivity(i);
+        }
     }
 
 
@@ -85,6 +91,7 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
     {
         profileCard=findViewById(R.id.profile_card);
         friendsListCard = findViewById(R.id.friends_card);
+        rankCard=findViewById(R.id.rank_card);
 ;    }
 
     private boolean checkMapServices(){

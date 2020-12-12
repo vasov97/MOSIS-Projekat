@@ -1,6 +1,9 @@
 package rs.elfak.mosis.greenforce.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +14,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.firebase.database.collection.LLRBNode;
+
 import java.util.ArrayList;
 
 import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.models.UserData;
 
 public class RankingsAdapter extends ArrayAdapter<UserData>
@@ -40,6 +46,14 @@ public class RankingsAdapter extends ArrayAdapter<UserData>
         TextView rank=row.findViewById(R.id.textViewRank);
         TextView username = row.findViewById(R.id.textViewRankedUsername);
         TextView points = row.findViewById(R.id.textViewUserPoints);
+
+        UserData display=getItem(position);
+        rankedUserImage.setImageBitmap(display.getUserImage());
+        rank.setText(Long.toString(display.getCurrentRank()));
+        username.setText(display.getUsername());
+        points.setText(Integer.toString(display.getPoints()));
+        if(display.getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid()))
+            row.setBackgroundColor(Color.BLUE);
 
         return row;
     }

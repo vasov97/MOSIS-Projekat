@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
+import java.util.Comparator;
 
 @IgnoreExtraProperties
 public class UserData
@@ -120,6 +121,14 @@ public class UserData
         // Compare the data members and return accordingly
         return this.uuid.equals(c.getUserUUID());
     }
+
+    @Exclude
+    public static Comparator<UserData> UserPointsComparatorDesc=new Comparator<UserData>() {
+        @Override
+        public int compare(UserData o1, UserData o2) {
+            return o2.getPoints()-o1.getPoints();
+        }
+    };
 
 
 

@@ -100,7 +100,7 @@ public class MyUserManager {
    public UserData getVisitProfile(){return visitProfile;}
    public void setVisitProfile(UserData visitProfile){this.visitProfile=visitProfile;}
    public UserData getUser(){return userData;}
-   public String getCurrentUserUid(){return firebaseAuth.getCurrentUser().getUid();}
+   public String getCurrentUserUid(){return userData.getUserUUID();}
    public static MyUserManager getInstance(){
         return SingletonHolder.instance;
     }
@@ -365,7 +365,7 @@ public class MyUserManager {
         });
     }
 
-    public void getAllUsers(final IGetUsersCallback callback)
+    public void getAllUsers(final IGetUsersCallback callback, final DataRetriveAction action)
     {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -374,13 +374,15 @@ public class MyUserManager {
                 databaseReference.removeEventListener(this);
                 ArrayList<UserData> allUsers= new ArrayList<UserData>();
                 long childrenCount=dataSnapshot.getChildrenCount();
+                if(action!=DataRetriveAction.GET_RANKED_USERS)
+                    childrenCount--;
                 for(DataSnapshot snapshot:dataSnapshot.getChildren())
                 {
                     UserData user=snapshot.getValue(UserData.class);
                     user.setUserUUID(snapshot.getKey());
                     try {
                        // getUserImageBitmap(user,childrenCount-1,callback,allUsers);
-                        getUserImageBitmap(DataRetriveAction.GET_USERS,user,childrenCount-1,callback,allUsers,null);
+                        getUserImageBitmap(action,user,childrenCount,callback,allUsers,null);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

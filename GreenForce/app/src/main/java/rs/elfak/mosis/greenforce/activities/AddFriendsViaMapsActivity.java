@@ -207,7 +207,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
 
         myFriends= MyUserManager.getInstance().getMyFriends();
         clb=new GetUsersCallback();
-        MyUserManager.getInstance().getAllUsers(clb);
+        MyUserManager.getInstance().getAllUsers(clb,DataRetriveAction.GET_USERS);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.google_maps_fragment_view_location);
         mapFragment.getMapAsync(this);

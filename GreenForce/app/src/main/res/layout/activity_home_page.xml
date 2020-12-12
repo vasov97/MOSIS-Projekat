@@ -76,7 +76,7 @@
             android:layout_height="70dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
-            android:src="@drawable/friends_card_image_foreground" />
+            app:srcCompat="@drawable/friends_card_image_foreground" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -109,7 +109,7 @@
             android:layout_height="70dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
-            android:src="@drawable/add_card_image_foreground" />
+            app:srcCompat="@drawable/add_card_image_foreground" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -141,7 +141,7 @@
             android:layout_height="70dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
-            android:src="@drawable/events_card_image_foreground" />
+            app:srcCompat="@drawable/events_card_image_foreground" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -175,7 +175,7 @@
             android:layout_height="70dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
-            android:src="@drawable/rank_card_image_foreground"
+            app:srcCompat="@drawable/rank_card_image_foreground"
 
             />
 

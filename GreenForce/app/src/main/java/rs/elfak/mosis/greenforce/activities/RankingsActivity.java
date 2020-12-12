@@ -7,9 +7,11 @@ import androidx.cardview.widget.CardView;
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.adapters.NotificationsAdapter;
 import rs.elfak.mosis.greenforce.adapters.RankingsAdapter;
+import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.interfaces.IGetFriendsCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
+import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.models.UserData;
 
 import android.os.Bundle;
@@ -20,7 +22,9 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class RankingsActivity extends AppCompatActivity implements IComponentInitializer
 {
@@ -44,7 +48,10 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
         public void onFriendsReceived(ArrayList<UserData> myFriends) {
             if(myFriends!=null){
                 rankedFriends=myFriends;
-                //displayRankedUsers(myFriends);
+                Collections.sort(rankedFriends,UserData.UserPointsComparatorDesc);
+                setRanks(rankedFriends);
+                if(radioButtonFriends.isChecked())
+                    displayRankedUsers(rankedFriends);
             }
         }
     }
@@ -57,7 +64,10 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
             if(allUsers!=null)
             {
                 rankedUsers=allUsers;
-                //displayRankedUsers(allUsers);
+                Collections.sort(rankedUsers,UserData.UserPointsComparatorDesc);
+                setRanks(rankedUsers);
+                if(radioButtonAll.isChecked())
+                    displayRankedUsers(allUsers);
             }
 
 
@@ -65,18 +75,22 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
 
         @Override
         public void onUserReceived(UserData user) {
+            displayMyRank(user);
 
         }
     }
+
     @Override
     public void initializeComponents()
     {
+        radioGroup=findViewById(R.id.radio_group);
         radioButtonAll=findViewById(R.id.radio_button_all);
         radioButtonFriends=findViewById(R.id.radio_button_friends);
         rankingsListView=findViewById(R.id.rankings_listview);
         currentPoints=findViewById(R.id.your_curent_points);
         currentRank=findViewById(R.id.your_current_rank);
         toolbar=findViewById(R.id.rankings_toolbar);
+        radioButtonAll.setChecked(true);
     }
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -88,7 +102,27 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
 
         getFriendsCallback=new GetFriendsCallback();
         getUsersCallback=new GetUsersCallback();
+        MyUserManager.getInstance().getAllUsers(getUsersCallback, DataRetriveAction.GET_RANKED_USERS);
+        MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(),getFriendsCallback);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // checkedId is the RadioButton selected
+                radioButtonCheckedChanged(checkedId);
+            }
+        });
     }
+
+    private void radioButtonCheckedChanged(int checkedId) {
+        if(rankedFriends!=null && rankedUsers!=null){
+            if(checkedId==R.id.radio_button_all)
+                displayRankedUsers(rankedUsers);
+            else
+                displayRankedUsers(rankedFriends);
+        }
+    }
+
     private void setUpActionBar(int rid)
     {
         setSupportActionBar(toolbar);
@@ -112,12 +146,16 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
 
     private void displayRankedUsers(ArrayList<UserData> rankedUsers)
     {
+
         if(rankedUsers!=null)
         {
             rankingsAdapter =new RankingsAdapter(this,rankedUsers);
             rankingsListView.setAdapter(rankingsAdapter);
             //showRank();
         }
+
+        displayMyRank(MyUserManager.getInstance().getUser());
+
 
     }
 
@@ -127,6 +165,21 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
             displayRankedUsers(rankedUsers);
         else if(radioButtonFriends.isSelected())
             displayRankedUsers(rankedFriends);
+    }
+
+    private void displayMyRank(UserData user) {
+         currentRank.setText("Your rank: "+user.getCurrentRank()+"");
+         currentPoints.setText("points: "+user.getPoints()+"");
+    }
+    private void setRanks(ArrayList<UserData> userList){
+        long rank=1;
+        for(UserData user:userList){
+            user.setCurrentRank(rank);//mora da sacekam da se napuni fon malo
+            if(user.getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid())){
+                 MyUserManager.getInstance().getUser().setCurrentRank(rank);
+            }
+             rank++;
+        }
     }
 
 }
