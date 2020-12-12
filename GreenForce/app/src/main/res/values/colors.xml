@@ -9,4 +9,10 @@
     <color name="greyColor">#777777</color>
     <color name="colorBlack">#000000</color>
     <color name="colorTextDark">#100F0F</color>
+    <color name="myRankColor">#bac2ba</color>
+    <color name="myRankBorder">#1a7019</color>
+    <color name="startColor">#13e310</color>
+    <color name="endColor">#044f03</color>
+
+    <!-- 9bd99a-->
 </resources>

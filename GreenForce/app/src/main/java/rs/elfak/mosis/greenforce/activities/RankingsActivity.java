@@ -46,13 +46,11 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
 
         @Override
         public void onFriendsReceived(ArrayList<UserData> myFriends) {
-            if(myFriends!=null){
                 rankedFriends=myFriends;
                 Collections.sort(rankedFriends,UserData.UserPointsComparatorDesc);
                 setRanks(rankedFriends);
                 if(radioButtonFriends.isChecked())
                     displayRankedUsers(rankedFriends);
-            }
         }
     }
 
@@ -61,16 +59,11 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
 
         @Override
         public void onUsersReceived(ArrayList<UserData> allUsers) {
-            if(allUsers!=null)
-            {
                 rankedUsers=allUsers;
                 Collections.sort(rankedUsers,UserData.UserPointsComparatorDesc);
                 setRanks(rankedUsers);
                 if(radioButtonAll.isChecked())
                     displayRankedUsers(allUsers);
-            }
-
-
         }
 
         @Override
@@ -169,7 +162,7 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
 
     private void displayMyRank(UserData user) {
          currentRank.setText("Your rank: "+user.getCurrentRank()+"");
-         currentPoints.setText("points: "+user.getPoints()+"");
+         currentPoints.setText("Points: "+user.getPoints()+"");
     }
     private void setRanks(ArrayList<UserData> userList){
         long rank=1;

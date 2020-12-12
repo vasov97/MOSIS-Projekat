@@ -1,5 +1,6 @@
 package rs.elfak.mosis.greenforce.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -34,6 +35,7 @@ public class RankingsAdapter extends ArrayAdapter<UserData>
         this.rankings=rankings;
     }
 
+    @SuppressLint({"ResourceAsColor", "SetTextI18n"})
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent)
@@ -48,12 +50,16 @@ public class RankingsAdapter extends ArrayAdapter<UserData>
         TextView points = row.findViewById(R.id.textViewUserPoints);
 
         UserData display=getItem(position);
+        assert display != null;
         rankedUserImage.setImageBitmap(display.getUserImage());
         rank.setText(Long.toString(display.getCurrentRank()));
         username.setText(display.getUsername());
         points.setText(Integer.toString(display.getPoints()));
         if(display.getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid()))
-            row.setBackgroundColor(Color.BLUE);
+            row.setBackgroundResource(R.drawable.my_ranked_list_view);
+
+
+
 
         return row;
     }

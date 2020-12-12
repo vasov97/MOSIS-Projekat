@@ -27,19 +27,61 @@
 
 
     </com.google.android.material.appbar.AppBarLayout>
-    <androidx.cardview.widget.CardView
-        android:layout_width="100dp"
-        android:layout_gravity="center"
-        android:layout_height="100dp"
 
-        app:cardCornerRadius="55dp">
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ranking"
-            />
-    </androidx.cardview.widget.CardView>
+   <LinearLayout
+       android:background="@drawable/card_rank"
+       android:layout_gravity="center"
+       android:layout_height="wrap_content"
+       android:layout_width="wrap_content"
+       android:orientation="horizontal"
+       >
+
+       <LinearLayout
+           android:layout_width="0dp"
+           android:layout_weight="0.2"
+           android:layout_height="wrap_content"
+           android:layout_gravity="center|left"
+           android:layout_marginLeft="7dp"
+           android:background="@drawable/ranking_icon_layout" >
+           <TextView
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:textSize="15dp"
+               android:textColor="@color/colorWhite"
+               android:text="2"/>
+
+       </LinearLayout>
+
+       <LinearLayout
+           android:layout_width="0dp"
+           android:layout_weight="0.2"
+           android:layout_height="wrap_content"
+           android:layout_gravity="center|left"
+           android:layout_marginLeft="7dp"
+           android:background="@drawable/ranking_icon_layout" >
+           <TextView
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:textSize="15dp"
+               android:textColor="@color/colorWhite"
+               android:text="1"/>
+       </LinearLayout>
+       <LinearLayout
+           android:layout_width="0dp"
+           android:layout_weight="0.2"
+           android:layout_height="wrap_content"
+           android:layout_gravity="center|left"
+           android:layout_marginLeft="8dp"
+           android:background="@drawable/ranking_icon_layout" >
+           <TextView
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:textSize="15dp"
+               android:textColor="@color/colorWhite"
+               android:text="3"/>
+       </LinearLayout>
+
+   </LinearLayout>
 
 
     <RadioGroup
@@ -76,8 +118,10 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="15dp"
         android:layout_weight="0.55"
+        android:dividerHeight="5dp"
         android:divider="@drawable/list_view_divider" />
 
     <LinearLayout
@@ -85,16 +129,24 @@
         android:layout_height="0dp"
         android:layout_weight="0.06"
         android:orientation="horizontal"
-        android:background="@color/colorWhite"
+        android:background="@drawable/custom_border"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
         >
     <TextView
         android:layout_width="wrap_content"
         android:id="@+id/your_current_rank"
+        android:textColor="@color/colorBlack"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:layout_marginLeft="30dp"
         android:layout_height="wrap_content"/>
 
         <TextView
+            android:textColor="@color/colorBlack"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:layout_marginLeft="40dp"
             android:id="@+id/your_curent_points"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>

@@ -495,7 +495,13 @@ public class MyUserManager {
                         enclosingActivity.startActivity(new Intent(enclosingActivity, HomePageActivity.class));
                         break;
                     case GET_FRIENDS:
-                        usersArray.add(user);
+                        if(!usersArray.contains(user))
+                           usersArray.add(user);
+                        else
+                        {
+                            usersArray.remove(user);
+                            usersArray.add(user);
+                        }
                         if (usersArray.size() == count)
                             ((IGetFriendsCallback) callback).onFriendsReceived(usersArray);
                         break;
@@ -506,7 +512,12 @@ public class MyUserManager {
                         ((IGetUsersCallback)callback).onUserReceived(user);
                         break;
                     case GET_RANKED_USERS:
-                        usersArray.add(user);
+                        if(!usersArray.contains(user))
+                         usersArray.add(user);
+                        else{
+                            usersArray.remove(user);
+                            usersArray.add(user);
+                        }
                         if (usersArray.size() == count)
                             ((IGetUsersCallback) callback).onUsersReceived(usersArray);
                         break;
