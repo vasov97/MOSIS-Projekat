@@ -36,9 +36,9 @@
         >
             <de.hdodenhof.circleimageview.CircleImageView
                 android:layout_width="96dp"
-                android:background="@drawable/card_rank"
                 android:layout_height="96dp"
-                android:layout_marginTop="10dp"
+                android:background="@drawable/card_rank"
+                android:layout_marginTop="7dp"
                 android:src="@drawable/my_rankings_logo"/>
 
     </LinearLayout>
