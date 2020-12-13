@@ -1,5 +1,6 @@
 package rs.elfak.mosis.greenforce.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
@@ -14,8 +15,10 @@ import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.models.UserData;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -41,18 +44,27 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
     GetFriendsCallback getFriendsCallback;
     GetUsersCallback getUsersCallback;
     RankingsAdapter rankingsAdapter;
+    ProgressDialog progressDialog;
 
     public class GetFriendsCallback implements IGetFriendsCallback{
 
         @Override
         public void onFriendsReceived(ArrayList<UserData> myFriends) {
-                rankedFriends=myFriends;
-                Collections.sort(rankedFriends,UserData.UserPointsComparatorDesc);
-                setRanks(rankedFriends);
+                rankedFriends=new ArrayList<UserData>();
+                for(UserData emptyUser : myFriends){
+                    if(rankedUsers.contains(emptyUser)){
+                        UserData fullUser=getUserFromList(rankedUsers,emptyUser.getUserUUID());
+                        rankedFriends.add(fullUser);
+                    }
+                }
+                sortArray(rankedFriends);
+                progressDialog.dismiss();
                 if(radioButtonFriends.isChecked())
                     displayRankedUsers(rankedFriends);
         }
     }
+
+
 
     public class GetUsersCallback implements IGetUsersCallback
     {
@@ -60,8 +72,8 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
         @Override
         public void onUsersReceived(ArrayList<UserData> allUsers) {
                 rankedUsers=allUsers;
-                Collections.sort(rankedUsers,UserData.UserPointsComparatorDesc);
-                setRanks(rankedUsers);
+                MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(),getFriendsCallback,DataRetriveAction.GET_RANKED_USERS);
+                sortArray(rankedUsers);
                 if(radioButtonAll.isChecked())
                     displayRankedUsers(allUsers);
         }
@@ -96,7 +108,6 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
         getFriendsCallback=new GetFriendsCallback();
         getUsersCallback=new GetUsersCallback();
         MyUserManager.getInstance().getAllUsers(getUsersCallback, DataRetriveAction.GET_RANKED_USERS);
-        MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(),getFriendsCallback);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
         {
             @Override
@@ -105,6 +116,7 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
                 radioButtonCheckedChanged(checkedId);
             }
         });
+        loadUsers();
     }
 
     private void radioButtonCheckedChanged(int checkedId) {
@@ -125,7 +137,7 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        getMenuInflater().inflate(R.menu.menu_main,menu);
+        getMenuInflater().inflate(R.menu.menu_rankings,menu);
         return true;
     }
     @Override
@@ -133,7 +145,7 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
     {
         menu.clear();
         super.onPrepareOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.menu_main,menu);
+        getMenuInflater().inflate(R.menu.menu_rankings,menu);
         return true;
     }
 
@@ -173,6 +185,39 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
             }
              rank++;
         }
+    }
+    private void sortArray(ArrayList<UserData> userList){
+        Collections.sort(userList,UserData.UserPointsComparatorDesc);
+        setRanks(userList);
+    }
+
+    private UserData getUserFromList(ArrayList<UserData> allUsers, String uuid) {
+        for(UserData u: allUsers){
+            if(u.getUserUUID().equals(uuid))
+                return u;
+        }
+        return null;
+    }
+    private void loadUsers()
+    {
+        progressDialog=new ProgressDialog(RankingsActivity.this);
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item)
+    {
+        int id = item.getItemId();
+        if(id==R.id.rankings_refresh){
+            MyUserManager.getInstance().getAllUsers(getUsersCallback,DataRetriveAction.GET_RANKED_USERS);
+            progressDialog.show();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 }

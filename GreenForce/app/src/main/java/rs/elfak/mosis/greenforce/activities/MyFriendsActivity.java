@@ -27,6 +27,7 @@ import android.widget.Toast;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
 import rs.elfak.mosis.greenforce.interfaces.IGetNotifications;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.R;
@@ -139,7 +140,7 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         initializeComponents();
         friendsClb =new GetFriendsCallback();
         notificationsClb=new GetNotificationsCallback();
-        MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(), friendsClb);
+        MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(), friendsClb, DataRetriveAction.GET_FRIENDS);
         MyUserManager.getInstance().getFriendRequestNotifications(MyUserManager.getInstance().getCurrentUserUid(),notificationsClb);
 
         setUpActionBar(R.string.friends_text);

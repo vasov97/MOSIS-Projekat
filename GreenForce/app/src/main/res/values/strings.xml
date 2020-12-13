@@ -60,6 +60,7 @@
     <string name="friend_req_text">would like to add you as a friend</string>
     <string name="notifications">Notifications</string>
     <string name="rankings">Rankings</string>
+    <string name="refresh">Refresh</string>
 
     <string-array name="spinner_data">
         <item>Me</item>

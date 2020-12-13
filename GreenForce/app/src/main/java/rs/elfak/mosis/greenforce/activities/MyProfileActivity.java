@@ -23,6 +23,7 @@ import android.widget.TextView;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import rs.elfak.mosis.greenforce.interfaces.IGetCurrentRankCallback;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.models.UserData;
@@ -46,7 +47,6 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
     Bitmap imageBitmap;
     Uri imageUri;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,11 +66,14 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
     }
 
     private void choseUserToDisplay() {
-        if(visitor)
-            setUpUserData(MyUserManager.getInstance().getVisitProfile());
-        else
-            setUpUserData(MyUserManager.getInstance().getUser());
-
+        UserData displayUser;
+        if(visitor){
+            displayUser=MyUserManager.getInstance().getVisitProfile();
+        }
+        else{
+            displayUser=MyUserManager.getInstance().getUser();
+        }
+        setUpUserData(displayUser);
     }
 
     private void setUpActionBar(int rid) {
@@ -85,6 +88,7 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
     private void setUpUserData(UserData user){
         fullName.setText(user.getName()+" "+user.getSurname());
         userName.setText(user.getUsername());
+
         myProfileImage.setImageBitmap(user.getUserImage());
     }
 
@@ -152,7 +156,6 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
         myProfileImage=findViewById(R.id.my_profile_image);
         userName=findViewById(R.id.my_username);
         fullName=findViewById(R.id.account_full_name);
-
     }
 
     private void choseImage() {

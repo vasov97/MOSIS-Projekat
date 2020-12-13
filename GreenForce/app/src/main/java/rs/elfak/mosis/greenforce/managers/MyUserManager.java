@@ -52,6 +52,7 @@ import rs.elfak.mosis.greenforce.activities.LoginActivity;
 import rs.elfak.mosis.greenforce.activities.RegisterActivity;
 import rs.elfak.mosis.greenforce.dialogs.DisplayUserInformationOnMapDialog;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
+import rs.elfak.mosis.greenforce.interfaces.IGetCurrentRankCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetNotifications;
 import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetDataCallback;
@@ -342,19 +343,29 @@ public class MyUserManager {
                 });
     }
 
-    public void getFriends(String uid, final IGetFriendsCallback callback)
+    public void getFriends(final String uid, final IGetFriendsCallback callback, final DataRetriveAction action)
     {
         databaseFriendsReference.child(uid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(action==DataRetriveAction.GET_RANKED_USERS)
+                    databaseFriendsReference.child(uid).removeEventListener(this);
                 final ArrayList<UserData> friends=new ArrayList<UserData>();
                 if(dataSnapshot.exists())
                 {
                     long childrenCount=dataSnapshot.getChildrenCount();
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        String uid = snapshot.getKey();
-                        getUserData(uid,DataRetriveAction.GET_FRIENDS,childrenCount,callback,friends,null);
-                        //getUserData(uid,childrenCount,callback,friends);
+                        String key = snapshot.getKey();
+                        if(action==DataRetriveAction.GET_FRIENDS)
+                           getUserData(key,action,childrenCount,callback,friends,null);
+                        else{
+                            childrenCount--;
+                            UserData emptyUser=new UserData();
+                            emptyUser.setUserUUID(key);
+                            friends.add(emptyUser);
+                            if(childrenCount==0)
+                                callback.onFriendsReceived(friends);
+                        }
                    }
                 }else{
                     callback.onFriendsReceived(new ArrayList<UserData>());
@@ -381,7 +392,6 @@ public class MyUserManager {
                     UserData user=snapshot.getValue(UserData.class);
                     user.setUserUUID(snapshot.getKey());
                     try {
-                       // getUserImageBitmap(user,childrenCount-1,callback,allUsers);
                         getUserImageBitmap(action,user,childrenCount,callback,allUsers,null);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -393,8 +403,7 @@ public class MyUserManager {
         });
     }
 
-    public void getRankedUsers(final IGetUsersCallback callback,final long totalCount)
-    {
+    public void getRankedUsers(final IGetUsersCallback callback,final long totalCount) {
         databaseReference.orderByChild("points").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
@@ -437,6 +446,29 @@ public class MyUserManager {
         });
     }
 
+
+    public void getUsersCurrentRank(final String uid, final IGetCurrentRankCallback callback){
+        databaseReference.orderByChild("points").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseReference.removeEventListener(this);
+                long childrenCount=dataSnapshot.getChildrenCount();
+                long myRank=childrenCount;
+                for(DataSnapshot child: dataSnapshot.getChildren()){
+                    if(child.getKey().equals(uid)){
+                        callback.onRankRetrieved(myRank);
+                    }else{
+                        myRank--;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
 //    private void getUserImageBitmap(final UserData user, final long count, final IGetAllUsersCallback callback, final ArrayList<UserData> allUsers) throws IOException {
 //        StorageReference imageReference=storageReference.child(IMAGE+user.getUserUUID()+".jpeg");
 //
