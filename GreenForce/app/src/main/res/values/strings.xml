@@ -69,5 +69,13 @@
     <string name="title_activity_events">EventsActivity</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
+    <string name="event_info">Info</string>
+    <string name="event_photos">Photos</string>
+    <string name="event_volunteers">Volunteers</string>
+    <string name="posted_by">Posted by:</string>
+    <string name="status">Status</string>
+    <string name="event_type">Type:</string>
+    <string name="event_description">Description:</string>
+    <string name="event">Event</string>
 
 </resources>
