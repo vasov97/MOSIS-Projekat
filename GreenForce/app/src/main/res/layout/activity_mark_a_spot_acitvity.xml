@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    tools:context=".activities.MarkASpotActivity"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/greenText"
+        >
+
+        <androidx.appcompat.widget.Toolbar
+            app:titleTextColor="@color/colorWhite"
+            android:id="@+id/events_toolbar_mark_a_spot"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <com.google.android.material.tabs.TabLayout
+            android:layout_width="match_parent"
+            android:id="@+id/tabMarkASpotLayout"
+            app:tabTextColor="@color/colorWhite"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:id="@+id/tabItemMarkInfo"
+                android:layout_height="wrap_content"
+                android:text="@string/event_info" />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:id="@+id/tabItemAbout"
+                android:layout_height="wrap_content"
+                android:text="@string/event_about" />
+
+
+        </com.google.android.material.tabs.TabLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ViewFlipper
+        android:layout_width="match_parent"
+        android:id="@+id/view_flipper_mark_a_spot"
+        android:layout_height="wrap_content">
+
+        <include layout="@layout/mark_a_spot_info"/>
+        <include layout="@layout/mark_a_spot_about"/>
+
+
+    </ViewFlipper>
+
+
+</LinearLayout>

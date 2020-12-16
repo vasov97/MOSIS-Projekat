@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content"
+        >
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="0.8"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginBottom="10dp"
+             android:layout_marginLeft="5dp"
+             android:text="@string/select_categories"/>
+         <CheckBox
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/land_pollution_50pts"/>
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:text="@string/water_pollution_100pts"
+                android:layout_height="wrap_content"/>
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:text="@string/reforestation_200pts"
+                android:layout_height="wrap_content"/>
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:text="@string/other_30pts"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:orientation="vertical"
+            android:layout_gravity="center|center_vertical"
+            android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/points"/>
+            <EditText
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                />
+        </LinearLayout>
+    </LinearLayout>
+    <include layout="@layout/event_location_layout"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorBlack"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/description"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:textColor="@color/colorBlack"
+        android:background="@drawable/bottom_border"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+        android:text=""/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:gravity="center|bottom"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:text="Upload photo"
+            android:layout_marginBottom="10dp"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+</LinearLayout>
