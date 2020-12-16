@@ -16,6 +16,10 @@ public class UserData
     String username;
     int points;
 
+
+
+    @Exclude
+    MyEvent currentEvent;
     @Exclude
     Bitmap userImage;
     @Exclude
@@ -65,6 +69,10 @@ public class UserData
 
     @Exclude
     public long getCurrentRank() { return currentRank; }
+
+    @Exclude public MyEvent getCurrentEvent() { return currentEvent; }
+
+    @Exclude public void setCurrentEvent(MyEvent currentEvent) { this.currentEvent = currentEvent; }
 
     public void setEmail(String email){ this.email=email;}
 

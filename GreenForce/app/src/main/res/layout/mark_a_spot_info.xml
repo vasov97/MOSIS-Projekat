@@ -19,20 +19,27 @@
              android:layout_marginBottom="10dp"
              android:layout_marginLeft="5dp"
              android:text="@string/select_categories"/>
+
+
+
          <CheckBox
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
+             android:id="@+id/land_pollution"
              android:text="@string/land_pollution_50pts"/>
             <CheckBox
                 android:layout_width="wrap_content"
+                android:id="@+id/water_pollution"
                 android:text="@string/water_pollution_100pts"
                 android:layout_height="wrap_content"/>
             <CheckBox
                 android:layout_width="wrap_content"
+                android:id="@+id/reforestation"
                 android:text="@string/reforestation_200pts"
                 android:layout_height="wrap_content"/>
             <CheckBox
                 android:layout_width="wrap_content"
+                android:id="@+id/other"
                 android:text="@string/other_30pts"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
@@ -48,6 +55,7 @@
             android:text="@string/points"/>
             <EditText
                 android:layout_width="50dp"
+                android:id="@+id/event_points_sum"
                 android:layout_height="wrap_content"
                 android:enabled="false"
                 />
@@ -62,11 +70,11 @@
         android:layout_marginTop="5dp"
         android:text="@string/description"/>
 
-    <TextView
+    <EditText
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="50dp"
+        android:id="@+id/event_description_text"
         android:textColor="@color/colorBlack"
-        android:background="@drawable/bottom_border"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
@@ -78,6 +86,7 @@
         android:layout_weight="1">
         <Button
             android:layout_width="100dp"
+            android:id="@+id/upload_event_photo"
             android:layout_height="40dp"
             android:text="Upload photo"
             android:layout_marginBottom="10dp"

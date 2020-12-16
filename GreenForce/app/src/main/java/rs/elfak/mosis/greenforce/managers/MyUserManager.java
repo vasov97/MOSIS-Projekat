@@ -564,19 +564,20 @@ public class MyUserManager {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 databaseCoordinatesReference.child(user.getUserUUID()).removeEventListener(this);
-                if(dataSnapshot.exists()){
-                    if(!user.getUserUUID().equals(getCurrentUserUid())){
-                        MyLatLong userLatLong=dataSnapshot.getValue(MyLatLong.class);
-                        user.setMyLatLong(userLatLong);
-                        allUsers.add(user);
-
-                        if(allUsers.size()==count)
-                           callback.onUsersReceived(allUsers);
-                    }
-                }else{
+                if(dataSnapshot.exists()) {
+//                    if(!user.getUserUUID().equals(getCurrentUserUid()))
+                    MyLatLong userLatLong = dataSnapshot.getValue(MyLatLong.class);
+                    user.setMyLatLong(userLatLong);
                     allUsers.add(user);
-                    if(allUsers.size()==count)
-                       callback.onUsersReceived(allUsers);
+
+                    if (allUsers.size() == count)
+                        callback.onUsersReceived(allUsers);
+
+//                }else{
+//                    allUsers.add(user);
+//                    if(allUsers.size()==count)
+//                       callback.onUsersReceived(allUsers);
+//                }
                 }
             }
             @Override

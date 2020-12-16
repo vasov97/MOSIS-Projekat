@@ -23,9 +23,10 @@ import java.util.Objects;
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.adapters.RecyclerAdapter;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
+import rs.elfak.mosis.greenforce.interfaces.IViewFlipperHandler;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 
-public class EventActivity extends AppCompatActivity implements IComponentInitializer
+public class EventActivity extends AppCompatActivity implements IComponentInitializer, IViewFlipperHandler
 {
      private Toolbar toolbar;
      private ViewFlipper viewFlipper;
@@ -50,13 +51,7 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
             images[i]= MyUserManager.getInstance().getUser().getUserImage();
         recyclerAdapter=new RecyclerAdapter(images);
         recyclerView.setAdapter(recyclerAdapter);
-        eventInfoView = getLayoutInflater().inflate(R.layout.event_info_layout,viewFlipper,false);
-        eventPhotosView = getLayoutInflater().inflate(R.layout.event_photos_layout,viewFlipper,false);
-        eventVolunteersView = getLayoutInflater().inflate(R.layout.event_volunteers_layout,viewFlipper,false);
-
-        viewFlipper.addView(eventInfoView);
-        viewFlipper.addView(eventPhotosView);
-        viewFlipper.addView(eventVolunteersView);
+       viewFlipperSetup();
 
 
 
@@ -80,10 +75,20 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
     }
 
 
+    public void viewFlipperSetup()
+    {
+        eventInfoView = getLayoutInflater().inflate(R.layout.event_info_layout,viewFlipper,false);
+        eventPhotosView = getLayoutInflater().inflate(R.layout.event_photos_layout,viewFlipper,false);
+        eventVolunteersView = getLayoutInflater().inflate(R.layout.event_volunteers_layout,viewFlipper,false);
 
+        viewFlipper.addView(eventInfoView);
+        viewFlipper.addView(eventPhotosView);
+        viewFlipper.addView(eventVolunteersView);
+    }
 
     @Override
-    public void initializeComponents() {
+    public void initializeComponents()
+    {
         toolbar=findViewById(R.id.events_toolbar);
         viewFlipper=findViewById(R.id.view_flipper);
         tabLayout=findViewById(R.id.tabLayout);

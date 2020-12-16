@@ -86,8 +86,8 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
             startActivity(i);
         }
         else if(v.getId()==R.id.mark_a_spot_card)
-        {//cisto da mi otvori negde
-            Intent i=new Intent(this, EventActivity.class);
+        {
+            Intent i=new Intent(this, MarkASpotActivity.class);
             startActivity(i);
         }
     }

@@ -48,6 +48,7 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.google.maps.android:android-maps-utils:0.5+'
     implementation 'com.google.android.material:material:1.2.0-alpha02'
+    compile 'com.xeoh.android:checkboxgroup:1.0.1'
 
 
 

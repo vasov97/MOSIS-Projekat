@@ -9,20 +9,26 @@ import java.util.ArrayList;
 import rs.elfak.mosis.greenforce.enums.EventStatus;
 import rs.elfak.mosis.greenforce.enums.EventTypes;
 
-public class Event
+public class MyEvent
 {
     private String eventDescription;
-    private EventTypes eventTypes;
-    private ArrayList<UserData> volunteers;
+    private String eventAddress;
+    private ArrayList<EventTypes> eventTypes;
     private EventStatus eventStatus;
     private int eventPoints;
 
+    @Exclude
+    private ArrayList<UserData> volunteers;
     @Exclude
     private ArrayList<Bitmap> eventPhotos;
     @Exclude
     private MyLatLong eventLocation;
     @Exclude
     private String eventID;
+
+    public String getEventAddress() { return eventAddress; }
+
+    public void setEventAddress(String eventAddress) { this.eventAddress = eventAddress; }
 
     public int getEventPoints() {
         return eventPoints;
@@ -40,21 +46,19 @@ public class Event
         this.eventDescription = description;
     }
 
-    public EventTypes getEventTypes() {
+    public ArrayList<EventTypes> getEventTypes() {
         return eventTypes;
     }
 
-    public void setEventTypes(EventTypes eventTypes) {
+    public void setEventTypes(ArrayList<EventTypes> eventTypes) {
         this.eventTypes = eventTypes;
     }
 
-    public ArrayList<UserData> getVolunteers() {
+    @Exclude public ArrayList<UserData> getVolunteers() {
         return volunteers;
     }
 
-    public void setVolunteers(ArrayList<UserData> volunteers) {
-        this.volunteers = volunteers;
-    }
+    @Exclude  public void setVolunteers(ArrayList<UserData> volunteers) { this.volunteers = volunteers; }
 
     public EventStatus getEventStatus() {
         return eventStatus;
@@ -64,27 +68,23 @@ public class Event
         this.eventStatus = eventStatus;
     }
 
-    public ArrayList<Bitmap> getEventPhotos() {
+    @Exclude public ArrayList<Bitmap> getEventPhotos() {
         return eventPhotos;
     }
 
-    public void setEventPhotos(ArrayList<Bitmap> eventPhotos) {
-        this.eventPhotos = eventPhotos;
-    }
+    @Exclude public void setEventPhotos(ArrayList<Bitmap> eventPhotos) { this.eventPhotos = eventPhotos; }
 
-    public MyLatLong getEventLocation() {
+    @Exclude public MyLatLong getEventLocation() {
         return eventLocation;
     }
 
-    public void setEventLocation(MyLatLong eventLocation) {
-        this.eventLocation = eventLocation;
-    }
+    @Exclude public void setEventLocation(MyLatLong eventLocation) { this.eventLocation = eventLocation; }
 
-    public String getEventID() {
+    @Exclude public String getEventID() {
         return eventID;
     }
 
-    public void setEventID(String eventID) {
+    @Exclude public void setEventID(String eventID) {
         this.eventID = eventID;
     }
 
