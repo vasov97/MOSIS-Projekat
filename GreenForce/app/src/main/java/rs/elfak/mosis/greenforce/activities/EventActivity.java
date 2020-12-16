@@ -1,5 +1,6 @@
 package rs.elfak.mosis.greenforce.activities;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.text.Layout;
@@ -11,24 +12,32 @@ import android.widget.ViewFlipper;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 
-import rs.elfak.mosis.greenforce.R;
-import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
+import java.util.Objects;
 
-public class EventActivity extends AppCompatActivity implements IComponentInitializer, View.OnClickListener
+import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.adapters.RecyclerAdapter;
+import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
+import rs.elfak.mosis.greenforce.managers.MyUserManager;
+
+public class EventActivity extends AppCompatActivity implements IComponentInitializer
 {
      private Toolbar toolbar;
      private ViewFlipper viewFlipper;
      private TabLayout tabLayout;
-     private TabItem tabEventInfoItem;
-     private TabItem tabEventPhotosItem;
-     private TabItem tabEventVolunteersItem;
-    View eventInfoView;
-    View eventPhotosView;
-    View eventVolunteersView;
+     private View eventInfoView;
+     private View eventPhotosView;
+     private View eventVolunteersView;
+     private RecyclerView recyclerView;
+     private RecyclerView.LayoutManager layoutManager;
+     Bitmap[] images = new Bitmap[10];
+     private RecyclerAdapter recyclerAdapter;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
@@ -37,74 +46,40 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
         setContentView(R.layout.event_layout);
         initializeComponents();
         setUpActionBar(R.string.event);
-        /*tabEventInfoItem.setOnClickListener(this);
-        tabEventPhotosItem.setOnClickListener(this);
-        tabEventVolunteersItem.setOnClickListener(this);*/
+        for(int i=0;i<10;i++)
+            images[i]= MyUserManager.getInstance().getUser().getUserImage();
+        recyclerAdapter=new RecyclerAdapter(images);
+        recyclerView.setAdapter(recyclerAdapter);
         eventInfoView = getLayoutInflater().inflate(R.layout.event_info_layout,viewFlipper,false);
         eventPhotosView = getLayoutInflater().inflate(R.layout.event_photos_layout,viewFlipper,false);
         eventVolunteersView = getLayoutInflater().inflate(R.layout.event_volunteers_layout,viewFlipper,false);
+
         viewFlipper.addView(eventInfoView);
+        viewFlipper.addView(eventPhotosView);
+        viewFlipper.addView(eventVolunteersView);
+
+
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                switch (tab.getPosition())
-                {
-                    case 0:previousView(eventInfoView);break;
-                    case 1:nextView(eventPhotosView);break;
-                    case 2:nextView(eventVolunteersView);break;
-                    default:break;
-                }
-            }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
                switch (tab.getPosition())
                 {
-                    case 0:
-                        viewFlipper.addView(eventInfoView);
-                        /*nextView(eventPhotosView);
-                        nextView(eventVolunteersView);*/
-                        //nextView(eventInfoView);
-                       break;
-                    case 1:
-                        viewFlipper.addView(eventPhotosView);
-                        previousView(eventInfoView);
-                        nextView(eventVolunteersView);
-                        //nextView(eventPhotosView);break;
-                    case 2:
-                        viewFlipper.addView(eventVolunteersView);
-                        previousView(eventPhotosView);
-                        nextView(eventInfoView);
-                        //nextView(eventVolunteersView);break;
+                    case 0:viewFlipper.setDisplayedChild(0);break;
+                    case 1:viewFlipper.setDisplayedChild(1);break;
+                    case 2:viewFlipper.setDisplayedChild(2);break;
                     default:break;
                 }
-
             }
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) { }
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) { }
         });
-
-        //viewFlipper.setFlipInterval(2000);
-        //viewFlipper.startFlipping();
-
     }
 
-    public void previousView(View view)
-    {
-        viewFlipper.setInAnimation(this,R.anim.slide_in_right);
-        viewFlipper.setOutAnimation(this,R.anim.slide_out_left);
-        viewFlipper.showPrevious();;
-    }
 
-    public void nextView(View view)
-    {
-        viewFlipper.setInAnimation(this,R.anim.slide_in_right);
-        viewFlipper.setOutAnimation(this,R.anim.slide_out_left);
-        viewFlipper.showNext();
-    }
 
 
     @Override
@@ -112,21 +87,13 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
         toolbar=findViewById(R.id.events_toolbar);
         viewFlipper=findViewById(R.id.view_flipper);
         tabLayout=findViewById(R.id.tabLayout);
-        tabEventInfoItem=findViewById(R.id.tabItemInfo);
-        tabEventPhotosItem=findViewById(R.id.tabItemPhotos);
-        tabEventVolunteersItem=findViewById(R.id.tabItemVolunteers);
+        recyclerView=findViewById(R.id.event_photos_recycler);
+        layoutManager=new GridLayoutManager(this,2);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(layoutManager);
 
     }
-    @Override
-    public void onClick(View v) {
-        if(v.getId()==R.id.tabItemInfo)
-              nextView(eventInfoView);
-        else if(v.getId()==R.id.tabItemPhotos)
-            nextView(eventPhotosView);
-            else if(v.getId()==R.id.tabItemVolunteers)
-                nextView(eventVolunteersView);
 
-    }
     private void setUpActionBar(int rid)
     {
         setSupportActionBar(toolbar);
@@ -136,7 +103,7 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        getMenuInflater().inflate(R.menu.menu_rankings,menu);
+        getMenuInflater().inflate(R.menu.menu_main,menu);
         return true;
     }
     @Override
@@ -144,7 +111,7 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
     {
         menu.clear();
         super.onPrepareOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.menu_rankings,menu);
+        getMenuInflater().inflate(R.menu.menu_main,menu);
         return true;
     }
 

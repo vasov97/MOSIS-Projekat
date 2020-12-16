@@ -11,9 +11,10 @@
         >
 
         <androidx.appcompat.widget.Toolbar
+            app:titleTextColor="@color/colorWhite"
             android:id="@+id/events_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></androidx.appcompat.widget.Toolbar>
+            android:layout_height="match_parent"/>
 
         <com.google.android.material.tabs.TabLayout
             android:layout_width="match_parent"
@@ -47,7 +48,7 @@
         android:id="@+id/view_flipper"
         android:layout_height="wrap_content">
 
-        <include layout="@layout/event_info_layout"/>
+       <include layout="@layout/event_info_layout"/>
         <include layout="@layout/event_photos_layout"/>
         <include layout="@layout/event_volunteers_layout"/>
 
