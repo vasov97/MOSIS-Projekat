@@ -58,6 +58,7 @@ import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetDataCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetFriendsCallback;
 import rs.elfak.mosis.greenforce.models.FriendsRequestNotification;
+import rs.elfak.mosis.greenforce.models.MyEvent;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
 import rs.elfak.mosis.greenforce.models.UserData;
 import rs.elfak.mosis.greenforce.services.LocationService;
@@ -70,13 +71,17 @@ public class MyUserManager {
     private final DatabaseReference databaseFriendsReference;
     private final DatabaseReference databaseCoordinatesReference;
     private final DatabaseReference databaseNotificationsReference;
+    private final DatabaseReference databaseEventsReference;
     private final StorageReference storageReference;
     private static final String USER = "user";
     private static final String FRIENDS = "friends";
+    private static final String EVENTS = "events";
     private static final String COORDINATES="coordinates";
     private static final String IMAGE = "profileImage/";
+    private static final String EVENT_IMAGES="eventImage/";
     private static final String NOTIFICATIONS="notifications";
     private static final String FRIEND_REQUESTS="friendRequests";
+
     private UserData userData,visitProfile;
     ArrayList<UserData> myFriends;
 
@@ -88,6 +93,7 @@ public class MyUserManager {
         databaseFriendsReference=firebaseDatabase.getReference(FRIENDS);
         databaseCoordinatesReference=firebaseDatabase.getReference(COORDINATES);
         databaseNotificationsReference=firebaseDatabase.getReference(NOTIFICATIONS);
+        databaseEventsReference=firebaseDatabase.getReference(EVENTS);
         storageReference = FirebaseStorage.getInstance().getReference();
 
     }
@@ -773,6 +779,41 @@ public class MyUserManager {
     public void deleteNotifications(String receiver) {
         databaseNotificationsReference.child(receiver).child(FRIEND_REQUESTS).child(getCurrentUserUid()).removeValue();
         databaseNotificationsReference.child(getCurrentUserUid()).child(FRIEND_REQUESTS).child(receiver).removeValue();
+    }
+    public void saveEvent() {
+        MyEvent event=userData.getCurrentEvent();
+        event.setCreatedByID(getCurrentUserUid());
+        String eventID=databaseEventsReference.push().getKey();
+        databaseEventsReference.child(eventID).setValue(event);
+        saveEventBeforePhotos(eventID,event.getEventPhotos());
+    }
+
+    private void saveEventBeforePhotos(String eventID, ArrayList<Bitmap> eventPhotos) {
+        String imageName="image";
+        int count=1;
+        for(Bitmap image : eventPhotos){
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final StorageReference reference; reference = FirebaseStorage.getInstance().getReference()
+                    .child("eventImage")
+                    .child(eventID)
+                    .child("before")
+                    .child(imageName+count+".jpeg");
+            image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            count++;
+            reference.putBytes(baos.toByteArray())
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e("UploadPhoto","onFailure",e.getCause());
+                        }
+                    });
+
+        }
     }
 
 }

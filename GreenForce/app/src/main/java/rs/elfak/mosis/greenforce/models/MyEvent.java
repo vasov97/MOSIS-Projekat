@@ -16,6 +16,7 @@ public class MyEvent
     private ArrayList<EventTypes> eventTypes;
     private EventStatus eventStatus;
     private int eventPoints;
+    private String createdByID;
 
     @Exclude
     private ArrayList<UserData> volunteers;
@@ -25,6 +26,15 @@ public class MyEvent
     private MyLatLong eventLocation;
     @Exclude
     private String eventID;
+
+    public String getCreatedByID() {
+        return createdByID;
+    }
+
+    public void setCreatedByID(String createdByID) {
+        this.createdByID = createdByID;
+    }
+
 
     public String getEventAddress() { return eventAddress; }
 

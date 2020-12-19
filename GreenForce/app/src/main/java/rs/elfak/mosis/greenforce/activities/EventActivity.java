@@ -47,9 +47,9 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
         setContentView(R.layout.event_layout);
         initializeComponents();
         setUpActionBar(R.string.event);
-        for(int i=0;i<10;i++)
-            images[i]= MyUserManager.getInstance().getUser().getUserImage();
-        recyclerAdapter=new RecyclerAdapter(images);
+        /*for(int i=0;i<10;i++)
+            images[i]= MyUserManager.getInstance().getUser().getUserImage();*/
+        //recyclerAdapter=new RecyclerAdapter(images);
         recyclerView.setAdapter(recyclerAdapter);
        viewFlipperSetup();
 
