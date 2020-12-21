@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -51,11 +52,11 @@ public class MarkASpotActivity extends AppCompatActivity implements IComponentIn
     private TabLayout tabLayout;
     private CheckBox waterPollution,landPollution,reforestation,other;
     private EditText eventPointsSum,description;
+    private TextView eventLocationCity;
     private View markASpotInfoView;
     private View markASportAboutView;
     private Button uploadEventPhoto;
     private CheckBoxGroup<String> checkBoxGroup;
-    private String eventAddress;
     MyEvent myEvent;
     ArrayList<String> eventValues;
     HashMap<String,EventTypes> pointsToTypesMap;
@@ -114,7 +115,6 @@ public class MarkASpotActivity extends AppCompatActivity implements IComponentIn
                     Location location = task.getResult();
                     MyLatLong myLatLong=new MyLatLong(location.getLatitude(),location.getLongitude());
                     myEvent.setEventLocation(myLatLong);
-
                     try {
                         getEventAddress(myLatLong.getLatitude(),myLatLong.getLongitude());
                     } catch (IOException e) {
@@ -131,7 +131,7 @@ public class MarkASpotActivity extends AppCompatActivity implements IComponentIn
         List<Address> addresses;
         geocoder = new Geocoder(this, Locale.getDefault());
 
-        addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+        addresses = geocoder.getFromLocation(latitude, longitude, 3); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
 
         String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
         String city = addresses.get(0).getLocality();
@@ -139,8 +139,8 @@ public class MarkASpotActivity extends AppCompatActivity implements IComponentIn
         String country = addresses.get(0).getCountryName();
         String postalCode = addresses.get(0).getPostalCode();
         String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
-
-        myEvent.setEventAddress(address + ", " + city + ", "+ country);
+        eventLocationCity.setText(address + ", " + city + ", "+ country);
+        //myEvent.setEventAddress(address + ", " + city + ", "+ country);
 
     }
     private void checkBoxesSetup()
@@ -194,6 +194,7 @@ public class MarkASpotActivity extends AppCompatActivity implements IComponentIn
         uploadEventPhoto=findViewById(R.id.upload_event_photo);
         eventPointsSum=findViewById(R.id.event_points_sum);
         description=findViewById(R.id.event_description_text);
+        eventLocationCity=findViewById(R.id.event_location_city);
 
         myEvent = new MyEvent();
 

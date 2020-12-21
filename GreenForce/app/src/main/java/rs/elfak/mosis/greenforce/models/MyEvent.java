@@ -12,20 +12,28 @@ import rs.elfak.mosis.greenforce.enums.EventTypes;
 public class MyEvent
 {
     private String eventDescription;
-    private String eventAddress;
     private ArrayList<EventTypes> eventTypes;
     private EventStatus eventStatus;
     private int eventPoints;
     private String createdByID;
+    String dateTime;
+
 
     @Exclude
     private ArrayList<UserData> volunteers;
     @Exclude
     private ArrayList<Bitmap> eventPhotos;
-    @Exclude
     private MyLatLong eventLocation;
     @Exclude
     private String eventID;
+
+    public String getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
+    }
 
     public String getCreatedByID() {
         return createdByID;
@@ -35,10 +43,6 @@ public class MyEvent
         this.createdByID = createdByID;
     }
 
-
-    public String getEventAddress() { return eventAddress; }
-
-    public void setEventAddress(String eventAddress) { this.eventAddress = eventAddress; }
 
     public int getEventPoints() {
         return eventPoints;
@@ -84,11 +88,11 @@ public class MyEvent
 
     @Exclude public void setEventPhotos(ArrayList<Bitmap> eventPhotos) { this.eventPhotos = eventPhotos; }
 
-    @Exclude public MyLatLong getEventLocation() {
+    public MyLatLong getEventLocation() {
         return eventLocation;
     }
 
-    @Exclude public void setEventLocation(MyLatLong eventLocation) { this.eventLocation = eventLocation; }
+   public void setEventLocation(MyLatLong eventLocation) { this.eventLocation = eventLocation; }
 
     @Exclude public String getEventID() {
         return eventID;
@@ -98,5 +102,25 @@ public class MyEvent
         this.eventID = eventID;
     }
 
+    @Override
+    public boolean equals(Object o) {
+
+        // If the object is compared with itself then return true
+        if (o == this) {
+            return true;
+        }
+
+        /* Check if o is an instance of Complex or not
+          "null instanceof [type]" also returns false */
+        if (!(o instanceof UserData)) {
+            return false;
+        }
+
+        // typecast o to Complex so that we can compare data members
+        MyEvent c = (MyEvent) o;
+
+        // Compare the data members and return accordingly
+        return this.eventID.equals(c.getEventID());
+    }
 
 }

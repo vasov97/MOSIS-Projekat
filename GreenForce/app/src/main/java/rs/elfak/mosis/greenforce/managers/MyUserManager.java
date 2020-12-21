@@ -42,10 +42,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
+import rs.elfak.mosis.greenforce.EventsMapActivity;
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.activities.HomePageActivity;
 import rs.elfak.mosis.greenforce.activities.LoginActivity;
@@ -115,6 +117,7 @@ public class MyUserManager {
    public void setMyFriends(ArrayList<UserData> friends){myFriends=friends;}
    public DatabaseReference getDatabaseCoordinatesReference(){return databaseCoordinatesReference;}
    public DatabaseReference getDatabaseFriendsReference(){return databaseFriendsReference;}
+    public DatabaseReference getDatabaseEventsReference(){return databaseEventsReference;}
 
     public void loginUser(String emailText, String passwordText, final Activity enclosingActivity){
         firebaseAuth.signInWithEmailAndPassword(emailText,passwordText).addOnCompleteListener(enclosingActivity,
@@ -409,48 +412,6 @@ public class MyUserManager {
         });
     }
 
-    public void getRankedUsers(final IGetUsersCallback callback,final long totalCount) {
-        databaseReference.orderByChild("points").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-            {
-                long totalChildren = dataSnapshot.getChildrenCount();
-                long i = 0;
-                long usersToReturn = Math.min(totalChildren, totalCount);
-                ArrayList<UserData> rankedUsers=new ArrayList<UserData>();
-                // loop through dataSnapshot
-                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                    UserData user=childSnapshot.getValue(UserData.class);
-                    if (user.getUserUUID().equals(getCurrentUserUid())){
-                        long userPlace = totalChildren - i;
-                        userData.setCurrentRank(userPlace);
-                        if(usersToReturn<userPlace){
-                            callback.onUserReceived(user);
-                            break;
-                        }else{
-                            try {
-                                getUserImageBitmap(DataRetriveAction.GET_RANKED_USERS,user,usersToReturn,callback,rankedUsers,null);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    } else {
-                        i++;
-                        user.setCurrentRank(i);
-                        if(i<=usersToReturn) {
-                            try {
-                                getUserImageBitmap(DataRetriveAction.GET_RANKED_USERS,user,usersToReturn,callback,rankedUsers,null);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) { }
-        });
-    }
 
 
     public void getUsersCurrentRank(final String uid, final IGetCurrentRankCallback callback){
@@ -780,9 +741,13 @@ public class MyUserManager {
         databaseNotificationsReference.child(receiver).child(FRIEND_REQUESTS).child(getCurrentUserUid()).removeValue();
         databaseNotificationsReference.child(getCurrentUserUid()).child(FRIEND_REQUESTS).child(receiver).removeValue();
     }
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void saveEvent() {
         MyEvent event=userData.getCurrentEvent();
         event.setCreatedByID(getCurrentUserUid());
+        LocalDateTime sentDateTime=LocalDateTime.now();
+        String dateTime=sentDateTime.toString();
+        event.setDateTime(dateTime);
         String eventID=databaseEventsReference.push().getKey();
         databaseEventsReference.child(eventID).setValue(event);
         saveEventBeforePhotos(eventID,event.getEventPhotos());
@@ -814,6 +779,31 @@ public class MyUserManager {
                     });
 
         }
+    }
+    public void getAllEvents(final EventsMapActivity.GetEventsCallback callback) {
+        databaseEventsReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseEventsReference.removeEventListener(this);
+                final ArrayList<MyEvent> events=new ArrayList<MyEvent>();
+                if(dataSnapshot.exists())
+                {
+                    long childrenCount=dataSnapshot.getChildrenCount();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        String key = snapshot.getKey();
+                        childrenCount--;
+                        MyEvent event = snapshot.getValue(MyEvent.class);
+                        event.setEventID(key);
+                        events.add(event);
+//                            if(childrenCount==0)
+//                                callback.onFriendsReceived(friends);
+                       }
+                    callback.onEventsReceived(events);
+                    }
+                }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
+        });
     }
 
 }

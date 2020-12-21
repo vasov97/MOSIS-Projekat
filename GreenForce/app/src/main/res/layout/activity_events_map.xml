@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EventsMapActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarEventsMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        tools:ignore="MissingConstraints">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/eventsMapToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:id="@+id/events_map_linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="@+id/appBarEventsMap"
+        app:layout_constraintStart_toStartOf="@+id/appBarEventsMap"
+        app:layout_constraintTop_toBottomOf="@+id/appBarEventsMap">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_weight="0.4"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appBarEventsMap">
+
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radius"
+                android:textSize="19sp"
+                android:layout_marginLeft="10dp"
+
+                />
+
+            <EditText
+                android:id="@+id/events_map_radius"
+                android:layout_width="150dp"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="12dp"
+                android:inputType="number" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <fragment
+        android:id="@+id/google_maps_fragment_events_map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/events_map_linearLayout"
+        tools:context=".EventsMapActivity"
+        android:layout_height="0dp" />
+
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

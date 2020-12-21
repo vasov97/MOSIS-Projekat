@@ -78,17 +78,17 @@
     <string name="event_description">Description:</string>
     <string name="event">Event</string>
     <string name="about_categories">
-        Land pollution - Garbage is at inappropriate place somewhere in nature.<br/><br/>
-        Water pollution - Garbage is in the river,lake or other water areas.<br/><br/>
-        Reforestation - Forest was either burnt down by wildfire(or on purpose) or trees were cut down.<br/><br/>
+        Land pollution - Garbage is at inappropriate place somewhere in nature.<br /><br />
+        Water pollution - Garbage is in the river,lake or other water areas.<br /><br />
+        Reforestation - Forest was either burnt down by wildfire(or on purpose) or trees were cut down.<br /><br />
         Others - An event that doesn\'t belong in any of above named categories.
     </string>
     <string name="about_events">
         Every event has certain amount of points that you will
         collect once you complete it. You can invite friends to help you
-        which will bring you additional points.<br/><br/>
+        which will bring you additional points.<br /><br />
         Duration of each event is 2 weeks. If you don\'t finish it in
-        that period, you won\'t get any points and your post will be removed.<br/>
+        that period, you won\'t get any points and your post will be removed.<br />
         Event can be abandoned. In that case you will lose 30 points. If you were leader, new
         one will become volunteer with maximum points.
     </string>
@@ -105,5 +105,14 @@
     <string name="mark_a_spot">Mark a spot</string>
     <string name="add_a_photo">Add a photo</string>
     <string name="all_photos">All photos</string>
+    <string name="title_activity_events_map">EventsMapActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="events">Events</string>
 
 </resources>
