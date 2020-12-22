@@ -125,6 +125,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/events_card"
         android:layout_width="130dp"
         android:layout_height="130dp"
         android:background="@color/colorWhite"

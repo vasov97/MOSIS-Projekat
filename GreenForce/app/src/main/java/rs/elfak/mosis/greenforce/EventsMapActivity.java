@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -37,7 +38,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import rs.elfak.mosis.greenforce.activities.AddFriendsViaMapsActivity;
+import rs.elfak.mosis.greenforce.dialogs.EventFiltersDialog;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
+import rs.elfak.mosis.greenforce.interfaces.IApplyEventFilters;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.interfaces.IGetEventsCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
@@ -47,7 +50,7 @@ import rs.elfak.mosis.greenforce.models.MyEvent;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
 import rs.elfak.mosis.greenforce.models.UserData;
 
-public class EventsMapActivity extends AppCompatActivity implements IComponentInitializer, OnMapReadyCallback {
+public class EventsMapActivity extends AppCompatActivity implements IComponentInitializer, OnMapReadyCallback, IApplyEventFilters {
 
     EditText radius;
     Toolbar toolbar;
@@ -59,7 +62,8 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
     Circle myCircle;
     GetEventsCallback clb;
     GetUsersCallback usersClb;
-    boolean dataLoaded=false;
+    boolean dataLoaded=false,appliedFilters=false;
+    EventFiltersDialog filtersDialog;
 
     TextWatcher myTextWatcher=new TextWatcher() {
         @Override
@@ -78,11 +82,14 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         @Override
         public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
             MyEvent event=dataSnapshot.getValue(MyEvent.class);
-            if(!myEvents.contains(event)){
-                myEvents.add(event);
-                drawEventMarker(event);
+            if(myEvents!=null){
+                if(!myEvents.contains(event)){
+                    myEvents.add(event);
+                    drawEventMarker(event);
+                    if(appliedFilters)
+                        setMarkerVisibility(event,false);
+                }
             }
-
         }
         @Override
         public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -103,6 +110,7 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) { }
     };
+
 
 
 
@@ -141,10 +149,12 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_events_map);
-        setUpActionBar(R.string.events);
-        clb=new GetEventsCallback();
-        MyUserManager.getInstance().getAllEvents(clb);
+        initializeComponents();
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.google_maps_fragment_events_map);
+        mapFragment.getMapAsync(this);
         loadAllEvents();
+        setUpActionBar(R.string.events);
         radius.addTextChangedListener(myTextWatcher);
         MyUserManager.getInstance().getDatabaseEventsReference().addChildEventListener(eventsChildEventListener);
 
@@ -154,6 +164,8 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
         this.googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        clb=new GetEventsCallback();
+        MyUserManager.getInstance().getAllEvents(clb);
     }
 
     @Override
@@ -164,13 +176,43 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         eventCreatedByMap=new HashMap<String,UserData>();
     }
     @Override
+    public void disableMarker(MyEvent e) {
+        setMarkerVisibility(e,false);
+    }
+
+    @Override
+    public void enableMarker(MyEvent e) {
+        setMarkerVisibility(e,true);
+    }
+
+    @Override
+    public boolean checkIfPostedBy(String username, String eventID) {
+        if(eventCreatedByMap.containsKey(eventID)){
+            if(eventCreatedByMap.get(eventID).getUsername().equals(username))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void appliedFilters() {
+        appliedFilters=true;
+    }
+
+    @Override
+    public void clearedFilters() {
+        appliedFilters=false;
+    }
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==R.id.search_user_on_map) {
             if(!dataLoaded){
                 dataLoaded=checkIfDataLoaded();
             }
             if(dataLoaded){
-                //open
+                if(filtersDialog==null)
+                    filtersDialog=new EventFiltersDialog(this,myEvents);
+                filtersDialog.showDialog();
             }else
             {
                 Toast.makeText(this,"Data is being loaded please try again in a few seconds.",Toast.LENGTH_SHORT).show();
@@ -295,6 +337,11 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
                 return false;
         }
         return true;
+    }
+    public void setMarkerVisibility(MyEvent event,boolean visibility){
+        Marker marker=eventMarkers.get(event.getEventID());
+        if(marker!=null)
+            marker.setVisible(visibility);
     }
 
 

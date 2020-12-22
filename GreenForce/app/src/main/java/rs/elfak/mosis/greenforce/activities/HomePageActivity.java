@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import rs.elfak.mosis.greenforce.EventsMapActivity;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
@@ -36,6 +37,7 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
     CardView friendsListCard;
     CardView rankCard;
     CardView markSpot;
+    CardView events;
     boolean mLocationPermissionGranted;
     String TAG="HomePageActivity";
     LocationManager locationManager;
@@ -49,6 +51,7 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
         friendsListCard.setOnClickListener(this);
         rankCard.setOnClickListener(this);
         markSpot.setOnClickListener(this);
+        events.setOnClickListener(this);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -90,6 +93,10 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
             Intent i=new Intent(this, MarkASpotActivity.class);
             startActivity(i);
         }
+        else if(v.getId()==R.id.events_card){
+            Intent i=new Intent(this, EventsMapActivity.class);
+            startActivity(i);
+        }
     }
 
 
@@ -100,6 +107,7 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
         friendsListCard = findViewById(R.id.friends_card);
         rankCard=findViewById(R.id.rank_card);
         markSpot=findViewById(R.id.mark_a_spot_card);
+        events=findViewById(R.id.events_card);
 ;    }
 
     private boolean checkMapServices(){
