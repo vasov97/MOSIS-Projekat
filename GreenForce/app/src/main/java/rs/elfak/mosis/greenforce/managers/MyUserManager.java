@@ -755,9 +755,9 @@ public class MyUserManager {
        // event.setDateTime(dateTime);
         String eventDate=LocalDate.now().toString();
         String eventTime= LocalTime.now().format(DateTimeFormatter.ISO_TIME);
-        if(!android.text.format.DateFormat.is24HourFormat(activity))
+        if(eventTime.contains("AM") || eventTime.contains("PM"))
         {
-            String result =LocalTime.parse(eventTime , DateTimeFormatter.ofPattern("hh:mm a" , Locale.US))
+            eventTime= LocalTime.parse(eventTime , DateTimeFormatter.ofPattern("hh:mm a" , Locale.US))
                             .format(DateTimeFormatter.ofPattern("HH:mm"));
         }
         event.setDate(eventDate);
