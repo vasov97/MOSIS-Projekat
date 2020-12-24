@@ -136,8 +136,7 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
 
         @Override
         public void onUserReceived(UserData user) {
-            MyEvent e=getEventFromListByCreatorID(user.getUserUUID(),myEvents);
-            if(e!=null){
+            for(MyEvent e : getAllEventByUser(user.getUserUUID(),myEvents)){
                 eventCreatedByMap.put(e.getEventID(),user);
             }
         }
@@ -237,9 +236,7 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        //da bi postavio back strelicu na menu
-        //getSupportActionBar().setDisplayShowHomeEnabled(true);
-        // toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);
+
     }
     private void loadAllEvents() {
         progressDialog=new ProgressDialog(EventsMapActivity.this);
@@ -316,10 +313,16 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
     }
 
     private void getEventCreators() {
+        ArrayList<String> uniqueIDs=new ArrayList<String>();
         for(MyEvent e : myEvents){
-            usersClb=new GetUsersCallback();
-            MyUserManager.getInstance().getSingleUser(DataRetriveAction.GET_USER,e.getCreatedByID(),usersClb);
+           if(!uniqueIDs.contains(e.getCreatedByID()))
+               uniqueIDs.add(e.getCreatedByID());
         }
+        for(String key : uniqueIDs){
+            usersClb=new GetUsersCallback();
+            MyUserManager.getInstance().getSingleUser(DataRetriveAction.GET_USER,key,usersClb);
+        }
+
     }
 
     private MyEvent getEventFromListByCreatorID(String id,ArrayList<MyEvent> myEvents){
@@ -342,6 +345,15 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         Marker marker=eventMarkers.get(event.getEventID());
         if(marker!=null)
             marker.setVisible(visibility);
+    }
+    private ArrayList<MyEvent> getAllEventByUser(String id,ArrayList<MyEvent> myEvents){
+        ArrayList<MyEvent> eventToReturn=new ArrayList<MyEvent>();
+        for(MyEvent e : myEvents){
+            if(e.getCreatedByID().equals(id)){
+                eventToReturn.add(e);
+            }
+        }
+        return eventToReturn;
     }
 
 

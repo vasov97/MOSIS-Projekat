@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -109,11 +111,12 @@ public class UploadPhotoActivity extends AppCompatActivity implements IComponent
 
    }
 
+   @RequiresApi(api = Build.VERSION_CODES.O)
    private void createEvent() {
       if(images.size()!=0){
          MyUserManager.getInstance().getUser().getCurrentEvent().setEventPhotos(images);
          MyUserManager.getInstance().getUser().getCurrentEvent().setEventStatus(EventStatus.AVAILABLE);
-         MyUserManager.getInstance().saveEvent();
+         MyUserManager.getInstance().saveEvent(this);
       }
    }
 

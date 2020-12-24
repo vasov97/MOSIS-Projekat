@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -27,7 +28,9 @@
             android:id="@+id/clear_all_filters"
             android:textColor="@color/colorBlack"
             android:textSize="18sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:layout_toStartOf="@id/clear_all_filters_image"
+            tools:ignore="RelativeOverlap" />
 
        <ImageView
            android:layout_width="wrap_content"
@@ -36,7 +39,9 @@
            android:src="@drawable/clear_filters_icon"
            android:layout_alignParentRight="true"
 
-           android:layout_height="wrap_content"/>
+           android:layout_height="wrap_content"
+           android:layout_alignParentEnd="true"
+           tools:ignore="ContentDescription" />
 
     </RelativeLayout>
 
@@ -54,7 +59,6 @@
             android:layout_height="wrap_content"
             android:padding="15dp"
             android:text="@string/posted_by"
-            android:layout_toLeftOf="@id/clear_all_filters_image"
             android:textColor="@color/greyColor"
             android:textSize="18sp"
             android:textStyle="bold"/>
@@ -64,7 +68,10 @@
             android:layout_weight="0.7"
             android:layout_marginRight="8dp"
             android:layout_height="wrap_content"
-            />
+            android:layout_marginEnd="8dp"
+            android:autofillHints="Username"
+            android:inputType="text"
+            tools:ignore="LabelFor" />
 
     </LinearLayout>
 
@@ -88,22 +95,26 @@
         android:orientation="horizontal"
         android:layout_height="wrap_content">
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:padding="15dp"
+            android:layout_weight="0.25"
             android:textColor="@color/greyColor"
             android:textSize="18sp"
             android:text="@string/from"
             android:layout_height="wrap_content"/>
         <EditText
             android:layout_width="0dp"
-            android:layout_weight="0.3"
+            android:layout_weight="0.25"
             android:layout_marginRight="8dp"
             android:id="@+id/events_filter_from"
             android:layout_height="wrap_content"
             android:inputType="number"
-            />
+            android:layout_marginEnd="8dp"
+            android:autofillHints="Pts"
+            tools:ignore="LabelFor" />
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="0.25"
             android:padding="15dp"
             android:textColor="@color/greyColor"
             android:textSize="18sp"
@@ -111,12 +122,14 @@
             android:layout_height="wrap_content"/>
         <EditText
             android:layout_width="0dp"
-            android:layout_weight="0.3"
+            android:layout_weight="0.25"
             android:layout_marginRight="8dp"
             android:id="@+id/events_filter_to"
             android:layout_height="wrap_content"
             android:inputType="number"
-            />
+            android:layout_marginEnd="8dp"
+            android:autofillHints="Pts"
+            tools:ignore="LabelFor" />
     </LinearLayout>
     <View
         android:layout_width="match_parent"
@@ -132,17 +145,18 @@
             android:layout_height="wrap_content"
             android:padding="15dp"
             android:text="@string/city"
-            android:layout_toLeftOf="@id/clear_all_filters_image"
             android:textColor="@color/greyColor"
-            android:textSize="18sp"
-            />
+            android:textSize="18sp" />
         <EditText
             android:layout_width="0dp"
             android:layout_weight="0.7"
             android:layout_marginRight="8dp"
             android:id="@+id/events_filter_city"
             android:layout_height="wrap_content"
-            />
+            android:layout_marginEnd="8dp"
+            android:autofillHints="Type city name"
+            android:inputType="text"
+            tools:ignore="LabelFor" />
     </LinearLayout>
     <View
         android:layout_width="match_parent"
@@ -174,7 +188,8 @@
             android:layout_toRightOf="@id/filters_checkbox_water_pollution"
             android:id="@+id/filters_checkbox_land_pollution"
             android:text="@string/reforestation"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/filters_checkbox_water_pollution" />
         </RelativeLayout>
         <RelativeLayout
             android:layout_width="match_parent"
@@ -189,13 +204,66 @@
             android:id="@+id/filters_checkbox_other"
             android:text="@string/other"
             android:layout_toRightOf="@id/filters_checkbox_reforestation"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/filters_checkbox_reforestation" />
         </RelativeLayout>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginBottom="5dp"
         android:background="@color/greyColor"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:text="@string/date_amp_time"
+        android:textColor="@color/colorBlack"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:padding="15dp"
+            android:id="@+id/date_filter_button"
+            android:textColor="@color/greyColor"
+            android:textSize="12sp"
+            android:text="@string/date"
+            android:layout_height="wrap_content"/>
+        <EditText
+            android:layout_width="0dp"
+            android:layout_weight="0.3"
+            android:layout_marginRight="8dp"
+            android:id="@+id/events_filter_date"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            tools:ignore="LabelFor,TextFields"
+            android:layout_marginEnd="8dp"
+            android:autofillHints="Date" />
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:id="@+id/time_filter_button"
+            android:padding="15dp"
+            android:textColor="@color/greyColor"
+            android:textSize="12sp"
+            android:text="@string/time"
+            android:layout_height="wrap_content"/>
+        <EditText
+            android:layout_width="0dp"
+            android:layout_weight="0.3"
+            android:enabled="false"
+            android:layout_marginRight="8dp"
+            android:id="@+id/events_filter_time"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:autofillHints="Time"
+            tools:ignore="LabelFor, TextFields"
+             />
+    </LinearLayout>
     <Button
         android:id="@+id/event_filters_apply"
         android:layout_marginTop="5dp"

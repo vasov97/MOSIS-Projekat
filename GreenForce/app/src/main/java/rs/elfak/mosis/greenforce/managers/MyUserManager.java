@@ -42,9 +42,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
+import java.text.DateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 import rs.elfak.mosis.greenforce.EventsMapActivity;
@@ -742,13 +747,23 @@ public class MyUserManager {
         databaseNotificationsReference.child(getCurrentUserUid()).child(FRIEND_REQUESTS).child(receiver).removeValue();
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void saveEvent() {
+    public void saveEvent(Activity activity) {
         MyEvent event=userData.getCurrentEvent();
         event.setCreatedByID(getCurrentUserUid());
-        LocalDateTime sentDateTime=LocalDateTime.now();
-        String dateTime=sentDateTime.toString();
-        event.setDateTime(dateTime);
+       // LocalDateTime sentDateTime=LocalDateTime.now();
+      //  String dateTime=sentDateTime.toString();
+       // event.setDateTime(dateTime);
+        String eventDate=LocalDate.now().toString();
+        String eventTime= LocalTime.now().format(DateTimeFormatter.ISO_TIME);
+        if(!android.text.format.DateFormat.is24HourFormat(activity))
+        {
+            String result =LocalTime.parse(eventTime , DateTimeFormatter.ofPattern("hh:mm a" , Locale.US))
+                            .format(DateTimeFormatter.ofPattern("HH:mm"));
+        }
+        event.setDate(eventDate);
+        event.setTime(eventTime);
         String eventID=databaseEventsReference.push().getKey();
+        assert eventID != null;
         databaseEventsReference.child(eventID).setValue(event);
         saveEventBeforePhotos(eventID,event.getEventPhotos());
     }
@@ -793,6 +808,7 @@ public class MyUserManager {
                         String key = snapshot.getKey();
                         childrenCount--;
                         MyEvent event = snapshot.getValue(MyEvent.class);
+                        assert event != null;
                         event.setEventID(key);
                         events.add(event);
 //                            if(childrenCount==0)

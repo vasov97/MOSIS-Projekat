@@ -127,6 +127,9 @@
     <string name="reforestation">Reforestation</string>
     <string name="other">Other</string>
     <string name="apply">Apply</string>
+    <string name="date_amp_time"><![CDATA[Date & time]]></string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
 
 
 </resources>

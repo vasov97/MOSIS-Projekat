@@ -16,7 +16,9 @@ public class MyEvent
     private EventStatus eventStatus;
     private int eventPoints;
     private String createdByID;
-    String dateTime;
+    //String dateTime;
+    String date;
+    String time;
 
 
     @Exclude
@@ -27,13 +29,17 @@ public class MyEvent
     @Exclude
     private String eventID;
 
-    public String getDateTime() {
-        return dateTime;
+    public String getDate() {
+        return date;
     }
 
-    public void setDateTime(String dateTime) {
-        this.dateTime = dateTime;
+    public void setDate(String dateTime) {
+        this.date = dateTime;
     }
+
+    public String getTime(){return time;}
+
+    public void setTime(String time){this.time=time;}
 
     public String getCreatedByID() {
         return createdByID;

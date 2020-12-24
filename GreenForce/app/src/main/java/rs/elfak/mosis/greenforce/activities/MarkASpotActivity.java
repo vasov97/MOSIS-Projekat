@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -53,15 +54,13 @@ public class MarkASpotActivity extends AppCompatActivity implements IComponentIn
     private CheckBox waterPollution,landPollution,reforestation,other;
     private EditText eventPointsSum,description;
     private TextView eventLocationCity;
-    private View markASpotInfoView;
-    private View markASportAboutView;
     private Button uploadEventPhoto;
-    private CheckBoxGroup<String> checkBoxGroup;
     MyEvent myEvent;
     ArrayList<String> eventValues;
     HashMap<String,EventTypes> pointsToTypesMap;
 
     CheckBoxGroup.CheckedChangeListener<String> myCheckBoxListener = new CheckBoxGroup.CheckedChangeListener<String>() {
+        @SuppressLint("SetTextI18n")
         @Override
         public void onCheckedChange(ArrayList<String> values)
         {
@@ -113,6 +112,7 @@ public class MarkASpotActivity extends AppCompatActivity implements IComponentIn
             public void onComplete(@NonNull Task<Location> task) {
                 if (task.isSuccessful()) {
                     Location location = task.getResult();
+                    assert location != null;
                     MyLatLong myLatLong=new MyLatLong(location.getLatitude(),location.getLongitude());
                     myEvent.setEventLocation(myLatLong);
                     try {
@@ -126,19 +126,20 @@ public class MarkASpotActivity extends AppCompatActivity implements IComponentIn
         });
     }
 
-    private void getEventAddress(double latitude,double longitude) throws IOException {
+    @SuppressLint("SetTextI18n")
+    private void getEventAddress(double latitude, double longitude) throws IOException {
         Geocoder geocoder;
         List<Address> addresses;
         geocoder = new Geocoder(this, Locale.getDefault());
 
-        addresses = geocoder.getFromLocation(latitude, longitude, 3); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+        addresses = geocoder.getFromLocation(latitude, longitude, 3);
 
-        String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+        String address = addresses.get(0).getAddressLine(0);
         String city = addresses.get(0).getLocality();
         String state = addresses.get(0).getAdminArea();
         String country = addresses.get(0).getCountryName();
         String postalCode = addresses.get(0).getPostalCode();
-        String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
+        String knownName = addresses.get(0).getFeatureName();
         eventLocationCity.setText(address + ", " + city + ", "+ country);
         //myEvent.setEventAddress(address + ", " + city + ", "+ country);
 
@@ -150,12 +151,12 @@ public class MarkASpotActivity extends AppCompatActivity implements IComponentIn
         checkBoxes.put(waterPollution,"100");
         checkBoxes.put(reforestation,"200");
         checkBoxes.put(other,"30");
-        checkBoxGroup= new CheckBoxGroup<>(checkBoxes,myCheckBoxListener);
+        CheckBoxGroup<String> checkBoxGroup = new CheckBoxGroup<>(checkBoxes, myCheckBoxListener);
     }
     public void viewFlipperSetup()
     {
-        markASpotInfoView = getLayoutInflater().inflate(R.layout.activity_mark_a_spot_acitvity,viewFlipper,false);
-        markASportAboutView = getLayoutInflater().inflate(R.layout.activity_mark_a_spot_acitvity,viewFlipper,false);
+        View markASpotInfoView = getLayoutInflater().inflate(R.layout.activity_mark_a_spot_acitvity, viewFlipper, false);
+        View markASportAboutView = getLayoutInflater().inflate(R.layout.activity_mark_a_spot_acitvity, viewFlipper, false);
         viewFlipper.addView(markASpotInfoView);
         viewFlipper.addView(markASportAboutView);
     }
