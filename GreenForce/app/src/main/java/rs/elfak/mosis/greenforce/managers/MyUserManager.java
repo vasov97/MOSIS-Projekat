@@ -20,7 +20,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -41,10 +40,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.attribute.UserDefinedFileAttributeView;
-import java.text.DateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -52,18 +48,25 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
-import rs.elfak.mosis.greenforce.EventsMapActivity;
+import rs.elfak.mosis.greenforce.CurrentEventsActivity;
+import rs.elfak.mosis.greenforce.activities.EventsMapActivity;
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.activities.HomePageActivity;
 import rs.elfak.mosis.greenforce.activities.LoginActivity;
 import rs.elfak.mosis.greenforce.activities.RegisterActivity;
 import rs.elfak.mosis.greenforce.dialogs.DisplayUserInformationOnMapDialog;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
+import rs.elfak.mosis.greenforce.enums.EventStatus;
+import rs.elfak.mosis.greenforce.enums.VolunteerType;
+import rs.elfak.mosis.greenforce.interfaces.ICheckEventData;
 import rs.elfak.mosis.greenforce.interfaces.IGetCurrentRankCallback;
+import rs.elfak.mosis.greenforce.interfaces.IGetEventsCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetNotifications;
 import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetDataCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetFriendsCallback;
+import rs.elfak.mosis.greenforce.models.EventRequestNotification;
+import rs.elfak.mosis.greenforce.models.EventVolunteer;
 import rs.elfak.mosis.greenforce.models.FriendsRequestNotification;
 import rs.elfak.mosis.greenforce.models.MyEvent;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
@@ -79,6 +82,8 @@ public class MyUserManager {
     private final DatabaseReference databaseCoordinatesReference;
     private final DatabaseReference databaseNotificationsReference;
     private final DatabaseReference databaseEventsReference;
+    private final DatabaseReference databaseVolunteersReference;
+    private final DatabaseReference databaseUserEventsReference;
     private final StorageReference storageReference;
     private static final String USER = "user";
     private static final String FRIENDS = "friends";
@@ -88,6 +93,10 @@ public class MyUserManager {
     private static final String EVENT_IMAGES="eventImage/";
     private static final String NOTIFICATIONS="notifications";
     private static final String FRIEND_REQUESTS="friendRequests";
+    private static final String EVENT_REQUEST="eventRequest";
+    private static final String VOLUNTEERS="volunteers";
+    private static final String USER_EVENTS="userEvents";
+    private static final String CURRENT_EVENTS="currentEvents";
 
     private UserData userData,visitProfile;
     ArrayList<UserData> myFriends;
@@ -101,10 +110,11 @@ public class MyUserManager {
         databaseCoordinatesReference=firebaseDatabase.getReference(COORDINATES);
         databaseNotificationsReference=firebaseDatabase.getReference(NOTIFICATIONS);
         databaseEventsReference=firebaseDatabase.getReference(EVENTS);
+        databaseVolunteersReference=firebaseDatabase.getReference(VOLUNTEERS);
+        databaseUserEventsReference=firebaseDatabase.getReference(USER_EVENTS);
         storageReference = FirebaseStorage.getInstance().getReference();
 
     }
-
 
 
 
@@ -704,7 +714,7 @@ public class MyUserManager {
         });
     }
 
-    public void checkIfRequestSent(final String receiver,final Button btn){
+    public void checkIfFriendRequestSent(final String receiver,final Button btn){
         databaseNotificationsReference.child(receiver).child(FRIEND_REQUESTS).child(getCurrentUserUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -720,6 +730,7 @@ public class MyUserManager {
             public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
     }
+
 
     public void getFriendRequestNotifications(String uuid, final IGetNotifications notificationsClb) {
         databaseNotificationsReference.child(uuid).child(FRIEND_REQUESTS).addValueEventListener(new ValueEventListener() {
@@ -795,7 +806,7 @@ public class MyUserManager {
 
         }
     }
-    public void getAllEvents(final EventsMapActivity.GetEventsCallback callback) {
+    public void getAllEvents(final IGetEventsCallback callback) {
         databaseEventsReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -821,5 +832,178 @@ public class MyUserManager {
             public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
     }
+
+    public void applyForEvent(final String eventID) {
+        databaseEventsReference.child(eventID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseEventsReference.child(eventID).removeEventListener(this);
+                MyEvent event=dataSnapshot.getValue(MyEvent.class);
+                if(event.getEventStatus()== EventStatus.AVAILABLE){
+                    databaseEventsReference.child(eventID).child("eventStatus").setValue(EventStatus.IN_PROGRESS);
+                    addLeaderToEvent(eventID,getCurrentUserUid());
+                }else if(event.getEventStatus()==EventStatus.IN_PROGRESS){
+                    sendEventRequestToLeader(eventID);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void sendEventRequestToLeader(final String eventID) {
+        databaseVolunteersReference.child(eventID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseVolunteersReference.child(eventID).removeEventListener(this);
+                for (DataSnapshot child : dataSnapshot.getChildren()){
+                    EventVolunteer volunteer=child.getValue(EventVolunteer.class);
+                    if(volunteer.getType()== VolunteerType.LEADER){
+                        sendEventRequest(child.getKey(),eventID);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+    public void sendEventRequest(final String receiver,final String eventID){
+        databaseNotificationsReference.child(receiver).child(EVENT_REQUEST).child(eventID).child(getCurrentUserUid()).addValueEventListener(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseNotificationsReference.child(receiver).child(EVENT_REQUEST).child(eventID).child(getCurrentUserUid()).removeEventListener(this);
+                if(!dataSnapshot.exists()){
+                    EventRequestNotification notification=new EventRequestNotification(userData.getUsername(),false);
+                    databaseNotificationsReference.child(receiver).child(EVENT_REQUEST).child(eventID).child(getCurrentUserUid()).setValue(notification);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
+        });
+    }
+
+    private void addLeaderToEvent(String eventID, String currentUserUid) {
+        EventVolunteer volunteer=new EventVolunteer();
+        volunteer.setType(VolunteerType.LEADER);
+        databaseVolunteersReference.child(eventID).child(currentUserUid).setValue(volunteer);
+        addEventToUsersCurrent(eventID,currentUserUid,volunteer);
+    }
+
+    public void findEventLeaderAndCheckRequest(final String eventID, final ICheckEventData clb){
+        databaseVolunteersReference.child(eventID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseVolunteersReference.child(eventID).removeEventListener(this);
+                boolean found=false;
+                EventVolunteer leader = null;
+                VolunteerType myType = null;
+                for (DataSnapshot child : dataSnapshot.getChildren()){
+                    EventVolunteer volunteer=child.getValue(EventVolunteer.class);
+                    volunteer.setId(child.getKey());
+                    if(child.getKey().equals(getCurrentUserUid())){
+                        myType=volunteer.getType();
+                        found=true;
+                    }
+                    if(volunteer.getType()== VolunteerType.LEADER){
+                        leader=child.getValue(EventVolunteer.class);
+                        leader.setId(child.getKey());
+                        //checkIfEventRequestSent(child.getKey(),eventID,clb);
+                    }
+                }
+                if(found){
+                    if(myType!=null)
+                        clb.onCheckIfVolunteer(true,myType);
+                }
+                else{
+                    if(leader!=null)
+                      checkIfEventRequestSent(leader.getId(),eventID,clb);
+                    else
+                        clb.onCheckIfRequestSent(false);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+
+
+    public void checkIfEventRequestSent(final String receiver, final String eventID, final ICheckEventData clb){
+        databaseNotificationsReference.child(receiver).child(EVENT_REQUEST).child(eventID).child(getCurrentUserUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseNotificationsReference.child(receiver).child(EVENT_REQUEST).child(eventID).child(getCurrentUserUid()).removeEventListener(this);
+                if(dataSnapshot.exists()){
+                    clb.onCheckIfRequestSent(true);
+                }else{
+                    clb.onCheckIfRequestSent(false);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
+        });
+    }
+
+
+    public void addEventToUsersCurrent(String eventID,String userID,EventVolunteer status){
+        //dodaj vreme za lidera za 21 dan countdown? ako da treba nova klasa a ne EventVolunteer
+        databaseUserEventsReference.child(userID).child(CURRENT_EVENTS).child(eventID).setValue(status);
+
+    }
+
+    public void getAllCurrentEventsEvents(String userID, final IGetEventsCallback eventsCallback) {
+        databaseUserEventsReference.child(userID).child(CURRENT_EVENTS).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    HashMap<String,EventVolunteer> map=new HashMap<String,EventVolunteer>();
+                    for(DataSnapshot child : dataSnapshot.getChildren()){
+                        EventVolunteer myType=child.getValue(EventVolunteer.class);
+                        myType.setId(child.getKey());
+                        map.put(child.getKey(),myType);
+                    }
+                    eventsCallback.onCurrentEventsMapReceived(map);
+
+                }else
+                    eventsCallback.onCurrentEventsMapReceived(null);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    public void getSingleEvent(final String eventID, final IGetEventsCallback eventsCallback) {
+        databaseEventsReference.child(eventID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseEventsReference.child(eventID).removeEventListener(this);
+                MyEvent event=dataSnapshot.getValue(MyEvent.class);
+                event.setEventID(dataSnapshot.getKey());
+                eventsCallback.onSingleEventReceived(event);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+
+
+
 
 }

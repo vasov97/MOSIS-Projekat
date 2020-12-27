@@ -29,9 +29,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".EventsMapActivity"
-            android:label="@string/title_activity_events_map"
+            android:name=".CurrentEventsActivity"
+            android:label="@string/title_activity_current_events"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".activities.EventsMapActivity"
+            android:label="@string/title_activity_events_map"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".activities.MarkASpotActivity" />
         <activity android:name=".activities.RankingsActivity" />
         <activity android:name=".activities.AddFriendsViaMapsActivity" />

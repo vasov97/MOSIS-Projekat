@@ -46,7 +46,7 @@ public class DisplayUserInformationOnMapDialog extends BottomSheetDialog impleme
         this.user=user;
         bottomSheetDialog=new BottomSheetDialog(getContext(), R.style.BottomSheetDialog);
         View bottomSheetView = LayoutInflater.from(getContext())
-                .inflate(R.layout.dialog_bottom_sheet,(LinearLayout)findViewById(R.id.bottom_sheet_container));
+                .inflate(R.layout.dialog_display_user_information,(LinearLayout)findViewById(R.id.bottom_sheet_container));
         initializeComponents(bottomSheetView);
         selectButtons(isFriend);
         bottomSheetDialog.setContentView(bottomSheetView);
@@ -70,7 +70,7 @@ public class DisplayUserInformationOnMapDialog extends BottomSheetDialog impleme
             viewUserButton.setEnabled(false);
             sendRequestButton.setEnabled(false);
             sendRequestButton.setOnClickListener(this);
-            MyUserManager.getInstance().checkIfRequestSent(user.getUserUUID(),sendRequestButton);
+            MyUserManager.getInstance().checkIfFriendRequestSent(user.getUserUUID(),sendRequestButton);
 
         }
         setUpData(isFriend);

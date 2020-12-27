@@ -130,6 +130,12 @@
     <string name="date_amp_time"><![CDATA[Date & time]]></string>
     <string name="date">Date</string>
     <string name="time">Time</string>
+    <string name="alreadyLeader">Already Leader</string>
+    <string name="volunteer">Volunteer</string>
+    <string name="sent">Sent</string>
+    <string name="title_activity_current_events">CurrentEventsActivity</string>
+    <string name="leader">Leader</string>
+    <string name="currentEvents">Current events</string>
 
 
 </resources>

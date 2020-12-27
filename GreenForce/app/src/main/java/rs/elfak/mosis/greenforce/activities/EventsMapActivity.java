@@ -1,4 +1,4 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.activities;
 
 import android.app.ProgressDialog;
 import android.graphics.Color;
@@ -14,8 +14,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,7 +27,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -37,7 +34,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import rs.elfak.mosis.greenforce.activities.AddFriendsViaMapsActivity;
+import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.dialogs.DisplayEventInformationOnMapDialog;
 import rs.elfak.mosis.greenforce.dialogs.EventFiltersDialog;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
 import rs.elfak.mosis.greenforce.interfaces.IApplyEventFilters;
@@ -45,12 +43,12 @@ import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.interfaces.IGetEventsCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
-import rs.elfak.mosis.greenforce.models.ClusterMarker;
+import rs.elfak.mosis.greenforce.models.EventVolunteer;
 import rs.elfak.mosis.greenforce.models.MyEvent;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
 import rs.elfak.mosis.greenforce.models.UserData;
 
-public class EventsMapActivity extends AppCompatActivity implements IComponentInitializer, OnMapReadyCallback, IApplyEventFilters {
+public class EventsMapActivity extends AppCompatActivity implements IComponentInitializer, OnMapReadyCallback, IApplyEventFilters,GoogleMap.OnMarkerClickListener {
 
     EditText radius;
     Toolbar toolbar;
@@ -64,6 +62,7 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
     GetUsersCallback usersClb;
     boolean dataLoaded=false,appliedFilters=false;
     EventFiltersDialog filtersDialog;
+    DisplayEventInformationOnMapDialog eventDialog;
 
     TextWatcher myTextWatcher=new TextWatcher() {
         @Override
@@ -93,11 +92,12 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         }
         @Override
         public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-            //samo se status eventa azurira?
             MyEvent event=dataSnapshot.getValue(MyEvent.class);
+            event.setEventID(dataSnapshot.getKey());
             for(MyEvent e : myEvents){
                 if(e.getEventID().equals(event.getEventID())){
                     e.setEventStatus(event.getEventStatus());
+                    updateMarkerTag(e);
                 }
             }
         }
@@ -111,8 +111,21 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         public void onCancelled(@NonNull DatabaseError databaseError) { }
     };
 
-
-
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        MyEvent eventToView=(MyEvent) marker.getTag();
+        UserData createdBy=eventCreatedByMap.get(eventToView.getEventID());
+        if(eventToView!=null && createdBy!=null){
+            if(eventDialog==null)
+                eventDialog=new DisplayEventInformationOnMapDialog(this,createdBy,eventToView);
+            else{
+                eventDialog.setEventToView(eventToView);
+                eventDialog.setCreatedByUser(createdBy);
+            }
+            eventDialog.showDialog();
+        }
+        return false;
+    }
 
     public class GetEventsCallback implements IGetEventsCallback{
         @Override
@@ -123,6 +136,16 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
                   getEventCreators();
                   drawAllMarkers();
               }
+
+        }
+
+        @Override
+        public void onSingleEventReceived(MyEvent event) {
+
+        }
+
+        @Override
+        public void onCurrentEventsMapReceived(HashMap<String, EventVolunteer> currentEventsRole) {
 
         }
     }
@@ -165,6 +188,7 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         this.googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         clb=new GetEventsCallback();
         MyUserManager.getInstance().getAllEvents(clb);
+        googleMap.setOnMarkerClickListener(this);
     }
 
     @Override
@@ -355,6 +379,19 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         }
         return eventToReturn;
     }
+
+    private void updateMarkerTag(MyEvent event) {
+        Marker marker=eventMarkers.get(event.getEventID());
+        if(marker!=null)
+            marker.setTag(event);
+        if(eventDialog!=null){
+            if(eventDialog.getOnScreen()){
+                eventDialog.setEventToView(event);
+                eventDialog.refreshDialogInformation();
+            }
+        }
+    }
+
 
 
 }

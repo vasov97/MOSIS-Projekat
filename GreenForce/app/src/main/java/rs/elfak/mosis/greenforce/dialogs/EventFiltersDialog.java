@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -140,6 +141,7 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
          else if(id==R.id.clear_all_filters)
          {
              clearAllFilters(events);
+             Toast.makeText(getContext(),"All filters cleared.",Toast.LENGTH_SHORT).show();
          }
          else if(id==R.id.date_filter_button)
          {
@@ -208,7 +210,10 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
         List<Address> addresses;
         geocoder = new Geocoder(getContext(), Locale.getDefault());
         addresses = geocoder.getFromLocation(latitude, longitude, 1);
-        return addresses.get(0).getLocality();
+        if(addresses.get(0).getLocality()==null)
+            return addresses.get(0).getAddressLine(0)+", "+addresses.get(0).getCountryName();
+        else
+            return addresses.get(0).getLocality();
     }
 
     private void clearAllFilters(ArrayList<MyEvent> list)

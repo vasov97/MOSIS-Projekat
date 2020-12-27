@@ -22,7 +22,6 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import rs.elfak.mosis.greenforce.EventsMapActivity;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;

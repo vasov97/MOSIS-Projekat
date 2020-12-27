@@ -1,12 +1,11 @@
 package rs.elfak.mosis.greenforce.enums;
 
-public enum EventStatus
-{
-    AVAILABLE("Available"),
-    IN_PROGRESS("In progress"),
-    COMPLETED("Completed");
+public enum VolunteerType {
+    LEADER("Leader"),
+    FOLLOWER("Follower");
+
     private String enumString;
-    private EventStatus(String brand) {
+    private VolunteerType(String brand) {
         this.enumString = brand;
     }
 

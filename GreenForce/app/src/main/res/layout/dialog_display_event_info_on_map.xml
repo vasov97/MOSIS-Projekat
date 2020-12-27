@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/bottom_sheet_container_map_event_info"
+    android:background="@drawable/bottom_sheet_background">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="5dp"
+        android:background="@color/greyColor"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/viewEventCreateByImage"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_margin="10dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/profile_default"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:gravity="center_vertical">
+                <TextView
+                    android:id="@+id/viewEventCreateByUsername"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Created by : Username"
+                    android:textColor="@color/colorTextDark"
+                    android:textSize="19sp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/viewEventPoint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Event points: 250"
+                    android:textColor="@color/redOrangeDark"
+                    android:textSize="15sp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/viewEventStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Event status: Status"
+                    android:textColor="@color/greyColor"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
+        </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="10dp">
+
+                <Button
+                    android:id="@+id/viewEventView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_weight="0.3"
+                    android:background="@drawable/round_button_red"
+                    android:text="@string/view" />
+
+                <Button
+                    android:id="@+id/viewEventApply"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_weight="0.3"
+                    android:text="@string/apply"
+                    android:layout_gravity="center"
+                    android:background="@drawable/round_button_red"
+                    />
+            </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

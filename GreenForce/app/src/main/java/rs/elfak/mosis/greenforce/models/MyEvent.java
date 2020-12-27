@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import rs.elfak.mosis.greenforce.enums.EventStatus;
 import rs.elfak.mosis.greenforce.enums.EventTypes;
+import rs.elfak.mosis.greenforce.enums.VolunteerType;
 
 public class MyEvent
 {
