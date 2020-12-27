@@ -97,6 +97,7 @@ public class UploadPhotoActivity extends AppCompatActivity implements IComponent
       return true;
    }
 
+   @RequiresApi(api = Build.VERSION_CODES.O)
    @Override
    public void onClick(View v)
    {

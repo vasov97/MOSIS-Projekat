@@ -134,7 +134,7 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
          int id=v.getId();
          if(id==R.id.event_filters_apply)
          {
-             clearAllFilters(events);
+             enableAllMarkers(events);
              applyFilters();
              listener.appliedFilters();
              dismissDialog();
@@ -156,6 +156,8 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
          }
     }
 
+
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void applyFilters()
     {
@@ -171,7 +173,7 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
         postedBy=v.findViewById(R.id.event_filters_posted_by);
         from=v.findViewById(R.id.events_filter_from);
         to=v.findViewById(R.id.events_filter_to);
-        city=v.findViewById(R.id.events_filter_city);
+        city=v.findViewById(R.id.events_filter_city_search);
         waterPollution=v.findViewById(R.id.filters_checkbox_water_pollution);
         landPollution=v.findViewById(R.id.filters_checkbox_land_pollution);
         reforestation=v.findViewById(R.id.filters_checkbox_reforestation);
@@ -220,8 +222,11 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
     private void clearAllFilters(ArrayList<MyEvent> list)
     {
         resetFilters();
+        enableAllMarkers(list);
+    }
+    private void enableAllMarkers(ArrayList<MyEvent> list) {
         for(MyEvent e: list){
-           listener.enableMarker(e);
+            listener.enableMarker(e);
         }
     }
 
@@ -335,5 +340,9 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
                 listener.disableMarker(myEvent);
         }
     }
+
+    //date&time filters
+    //saveEvent u manager
+    //view za event
 
 }

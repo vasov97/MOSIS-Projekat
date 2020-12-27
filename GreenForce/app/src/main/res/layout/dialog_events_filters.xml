@@ -151,10 +151,9 @@
             android:layout_width="0dp"
             android:layout_weight="0.7"
             android:layout_marginRight="8dp"
-            android:id="@+id/events_filter_city"
+            android:id="@+id/events_filter_city_search"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:inputType="text"
             />
     </LinearLayout>
     <View
