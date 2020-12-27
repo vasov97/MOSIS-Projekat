@@ -134,6 +134,7 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
          int id=v.getId();
          if(id==R.id.event_filters_apply)
          {
+             clearAllFilters(events);
              applyFilters();
              listener.appliedFilters();
              dismissDialog();
@@ -266,7 +267,7 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
         if(!from.getText().toString().equals("")){
             int points=Integer.parseInt(from.getText().toString());
             if(points>0){
-                if(e.getEventPoints()<=points)
+                if(e.getEventPoints()<points)
                     listener.disableMarker(e);
             }
         }
@@ -276,7 +277,7 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
         if(!to.getText().toString().equals("")){
             int points=Integer.parseInt(to.getText().toString());
             if(points>0){
-                if(e.getEventPoints()>=points)
+                if(e.getEventPoints()>points)
                     listener.disableMarker(e);
             }
         }
