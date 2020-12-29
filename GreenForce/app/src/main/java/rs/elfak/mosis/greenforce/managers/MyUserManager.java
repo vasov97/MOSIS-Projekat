@@ -40,15 +40,19 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 
 import rs.elfak.mosis.greenforce.CurrentEventsActivity;
+import rs.elfak.mosis.greenforce.activities.EventActivity;
 import rs.elfak.mosis.greenforce.activities.EventsMapActivity;
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.activities.HomePageActivity;
@@ -56,6 +60,7 @@ import rs.elfak.mosis.greenforce.activities.LoginActivity;
 import rs.elfak.mosis.greenforce.activities.RegisterActivity;
 import rs.elfak.mosis.greenforce.dialogs.DisplayUserInformationOnMapDialog;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
+import rs.elfak.mosis.greenforce.enums.EventImageType;
 import rs.elfak.mosis.greenforce.enums.EventStatus;
 import rs.elfak.mosis.greenforce.enums.VolunteerType;
 import rs.elfak.mosis.greenforce.interfaces.ICheckEventData;
@@ -658,6 +663,7 @@ public class MyUserManager {
         }
     }
 
+
     private boolean isLocationServiceRunning(Activity serviceHolder) {
         ActivityManager manager = (ActivityManager) serviceHolder.getSystemService(serviceHolder.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){
@@ -761,22 +767,42 @@ public class MyUserManager {
     public void saveEvent(Activity activity) {
         MyEvent event=userData.getCurrentEvent();
         event.setCreatedByID(getCurrentUserUid());
+        //userData.setUserUUID(getCurrentUserUid());
+      //  event.setCreatedByFullName(userData.getName()+" "+userData.getSurname());
+      //  event.setCreatedByUsername(userData.getUsername());
+
        // LocalDateTime sentDateTime=LocalDateTime.now();
       //  String dateTime=sentDateTime.toString();
        // event.setDateTime(dateTime);
         String eventDate=LocalDate.now().toString();
-        String eventTime= LocalTime.now().format(DateTimeFormatter.ISO_TIME);
-        if(eventTime.contains("AM") || eventTime.contains("PM"))
+        Calendar calendar = Calendar.getInstance();
+        String eventTime= setCurrentTime(calendar);
+        //String eventTime = setFormattedTime(calendar);
+
+        /*if(eventTime.contains("AM") || eventTime.contains("PM"))
         {
             eventTime= LocalTime.parse(eventTime , DateTimeFormatter.ofPattern("hh:mm a" , Locale.US))
                             .format(DateTimeFormatter.ofPattern("HH:mm"));
-        }
+        }*/
         event.setDate(eventDate);
         event.setTime(eventTime);
         String eventID=databaseEventsReference.push().getKey();
         assert eventID != null;
         databaseEventsReference.child(eventID).setValue(event);
         saveEventBeforePhotos(eventID,event.getEventPhotos());
+    }
+    public String setCurrentTime(Calendar myCalendar)
+    {
+        myCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));//gmt+8 probaj
+        int currentHour = myCalendar.get(Calendar.HOUR_OF_DAY);
+        int currentMinute = myCalendar.get(Calendar.MINUTE);
+
+        return String.format("%s:%s", currentHour, currentMinute);
+    }
+    private String setFormattedTime(Calendar myCalendar)//ako ne radi fja iznad ovo bi trebalo
+    {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm",Locale.getDefault());
+        return simpleDateFormat.format(myCalendar.getTime());
     }
 
     private void saveEventBeforePhotos(String eventID, ArrayList<Bitmap> eventPhotos) {
@@ -1001,6 +1027,52 @@ public class MyUserManager {
             }
         });
     }
+
+
+    public void getEventImages(String eventID, EventImageType type, final int imageCount, final IGetEventsCallback callback) throws IOException {
+
+        final ArrayList<Bitmap> images = new ArrayList<Bitmap>();
+        StorageReference imageReference = storageReference.child(EVENT_IMAGES+eventID+type.toString());
+        for (int i = 1; i <= imageCount; i++) {
+            final File localFile = File.createTempFile("image"+i, ".jpeg");
+            StorageReference myImage=imageReference.child("image"+i+".jpeg");
+            myImage.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    Bitmap bm = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                    images.add(bm);
+                    if(images.size()==imageCount)
+                        callback.onEventImagesReceived(images);
+                }
+            });
+        }
+    }
+
+    public void getEventVolunteers(String eventID, final IGetEventsCallback callback){
+        databaseVolunteersReference.child(eventID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    ArrayList<EventVolunteer> volunteers=new ArrayList<EventVolunteer>();
+                    for(DataSnapshot child : dataSnapshot.getChildren()){
+                        EventVolunteer volunteer=child.getValue(EventVolunteer.class);
+                        volunteer.setId(child.getKey());
+                        volunteers.add(volunteer);
+                    }
+                    callback.onEventVolunteersReceived(volunteers);
+                }else
+                    callback.onEventVolunteersReceived(null);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+
 
 
 

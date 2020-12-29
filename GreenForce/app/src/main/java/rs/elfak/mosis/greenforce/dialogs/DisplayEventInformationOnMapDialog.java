@@ -1,5 +1,6 @@
 package rs.elfak.mosis.greenforce.dialogs;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -21,6 +23,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.activities.EventActivity;
 import rs.elfak.mosis.greenforce.activities.MyProfileActivity;
 import rs.elfak.mosis.greenforce.enums.EventStatus;
 import rs.elfak.mosis.greenforce.enums.VolunteerType;
@@ -33,14 +36,20 @@ import rs.elfak.mosis.greenforce.models.UserData;
 public class DisplayEventInformationOnMapDialog extends BottomSheetDialog implements IFragmentComponentInitializer, View.OnClickListener {
     private MyEvent eventToView;
     private UserData createdByUser;
+    private UserData userToShow;
     private BottomSheetDialog bottomSheetDialog;
     private boolean onScreen;
     private CheckEventData clb;
     Button applyToEvent,viewEventData;
     TextView username,eventPoints,eventStatus;
     ImageView createdByImage;
+    String creatorFullname,creatorUsername,eventPointsString;
 
-    public class CheckEventData implements ICheckEventData{
+
+
+
+
+    public class CheckEventData extends AppCompatActivity implements ICheckEventData {
 
         @Override
         public void onCheckIfVolunteer(boolean volunteer, VolunteerType type) {
@@ -66,10 +75,13 @@ public class DisplayEventInformationOnMapDialog extends BottomSheetDialog implem
             bottomSheetDialog.show();
         }
     }
+
+
     public DisplayEventInformationOnMapDialog(@NonNull Context context, UserData createdBy, MyEvent eventToView) {
         super(context);
         this.onScreen=false;
         this.createdByUser=createdBy;
+
         this.eventToView=eventToView;
         clb=new CheckEventData();
         bottomSheetDialog=new BottomSheetDialog(getContext(), R.style.BottomSheetDialog);
@@ -112,10 +124,22 @@ public class DisplayEventInformationOnMapDialog extends BottomSheetDialog implem
         }
         else if(v.getId()==R.id.viewEventView)
         {
-            //view event info vec pravljen dizajn
+            viewEventInfo(eventToView.getEventID());
         }
     }
 
+    private void viewEventInfo(String eventId)
+    {
+
+        Intent intent = new Intent(getContext(),EventActivity.class);
+        intent.putExtra("eventId",eventId);
+        intent.putExtra("createdById",createdByUser.getUserUUID());
+        intent.putExtra("creatorUsername",creatorUsername);
+        intent.putExtra("creatorFullname",creatorFullname);
+        intent.putExtra("eventPointsString",eventPointsString);
+        getContext().startActivity(intent);
+
+    }
     @Override
     public void initializeComponents(View v) {
         applyToEvent=v.findViewById(R.id.viewEventApply);
@@ -144,7 +168,10 @@ public class DisplayEventInformationOnMapDialog extends BottomSheetDialog implem
         applyToEvent.setText(R.string.apply);
         MyUserManager.getInstance().findEventLeaderAndCheckRequest(eventToView.getEventID(),clb);
         username.setText("Created by: "+createdByUser.getUsername());
+        creatorFullname=createdByUser.getName()+" "+createdByUser.getSurname();
+        creatorUsername=createdByUser.getUsername();
         eventPoints.setText("Reward: "+eventToView.getEventPoints());
+        eventPointsString=eventPoints.getText().toString();
         eventStatus.setText("Event status: "+eventToView.getEventStatus().toString());
         createdByImage.setImageBitmap(createdByUser.getUserImage());
     }

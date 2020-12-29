@@ -1,6 +1,7 @@
 package rs.elfak.mosis.greenforce;
 
 import android.app.ProgressDialog;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -75,6 +76,16 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
                     MyUserManager.getInstance().getSingleEvent(key,eventsCallback);
                 }
             }
+        }
+
+        @Override
+        public void onEventImagesReceived(ArrayList<Bitmap> images) {
+
+        }
+
+        @Override
+        public void onEventVolunteersReceived(ArrayList<EventVolunteer> volunteers) {
+
         }
     }
 
@@ -160,6 +171,7 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
     }
 
     //OVDE SAM STAO..Treba da se naprave adapteri za listView da bi se prikazale one 2 liste u funkcijama gde je sad toast
+    //*****imas takve layoute za listview samo include gde treba****
     //Treba da se napravi posle toga za notifikacije isti fazon kao kod friends
     // trebalo bi da je sa current gotovo posle --> finishedEvents treba da se smisle
     // NISAM DODAO ON CLICK NA DUGME CURRENT U PROFILE

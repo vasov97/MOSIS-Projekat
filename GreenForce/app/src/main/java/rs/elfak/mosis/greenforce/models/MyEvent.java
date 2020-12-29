@@ -2,6 +2,8 @@ package rs.elfak.mosis.greenforce.models;
 
 import android.graphics.Bitmap;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.database.Exclude;
 
 import java.util.ArrayList;
@@ -17,9 +19,22 @@ public class MyEvent
     private EventStatus eventStatus;
     private int eventPoints;
     private String createdByID;
+
+    public int getImagesBeforeCount() {
+        return imagesBeforeCount;
+    }
+
+    public void setImagesBeforeCount(int imagesBeforeCount) {
+        this.imagesBeforeCount = imagesBeforeCount;
+    }
+
+    private int imagesBeforeCount;
     //String dateTime;
     String date;
     String time;
+
+
+
 
 
     @Exclude
@@ -108,6 +123,8 @@ public class MyEvent
     @Exclude public void setEventID(String eventID) {
         this.eventID = eventID;
     }
+
+
 
     @Override
     public boolean equals(Object o) {

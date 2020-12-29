@@ -35,6 +35,8 @@ public class UserData
 
     public UserData(){}
 
+    public UserData(String uuid){this.uuid=uuid;}
+
     public UserData(String email, String name, String surname, String username, String phoneNumber,Bitmap userImage) {
     this.email = email;
     this.name = name;

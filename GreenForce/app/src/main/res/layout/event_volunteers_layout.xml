@@ -8,26 +8,24 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Created by:"
+        android:id="@+id/event_leader"
         android:gravity="center"
         android:textStyle="bold"
         android:textSize="20sp"
         />
 
-    <include layout="@layout/event_volunteers_created_layout"/>
-
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Joined:"
+        android:text="Volunteers:"
         android:gravity="center"
         android:textStyle="bold"
         android:textSize="20sp"
         />
 
     <ListView
-        android:id="@+id/rankings_listview"
+        android:id="@+id/event_volunteers_listview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginLeft="15dp"

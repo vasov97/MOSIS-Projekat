@@ -136,6 +136,7 @@
     <string name="title_activity_current_events">CurrentEventsActivity</string>
     <string name="leader">Leader</string>
     <string name="currentEvents">Current events</string>
+    <string name="submit">Submit</string>
 
 
 </resources>
