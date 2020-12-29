@@ -1,24 +1,21 @@
-package rs.elfak.mosis.greenforce;
+package rs.elfak.mosis.greenforce.activities;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
-import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import rs.elfak.mosis.greenforce.activities.MyFriendsActivity;
+import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.enums.VolunteerType;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.interfaces.IGetEventsCallback;
@@ -162,6 +159,6 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
     //OVDE SAM STAO..Treba da se naprave adapteri za listView da bi se prikazale one 2 liste u funkcijama gde je sad toast
     //Treba da se napravi posle toga za notifikacije isti fazon kao kod friends
     // trebalo bi da je sa current gotovo posle --> finishedEvents treba da se smisle
-    // NISAM DODAO ON CLICK NA DUGME CURRENT U PROFILE
+
 
 }

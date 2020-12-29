@@ -29,7 +29,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".CurrentEventsActivity"
+            android:name=".activities.CurrentEventsActivity"
             android:label="@string/title_activity_current_events"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity

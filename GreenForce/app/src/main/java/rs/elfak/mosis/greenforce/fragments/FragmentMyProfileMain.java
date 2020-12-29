@@ -1,5 +1,6 @@
 package rs.elfak.mosis.greenforce.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -7,8 +8,11 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import rs.elfak.mosis.greenforce.activities.CurrentEventsActivity;
 import rs.elfak.mosis.greenforce.activities.MyProfileActivity;
 import rs.elfak.mosis.greenforce.interfaces.IGetCurrentRankCallback;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
@@ -17,7 +21,7 @@ import rs.elfak.mosis.greenforce.models.UserData;
 import rs.elfak.mosis.greenforce.interfaces.IFragmentComponentInitializer;
 
 
-public class FragmentMyProfileMain extends Fragment implements IFragmentComponentInitializer {
+public class FragmentMyProfileMain extends Fragment implements IFragmentComponentInitializer,View.OnClickListener {
 
       TextView myProfileRank;
       TextView myProfilePoints;
@@ -26,7 +30,20 @@ public class FragmentMyProfileMain extends Fragment implements IFragmentComponen
       TextView userRank;
       TextView userPoints;
       boolean visitor=false;
+      Button current,completed;
     GetUserRank clb;
+
+    @Override
+    public void onClick(View v) {
+        if(v.getId()==R.id.my_profile_completed_events){
+            Toast.makeText(getActivity(), "Nisam radio ovaj deo jos", Toast.LENGTH_SHORT).show();
+        }
+        else if(v.getId()==R.id.my_profile_current_events){
+            Intent i=new Intent(getActivity(), CurrentEventsActivity.class);
+            startActivity(i);
+        }
+    }
+
     public class GetUserRank implements IGetCurrentRankCallback {
 
         @Override
@@ -41,7 +58,8 @@ public class FragmentMyProfileMain extends Fragment implements IFragmentComponen
         View myProfileMain = inflater.inflate(R.layout.fragment_my_profile_main,container,false);
         initializeComponents(myProfileMain);
         visitor=((MyProfileActivity)getActivity()).getVisitor();
-        clb=new GetUserRank();
+        current.setOnClickListener(this);
+        completed.setOnClickListener(this);
         choseUserToDisplay();
         return myProfileMain;
     }
@@ -81,6 +99,9 @@ public class FragmentMyProfileMain extends Fragment implements IFragmentComponen
         myProfilePhone=v.findViewById(R.id.my_profile_phone_number);
         userRank=v.findViewById(R.id.my_profile_rank);
         userPoints=v.findViewById(R.id.my_profile_points);
+        current=v.findViewById(R.id.my_profile_current_events);
+        completed=v.findViewById(R.id.my_profile_completed_events);
+        clb=new GetUserRank();
     }
 
     @Override
