@@ -1,6 +1,7 @@
 package rs.elfak.mosis.greenforce.activities;
 
 import android.app.ProgressDialog;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -64,6 +65,8 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
     EventFiltersDialog filtersDialog;
     DisplayEventInformationOnMapDialog eventDialog;
 
+
+
     TextWatcher myTextWatcher=new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -117,7 +120,11 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         UserData createdBy=eventCreatedByMap.get(eventToView.getEventID());
         if(eventToView!=null && createdBy!=null){
             if(eventDialog==null)
+            {
                 eventDialog=new DisplayEventInformationOnMapDialog(this,createdBy,eventToView);
+
+            }
+
             else{
                 eventDialog.setEventToView(eventToView);
                 eventDialog.setCreatedByUser(createdBy);
@@ -146,6 +153,16 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
 
         @Override
         public void onCurrentEventsMapReceived(HashMap<String, EventVolunteer> currentEventsRole) {
+
+        }
+
+        @Override
+        public void onEventImagesReceived(ArrayList<Bitmap> images) {
+
+        }
+
+        @Override
+        public void onEventVolunteersReceived(ArrayList<EventVolunteer> volunteers) {
 
         }
     }
@@ -195,8 +212,8 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
     public void initializeComponents() {
         radius=findViewById(R.id.events_map_radius);
         toolbar=findViewById(R.id.eventsMapToolbar);
-        eventMarkers=new HashMap<String,Marker>();
-        eventCreatedByMap=new HashMap<String,UserData>();
+        eventMarkers= new HashMap<>();
+        eventCreatedByMap= new HashMap<>();
     }
     @Override
     public void disableMarker(MyEvent e) {

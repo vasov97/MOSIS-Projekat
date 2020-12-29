@@ -116,6 +116,7 @@ public class UploadPhotoActivity extends AppCompatActivity implements IComponent
    private void createEvent() {
       if(images.size()!=0){
          MyUserManager.getInstance().getUser().getCurrentEvent().setEventPhotos(images);
+         MyUserManager.getInstance().getUser().getCurrentEvent().setImagesBeforeCount(images.size());
          MyUserManager.getInstance().getUser().getCurrentEvent().setEventStatus(EventStatus.AVAILABLE);
          MyUserManager.getInstance().saveEvent(this);
       }

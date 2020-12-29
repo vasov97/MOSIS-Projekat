@@ -21,14 +21,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.xeoh.android.checkboxgroup.CheckBoxGroup;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -64,7 +61,7 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
         public void onCheckedChange(ArrayList<String> values)
         {
             eventValues=values;
-            ArrayList<EventTypes> newTypes=new ArrayList<EventTypes>();
+            ArrayList<EventTypes> newTypes= new ArrayList<>();
             for(String i:values){
                 EventTypes type=nameToTypesMap.get(i);
                 if(type!=null){
@@ -123,10 +120,14 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute)
                     { time.setText(hourOfDay + ":" + minute); }
-                }, hour, minutes, false);
+                }, hour, minutes, true);
         timePickerDialog.show();
     }
 
+   /* private boolean filtersAreEmpty()
+    {
+        if(postedBy.getText()=from.getText()=to.getText()=city.getText()=date.getText()=time.getText()=="")
+    }*/
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onClick(View v)
@@ -134,6 +135,7 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
          int id=v.getId();
          if(id==R.id.event_filters_apply)
          {
+
              enableAllMarkers(events);
              applyFilters();
              listener.appliedFilters();
@@ -178,7 +180,7 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
         landPollution=v.findViewById(R.id.filters_checkbox_land_pollution);
         reforestation=v.findViewById(R.id.filters_checkbox_reforestation);
         other=v.findViewById(R.id.filters_checkbox_other);
-        filteredTypes=new ArrayList<EventTypes>();
+        filteredTypes= new ArrayList<>();
         selectDate=v.findViewById(R.id.date_filter_button);
         selectTime=v.findViewById(R.id.time_filter_button);
         selectDate.setOnClickListener(this);
@@ -201,13 +203,13 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
         checkBoxes.put(reforestation,"reforestation");
         checkBoxes.put(other,"other");
         checkBoxGroup= new CheckBoxGroup<>(checkBoxes,myCheckBoxListener);
-        nameToTypesMap=new HashMap<String,EventTypes>();
+        nameToTypesMap= new HashMap<>();
         nameToTypesMap.put("land",EventTypes.LAND_POLLUTION);
         nameToTypesMap.put("water",EventTypes.WATER_POLLUTION);
         nameToTypesMap.put("reforestation",EventTypes.REFORESTATION);
         nameToTypesMap.put("other",EventTypes.OTHER);
     }
-    private String getEventAddressCity(double latitude,double longitude) throws IOException
+    public String getEventAddressCity(double latitude,double longitude) throws IOException
     {
         Geocoder geocoder;
         List<Address> addresses;
@@ -329,16 +331,52 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void checkTimeFilter(MyEvent myEvent)
     {
-        String eventTimePicker=time.getText().toString();
-        if(!time.getText().toString().equals(""))
+        String eventTimePicker=time.getText().toString();//if(eventTimePicker != ""
+        //assert extractIntegersFromString(eventTimePicker) !=null;
+        if(!eventTimePicker.equals(""))
         {
-            LocalTime localTime=LocalTime.parse(eventTimePicker);
-            LocalTime myEventTime = LocalTime.parse(myEvent.getTime());
-            localTime.format(DateTimeFormatter.ISO_TIME);
-            int resultTime=localTime.compareTo(myEventTime);
-            if(resultTime>0)
-                listener.disableMarker(myEvent);
+            ArrayList<Integer> selectedTime = extractIntegersFromString(eventTimePicker);
+            if(!selectedTime.isEmpty())
+            {
+                int selectedTimeHour = selectedTime.get(0);
+                int selectedTimeMinutes = selectedTime.get(1);
+                if(!eventTimePicker.equals(""))
+                {
+                    //LocalTime localTime=LocalTime.parse(eventTimePicker);
+                    // LocalTime myEventTime = LocalTime.parse(myEvent.getTime());
+                    String myEventTime=myEvent.getTime();
+                    //assert extractIntegersFromString(myEventTime) !=null;
+                    ArrayList<Integer> creationTime = extractIntegersFromString(myEventTime);
+                    if(!creationTime.isEmpty()) {
+                        int creationTimeHour = creationTime.get(0);
+                        int creationTimeMinutes = creationTime.get(1);
+                        if(creationTimeHour < selectedTimeHour)
+                            listener.disableMarker(myEvent);
+                        else if(creationTimeHour==selectedTimeHour)
+                        {
+                            if(creationTimeMinutes < selectedTimeMinutes)
+                                listener.disableMarker(myEvent);
+                        }
+                    }
+                }
+            }
+
+
         }
+
+    }
+
+    private ArrayList<Integer> extractIntegersFromString(String myString) {
+        ArrayList<Integer> eventTimeList = new ArrayList<>();
+        if (!myString.equals("")) {
+
+            String[] timeString = myString.split(":");
+            int hourInteger = Integer.parseInt(timeString[0].trim());
+            int minuteInteger = Integer.parseInt(timeString[1].trim());
+            eventTimeList.add(0, hourInteger);
+            eventTimeList.add(1, minuteInteger);
+        }
+        return eventTimeList;
     }
 
     //date&time filters
