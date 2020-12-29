@@ -123,6 +123,7 @@ public class MyUserManager {
 
 
 
+
     private static class SingletonHolder{
         public static final MyUserManager instance=new MyUserManager();
     }
@@ -759,6 +760,31 @@ public class MyUserManager {
             public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
     }
+
+    public void getEventRequestNotifications(String userID, final IGetNotifications notificationsClb) {
+        databaseNotificationsReference.child(userID).child(EVENT_REQUEST).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    ArrayList<Object> notifications=new ArrayList<Object>();
+                    for(DataSnapshot child : dataSnapshot.getChildren()){
+                        for(DataSnapshot childOfChild: child.getChildren()){
+                            EventRequestNotification notification=childOfChild.getValue(EventRequestNotification.class);
+                            notification.setSenderUid(childOfChild.getKey());
+                            notification.setEventID(child.getKey());
+                            notifications.add(notification);
+                        }
+                    }
+                    notificationsClb.onFriendRequestsReceived(notifications);
+                }else
+                {
+                    notificationsClb.onFriendRequestsReceived(null);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
+        });
+    }
     public void deleteNotifications(String receiver) {
         databaseNotificationsReference.child(receiver).child(FRIEND_REQUESTS).child(getCurrentUserUid()).removeValue();
         databaseNotificationsReference.child(getCurrentUserUid()).child(FRIEND_REQUESTS).child(receiver).removeValue();
@@ -869,7 +895,7 @@ public class MyUserManager {
                     databaseEventsReference.child(eventID).child("eventStatus").setValue(EventStatus.IN_PROGRESS);
                     addLeaderToEvent(eventID,getCurrentUserUid());
                 }else if(event.getEventStatus()==EventStatus.IN_PROGRESS){
-                    sendEventRequestToLeader(eventID);
+                    sendEventRequestToLeader(eventID,event.getEventLocation());
                 }
             }
 
@@ -880,7 +906,7 @@ public class MyUserManager {
         });
     }
 
-    private void sendEventRequestToLeader(final String eventID) {
+    private void sendEventRequestToLeader(final String eventID, final MyLatLong eventLocation) {
         databaseVolunteersReference.child(eventID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -888,7 +914,7 @@ public class MyUserManager {
                 for (DataSnapshot child : dataSnapshot.getChildren()){
                     EventVolunteer volunteer=child.getValue(EventVolunteer.class);
                     if(volunteer.getType()== VolunteerType.LEADER){
-                        sendEventRequest(child.getKey(),eventID);
+                        sendEventRequest(child.getKey(),eventID,eventLocation);
                         break;
                     }
                 }
@@ -900,14 +926,14 @@ public class MyUserManager {
             }
         });
     }
-    public void sendEventRequest(final String receiver,final String eventID){
+    public void sendEventRequest(final String receiver, final String eventID, final MyLatLong eventLocation){
         databaseNotificationsReference.child(receiver).child(EVENT_REQUEST).child(eventID).child(getCurrentUserUid()).addValueEventListener(new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 databaseNotificationsReference.child(receiver).child(EVENT_REQUEST).child(eventID).child(getCurrentUserUid()).removeEventListener(this);
                 if(!dataSnapshot.exists()){
-                    EventRequestNotification notification=new EventRequestNotification(userData.getUsername(),false);
+                    EventRequestNotification notification=new EventRequestNotification(userData.getUsername(),false,eventLocation);
                     databaseNotificationsReference.child(receiver).child(EVENT_REQUEST).child(eventID).child(getCurrentUserUid()).setValue(notification);
                 }
             }
@@ -988,7 +1014,7 @@ public class MyUserManager {
 
     }
 
-    public void getAllCurrentEventsEvents(String userID, final IGetEventsCallback eventsCallback) {
+    public void getAllCurrentEvents(String userID, final IGetEventsCallback eventsCallback) {
         databaseUserEventsReference.child(userID).child(CURRENT_EVENTS).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -1071,6 +1097,18 @@ public class MyUserManager {
             }
         });
     }
+    public void acceptEventRequest(String senderUid, String eventID) {
+        EventVolunteer volunteer=new EventVolunteer();
+        volunteer.setType(VolunteerType.FOLLOWER);
+        databaseVolunteersReference.child(eventID).child(senderUid).setValue(volunteer);
+        addEventToUsersCurrent(eventID,senderUid,volunteer);
+
+    }
+
+    public void deleteEventNotification(String senderUid, String eventID) {
+        databaseNotificationsReference.child(getCurrentUserUid()).child(EVENT_REQUEST).child(eventID).child(senderUid).removeValue();
+    }
+
 
 
 

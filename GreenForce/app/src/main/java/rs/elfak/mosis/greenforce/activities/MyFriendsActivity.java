@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
+import rs.elfak.mosis.greenforce.enums.NotificationType;
 import rs.elfak.mosis.greenforce.interfaces.IGetNotifications;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.R;
@@ -265,7 +266,9 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         }
         else if(v.getId()==R.id.notificationIcon){
             //Toast.makeText(this, "Bell", Toast.LENGTH_SHORT).show();
-            onClickNewIntent(this,NotificationsActivity.class);
+            Intent i=new Intent(this, CurrentEventsActivity.class);
+            i.putExtra("Type", NotificationType.FRIEND.toString());
+            startActivity(i);
         }
 
 

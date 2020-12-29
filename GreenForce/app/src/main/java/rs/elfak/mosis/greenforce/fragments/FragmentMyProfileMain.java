@@ -40,6 +40,13 @@ public class FragmentMyProfileMain extends Fragment implements IFragmentComponen
         }
         else if(v.getId()==R.id.my_profile_current_events){
             Intent i=new Intent(getActivity(), CurrentEventsActivity.class);
+            String idToVisit="";
+            if(visitor){
+                idToVisit=MyUserManager.getInstance().getVisitProfile().getUserUUID();
+            }
+            else
+                idToVisit=MyUserManager.getInstance().getCurrentUserUid();
+            i.putExtra("UserID",idToVisit);
             startActivity(i);
         }
     }

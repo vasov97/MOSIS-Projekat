@@ -12,6 +12,7 @@ public class EventRequestNotification {
     boolean isSeen;
     String username;
     String dateTime;
+    MyLatLong eventLocation;
     @Exclude
     String senderUid;
     @Exclude
@@ -19,13 +20,22 @@ public class EventRequestNotification {
 
     public EventRequestNotification(){}
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public EventRequestNotification(String username, boolean isSeen) {
+    public EventRequestNotification(String username, boolean isSeen,MyLatLong eventLocation) {
 
         this.isSeen=isSeen;
         this.username=username;
+        this.eventLocation=eventLocation;
         LocalDateTime sentDateTime=LocalDateTime.now();
         dateTime=sentDateTime.toString();
 
+    }
+
+    public MyLatLong getEventLocation() {
+        return eventLocation;
+    }
+
+    public void setEventLocation(MyLatLong eventLocation) {
+        this.eventLocation = eventLocation;
     }
 
     public void setDateTime(String dateTime) {

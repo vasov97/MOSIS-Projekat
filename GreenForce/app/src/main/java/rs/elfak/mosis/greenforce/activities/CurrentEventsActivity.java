@@ -1,6 +1,7 @@
 package rs.elfak.mosis.greenforce.activities;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 
@@ -10,28 +11,41 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.adapters.EventsAdapter;
+import rs.elfak.mosis.greenforce.enums.NotificationType;
 import rs.elfak.mosis.greenforce.enums.VolunteerType;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.interfaces.IGetEventsCallback;
+import rs.elfak.mosis.greenforce.interfaces.IGetNotifications;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
+import rs.elfak.mosis.greenforce.models.EventRequestNotification;
 import rs.elfak.mosis.greenforce.models.EventVolunteer;
+import rs.elfak.mosis.greenforce.models.FriendsRequestNotification;
 import rs.elfak.mosis.greenforce.models.MyEvent;
 
-public class CurrentEventsActivity extends AppCompatActivity implements IComponentInitializer {
+public class CurrentEventsActivity extends AppCompatActivity implements IComponentInitializer,View.OnClickListener {
     Toolbar toolbar;
     TabLayout tabLayout;
     ListView eventsToDisplayListView;
-    ArrayList<MyEvent> leaderEvents,volunteerEvents;
+    ImageView notificationIcon;
+    TextView notificationNumber;
+    ArrayList<MyEvent> leaderEvents,volunteerEvents,displayedEvents;
+    EventsAdapter eventsAdapter;
     HashMap<String, EventVolunteer> eventsMap;
     GetEventsCallback eventsCallback;
+    GetNotificationsCallback notificationsClb;
     ProgressDialog progressDialog;
+    ArrayList<Object> eventRequestNotifications;
     boolean leaderList;
 
     TabLayout.OnTabSelectedListener myTabSelectedListener=new TabLayout.OnTabSelectedListener() {
@@ -48,6 +62,8 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
         @Override
         public void onTabReselected(TabLayout.Tab tab) { }
     };
+
+
 
     public class GetEventsCallback implements IGetEventsCallback{
         @Override
@@ -85,6 +101,32 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
 
         }
     }
+    public class GetNotificationsCallback implements IGetNotifications {
+        @Override
+        public void onFriendRequestsReceived(ArrayList<Object> notifications) {
+            if(notifications!=null){
+                eventRequestNotifications=notifications;
+                notificationIcon.setEnabled(true);
+                int notSeenCount=0;
+                for(Object notification :notifications){
+                    if(notification instanceof EventRequestNotification)
+                    {
+                        if(!((EventRequestNotification) notification).getSeen())
+                            notSeenCount++;
+                    }
+
+                }
+                if(notSeenCount!=0) {
+                    notificationNumber.setText(String.valueOf(notSeenCount));
+                    notificationNumber.setVisibility(View.VISIBLE);
+                }
+            }else{
+                notificationNumber.setVisibility(View.INVISIBLE);
+                notificationIcon.setEnabled(false);
+            }
+
+        }
+    }
 
 
 
@@ -96,8 +138,23 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
         setUpActionBar(R.string.currentEvents);
         loadAllCurrentEvents();
         tabLayout.addOnTabSelectedListener(myTabSelectedListener);
-        MyUserManager.getInstance().getAllCurrentEventsEvents(MyUserManager.getInstance().getCurrentUserUid(),eventsCallback);
+        notificationIcon.setOnClickListener(this);
+        String userID = getIntent().getStringExtra("UserID");
+        if(!userID.equals("")){
+            MyUserManager.getInstance().getEventRequestNotifications(userID,notificationsClb);
+            MyUserManager.getInstance().getAllCurrentEvents(userID,eventsCallback);
+        }
 
+
+    }
+    @Override
+    public void onClick(View v) {
+        if(v.getId()==R.id.notificationIcon){
+            //Toast.makeText(this, "Bell "+notificationNumber.getText(),Toast.LENGTH_SHORT).show();
+            Intent i= new Intent(this,NotificationsActivity.class);
+            i.putExtra("Type", NotificationType.EVENT.toString());
+            startActivity(i);
+        }
     }
 
     @Override
@@ -105,9 +162,12 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
         toolbar=findViewById(R.id.currentEvents_toolbar);
         tabLayout=findViewById(R.id.currentEvents_tabLayout);
         eventsToDisplayListView=findViewById(R.id.currentEvents_eventsList);
+        notificationIcon=findViewById(R.id.notificationIcon);
+        notificationNumber=findViewById(R.id.notificationNumber);
         volunteerEvents=new ArrayList<>();
         leaderEvents=new ArrayList<>();
         eventsCallback=new GetEventsCallback();
+        notificationsClb=new GetNotificationsCallback();
         leaderList=true;
     }
     private void setUpActionBar(int rid)
@@ -133,14 +193,43 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
 
     private void displayEventsStatusVolunteer() {
         leaderList=false;
-        Toast.makeText(this,"Leader events",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this,"Leader events",Toast.LENGTH_SHORT).show();
+        addElementsToDisplay(volunteerEvents);
+        if(eventsAdapter==null){
+            eventsAdapter=new EventsAdapter(this,displayedEvents);
+            eventsToDisplayListView.setAdapter(eventsAdapter);
+        }
+        else
+        {
+            eventsAdapter.notifyDataSetChanged();
+        }
+
 
     }
 
     private void displayEventsStatusLeader() {
         leaderList=true;
-        Toast.makeText(this,"Volunteer events",Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this,"Volunteer events",Toast.LENGTH_SHORT).show();
+        addElementsToDisplay(leaderEvents);
+        if(eventsAdapter==null){
+            eventsAdapter=new EventsAdapter(this,displayedEvents);
+            eventsToDisplayListView.setAdapter(eventsAdapter);
+        }
+        else
+        {
+            eventsAdapter.notifyDataSetChanged();
+        }
+
     }
+
+    private void addElementsToDisplay(ArrayList<MyEvent> list) {
+        if(displayedEvents==null)
+            displayedEvents=new ArrayList<>();
+        displayedEvents.clear();
+        for(MyEvent e : list)
+            displayedEvents.add(e);
+    }
+
     private void loadAllCurrentEvents()
     {
         progressDialog=new ProgressDialog(CurrentEventsActivity.this);
@@ -167,8 +256,7 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
             displayEventsStatusVolunteer();
     }
 
-    //OVDE SAM STAO..Treba da se naprave adapteri za listView da bi se prikazale one 2 liste u funkcijama gde je sad toast
-    //*****imas takve layoute za listview samo include gde treba****
+    //nisam dodao on click!!
     //Treba da se napravi posle toga za notifikacije isti fazon kao kod friends
     // trebalo bi da je sa current gotovo posle --> finishedEvents treba da se smisle
 

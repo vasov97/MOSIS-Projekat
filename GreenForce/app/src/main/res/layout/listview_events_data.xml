@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="10dp">
+    <de.hdodenhof.circleimageview.CircleImageView
+
+        android:layout_width="45dp"
+        android:layout_height="90dp"
+        android:src="@drawable/event_location_icon"
+        app:civ_border_width="0dp"
+        android:layout_margin="5dp"
+        android:layout_weight="0.3"
+        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="0.7"
+        android:layout_margin="5dp"
+        >
+        <TextView
+            android:id="@+id/listView_events_data_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorBlack"
+            android:layout_margin="5dp"
+            android:textSize="20dp"
+            android:text="Bor"
+
+            />
+        <TextView
+            android:id="@+id/listView_events_data_reward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorBlack"
+            android:layout_margin="5dp"
+            android:textSize="15dp"
+            android:text="Reward: 300pts"
+
+            />
+        <TextView
+            android:id="@+id/listView_events_data_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorBlack"
+            android:layout_margin="5dp"
+            android:textSize="15dp"
+            android:text="Water pollution, land pollution.."
+
+            />
+    </LinearLayout>
+
+
+
+
+
+</LinearLayout>

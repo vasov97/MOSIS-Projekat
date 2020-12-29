@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
         <com.google.android.material.appbar.AppBarLayout
@@ -25,7 +25,7 @@
                 <androidx.appcompat.widget.Toolbar
                     android:id="@+id/currentEvents_toolbar"
                     android:layout_width="0dp"
-                    android:layout_weight="0.9"
+                    android:layout_weight="0.87"
                     android:layout_height="match_parent"
                     android:background="?attr/colorPrimary"
                     app:popupTheme="@style/AppTheme.PopupOverlay"/>
@@ -66,11 +66,12 @@
                 </com.google.android.material.tabs.TabLayout>
             </LinearLayout>
         </com.google.android.material.appbar.AppBarLayout>
-       <ListView
-           android:layout_width="match_parent"
-           android:layout_height="0dp"
-           android:layout_weight="0.8"
-           android:id="@+id/currentEvents_eventsList"/>
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.8"
+            android:id="@+id/currentEvents_eventsList"/>
+
     </LinearLayout>
 
 

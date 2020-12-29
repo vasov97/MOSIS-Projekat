@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.adapters.NotificationsAdapter;
+import rs.elfak.mosis.greenforce.enums.NotificationType;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.interfaces.IGetDataCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetNotifications;
@@ -37,8 +38,11 @@ public class NotificationsActivity extends AppCompatActivity implements ICompone
         initializeComponents();
         setUpActionBar(R.string.notifications);
 
-        notificationsCallback=new GetNotifications();
-        MyUserManager.getInstance().getFriendRequestNotifications(MyUserManager.getInstance().getCurrentUserUid(),notificationsCallback);
+        String type = getIntent().getStringExtra("Type");
+        if(type.equals(NotificationType.EVENT.toString()))
+            MyUserManager.getInstance().getEventRequestNotifications(MyUserManager.getInstance().getCurrentUserUid(),notificationsCallback);
+        else if(type.equals(NotificationType.FRIEND.toString()))
+           MyUserManager.getInstance().getFriendRequestNotifications(MyUserManager.getInstance().getCurrentUserUid(),notificationsCallback);
 
     }
 
@@ -48,8 +52,11 @@ public class NotificationsActivity extends AppCompatActivity implements ICompone
         @Override
         public void onFriendRequestsReceived(ArrayList<Object> notifications)
         {
-            notificationsList=notifications;
-            displayNotifications(notificationsList);
+            if(notifications!=null){
+                notificationsList=notifications;
+                displayNotifications(notificationsList);
+            }
+
 
         }
     }
@@ -58,6 +65,7 @@ public class NotificationsActivity extends AppCompatActivity implements ICompone
     {
        notificationsListView=findViewById(R.id.notifications_listView);
        toolbar=findViewById(R.id.notifications_toolbar);
+        notificationsCallback=new GetNotifications();
     }
 
     private void displayNotifications(ArrayList<Object> notifications)
