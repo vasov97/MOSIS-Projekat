@@ -25,19 +25,23 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
 
 import rs.elfak.mosis.greenforce.models.MyLatLong;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.models.UserData;
 
 
-public class LocationService extends Service {
+public class LocationService extends Service  {
+
 
     private static final String TAG = "LocationService";
-
+    int pushNotificationCounter=0;
     private FusedLocationProviderClient mFusedLocationClient;
     private final static long UPDATE_INTERVAL = 4 * 1000;  /* 4 secs */
     private final static long FASTEST_INTERVAL = 2000; /* 2 sec */
+    GetNearbyObjects nearbyObjects;
 
     @Nullable
     @Override
@@ -48,7 +52,7 @@ public class LocationService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        nearbyObjects=new GetNearbyObjects(this);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         if (Build.VERSION.SDK_INT >= 26) {
@@ -60,8 +64,8 @@ public class LocationService extends Service {
             ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
 
             Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("")
-                    .setContentText("").build();
+                    .setContentTitle("Notification")
+                    .setContentText("Textt").build();
 
             startForeground(1, notification);
         }
@@ -76,15 +80,14 @@ public class LocationService extends Service {
 
     private void getLocation() {
 
-        // ---------------------------------- LocationRequest ------------------------------------
-        // Create the location request to start receiving updates
+
         LocationRequest mLocationRequestHighAccuracy = new LocationRequest();
         mLocationRequestHighAccuracy.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequestHighAccuracy.setInterval(UPDATE_INTERVAL);
         mLocationRequestHighAccuracy.setFastestInterval(FASTEST_INTERVAL);
 
 
-        // new Google API SDK v11 uses getFusedLocationProviderClient(this)
+
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "getLocation: stopping the location service.");
@@ -102,10 +105,10 @@ public class LocationService extends Service {
 
                         if (location != null && MyUserManager.getInstance().getUser()!=null) {
                             MyLatLong myLatLong=new MyLatLong(location.getLatitude(),location.getLongitude());
-//                            UserData user= MyUserManager.getInstance().getUser();
-//                            if(user!=null)
-//                                user.setMyLatLong(myLatLong);
+                            LatLng userLatLng = new LatLng(myLatLong.getLatitude(),myLatLong.getLongitude());
                             saveUserLocation(myLatLong);
+                            nearbyObjects.getNearbyObjects(userLatLng);
+                            //mozda ovde da se zove getNearby pa na osnovu nekog counte da se pribavi
                         }
                     }
                 },
