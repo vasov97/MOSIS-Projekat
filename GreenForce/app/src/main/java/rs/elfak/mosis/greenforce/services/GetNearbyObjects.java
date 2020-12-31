@@ -162,6 +162,8 @@ public class GetNearbyObjects {
         }
     }
 
+
+
     public class GetUsers implements IGetUsersCallback {
 
         @Override
@@ -260,19 +262,22 @@ public class GetNearbyObjects {
         }
     }
 
+    /*public void test(Service service)
+    {
+        NotificationManager notificationManager = (NotificationManager)service.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
+    }*/
 
 
     private void showPushNotificationForEvent(MyEvent myEvent)
     {
-        //Sa pendingIntent se poziva intent koji se otvara na click na push notf
-        //Treba da prikaze event/user info ili zoom na mapu
+
         Intent intent = new Intent(locationServiceContext, EventsMapActivity.class);
         intent.putExtra("Zoom","zoom");
         intent.putExtra("Lat",myEvent.getEventLocation().getLatitude()+"");
         intent.putExtra("Lon",myEvent.getEventLocation().getLongitude()+"");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(locationServiceContext,0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-        //ako ovaj flag upadate zebava, stavi 0 na to mesto
 
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(locationServiceContext,locationServiceContext.getCHANNEL_2_ID())
@@ -282,8 +287,7 @@ public class GetNearbyObjects {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
-//        Notification notification=builder.build();
-//        locationServiceContext.startForeground(2,notification);
+
 
         NotificationManagerCompat notificationManagerCompat=NotificationManagerCompat.from(locationServiceContext);
         notificationManagerCompat.notify(2,builder.build());
@@ -292,7 +296,7 @@ public class GetNearbyObjects {
 
     private void showPushNotificationForUser(UserData userData)
     {
-        //Sa pendingIntent se poziva intent koji se otvara na click na push notf
+
         Intent intent = new Intent(locationServiceContext, AddFriendsViaMapsActivity.class);
         intent.putExtra("Zoom", "zoom");
         intent.putExtra("Lat",userData.getMyLatLong().getLatitude()+"");
@@ -300,7 +304,7 @@ public class GetNearbyObjects {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(locationServiceContext,0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
 
-        //
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(locationServiceContext,locationServiceContext.getCHANNEL_2_ID())
                 .setSmallIcon(R.drawable.push_notification)
                 .setContentTitle("User info")
@@ -308,12 +312,12 @@ public class GetNearbyObjects {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
-//        Notification notification=builder.build();
-//        locationServiceContext.startForeground(2,notification);
+
 
         NotificationManagerCompat notificationManagerCompat=NotificationManagerCompat.from(locationServiceContext);
         notificationManagerCompat.notify(2,builder.build());
     }
+
 
     private void checkForInvalidLocations(ArrayList<UserData> userList){
         if(users==null)

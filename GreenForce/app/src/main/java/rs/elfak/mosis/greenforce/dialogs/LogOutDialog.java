@@ -39,7 +39,7 @@ public class LogOutDialog extends AppCompatDialogFragment implements IFragmentCo
 
 
                     }
-                }).setPositiveButton("LotOut", new DialogInterface.OnClickListener() {
+                }).setPositiveButton("LogOut", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 

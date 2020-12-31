@@ -103,8 +103,7 @@ public class LocationService extends Service  {
                             pushNotificationCounter=0;
                             nearbyObjects.getNearbyObjects(myLatLong);
                         }
-                        //nearbyObjects.getNearbyObjects(userLatLng);
-                        //mozda ovde da se zove getNearby pa na osnovu nekog counte da se pribavi
+
                     }
                 }
 
@@ -113,6 +112,12 @@ public class LocationService extends Service  {
     }
 
 
+    public void clearNotifications()
+    {
+
+        /*NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();*/
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Build;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +27,7 @@ import com.xeoh.android.checkboxgroup.CheckBoxGroup;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -124,10 +126,7 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
         timePickerDialog.show();
     }
 
-   /* private boolean filtersAreEmpty()
-    {
-        if(postedBy.getText()=from.getText()=to.getText()=city.getText()=date.getText()=time.getText()=="")
-    }*/
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onClick(View v)
@@ -316,8 +315,10 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
         String eventDatePicker=date.getText().toString();
         if(!eventDatePicker.equals(""))
         {
-            LocalDate localDate= LocalDate.parse(eventDatePicker);
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            LocalDate localDate= LocalDate.parse(eventDatePicker,dateTimeFormatter);
             LocalDate myEventDate = LocalDate.parse(myEvent.getDate());
+            Log.d("sa","myEventDate is: "+myEventDate.toString()+"localDate is: "+localDate.toString());
             int resultDate=localDate.compareTo(myEventDate);
             if(resultDate>0)
                 listener.disableMarker(myEvent);
@@ -331,8 +332,7 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void checkTimeFilter(MyEvent myEvent)
     {
-        String eventTimePicker=time.getText().toString();//if(eventTimePicker != ""
-        //assert extractIntegersFromString(eventTimePicker) !=null;
+        String eventTimePicker=time.getText().toString();
         if(!eventTimePicker.equals(""))
         {
             ArrayList<Integer> selectedTime = extractIntegersFromString(eventTimePicker);
@@ -342,10 +342,7 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
                 int selectedTimeMinutes = selectedTime.get(1);
                 if(!eventTimePicker.equals(""))
                 {
-                    //LocalTime localTime=LocalTime.parse(eventTimePicker);
-                    // LocalTime myEventTime = LocalTime.parse(myEvent.getTime());
                     String myEventTime=myEvent.getTime();
-                    //assert extractIntegersFromString(myEventTime) !=null;
                     ArrayList<Integer> creationTime = extractIntegersFromString(myEventTime);
                     if(!creationTime.isEmpty()) {
                         int creationTimeHour = creationTime.get(0);

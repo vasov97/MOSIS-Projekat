@@ -679,6 +679,7 @@ public class MyUserManager {
         }
     }
 
+
     public void stopLocationService(){
         locationServiceHolder.stopService(locationService);
 //        ActivityManager manager = (ActivityManager) serviceHolder.getSystemService(serviceHolder.ACTIVITY_SERVICE);
@@ -830,17 +831,15 @@ public class MyUserManager {
        // LocalDateTime sentDateTime=LocalDateTime.now();
       //  String dateTime=sentDateTime.toString();
        // event.setDateTime(dateTime);
-        String eventDate=LocalDate.now().toString();
+       // String eventDate=LocalDate.now().toString();
+        LocalDate eventDate = LocalDate.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        //LocalDate myEventDate = LocalDate.parse(eventDate,dateTimeFormatter);
+        String eventDateToWrite = eventDate.format(dateTimeFormatter);
         Calendar calendar = Calendar.getInstance();
         String eventTime= setCurrentTime(calendar);
-        //String eventTime = setFormattedTime(calendar);
 
-        /*if(eventTime.contains("AM") || eventTime.contains("PM"))
-        {
-            eventTime= LocalTime.parse(eventTime , DateTimeFormatter.ofPattern("hh:mm a" , Locale.US))
-                            .format(DateTimeFormatter.ofPattern("HH:mm"));
-        }*/
-        event.setDate(eventDate);
+        event.setDate(eventDateToWrite);
         event.setTime(eventTime);
         String eventID=databaseEventsReference.push().getKey();
         assert eventID != null;

@@ -33,6 +33,8 @@ import rs.elfak.mosis.greenforce.interfaces.ILogOutListener;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
+import rs.elfak.mosis.greenforce.services.GetNearbyObjects;
+import rs.elfak.mosis.greenforce.services.LocationService;
 
 import static rs.elfak.mosis.greenforce.Constants.ERROR_DIALOG_REQUEST;
 import static rs.elfak.mosis.greenforce.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
@@ -280,6 +282,11 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
     {
         MyUserManager.getInstance().stopLocationService();
         MyUserManager.getInstance().getFirebaseAuth().signOut();
+        //MyUserManager.getInstance().deleteNotifications();//mozda neki bool dal je sign out
+
+        LocationService locationService=new LocationService();
+        assert locationService!=null;
+        locationService.clearNotifications();
         super.onBackPressed();
     }
 
