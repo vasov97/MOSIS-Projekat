@@ -70,6 +70,7 @@ import rs.elfak.mosis.greenforce.dialogs.DisplayUserInformationOnMapDialog;
 import rs.elfak.mosis.greenforce.dialogs.FindUserOnMapDialog;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
 import rs.elfak.mosis.greenforce.interfaces.IFindUserOnMapDialogListener;
+import rs.elfak.mosis.greenforce.interfaces.IGetFriendsCallback;
 import rs.elfak.mosis.greenforce.interfaces.IOnClickNewIntent;
 import rs.elfak.mosis.greenforce.interfaces.IRemoveUserFromFriends;
 import rs.elfak.mosis.greenforce.models.ClusterMarker;
@@ -84,6 +85,8 @@ import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 public class AddFriendsViaMapsActivity extends AppCompatActivity implements Serializable, IComponentInitializer,
         OnMapReadyCallback, AdapterView.OnItemSelectedListener, IFindUserOnMapDialogListener, GoogleMap.OnMarkerClickListener, IRemoveUserFromFriends
 {
+    String zoom;
+    MyLatLong zoomLatLong;
     Spinner mySpinner;
     EditText radius;
     Toolbar toolbar;
@@ -96,10 +99,10 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     String TAG="AddFriendsMapActivity";
     ArrayList<UserData> myFriends;
     ArrayList<UserData> allUsers;
-
     Map<String,Object> userMarkers;
     Map<String,MyLatLong> tmpChildAddedLatLng;
     IGetUsersCallback clb;
+    IGetFriendsCallback friendsCallback;
     private ClusterManager clusterManager;
     private MyClusterManagerRenderer myClusterManagerRenderer;
     private ArrayList<ClusterMarker> clusterMarkers = new ArrayList<ClusterMarker>();
@@ -197,6 +200,13 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                drawMyCircle(text);
            }
        };
+    public class GetFriendsCallback implements IGetFriendsCallback {
+        @Override
+        public void onFriendsReceived(ArrayList<UserData> friends) {
+            myFriends=friends;
+            MyUserManager.getInstance().getAllUsers(clb,DataRetriveAction.GET_USERS);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -204,18 +214,32 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         setContentView(R.layout.activity_add_friends_via_maps);
         initializeComponents();
         setUpActionBar(R.string.maps);
+        zoom=getIntent().getStringExtra("Zoom");
+        if(zoom!=null){
+            double lat=Double.parseDouble(getIntent().getStringExtra("Lat"));
+            double lon=Double.parseDouble(getIntent().getStringExtra("Lon"));
+            zoomLatLong=new MyLatLong(lat,lon);
+        }
 
-        myFriends= MyUserManager.getInstance().getMyFriends();
+
         clb=new GetUsersCallback();
-        MyUserManager.getInstance().getAllUsers(clb,DataRetriveAction.GET_USERS);
+        friendsCallback=new GetFriendsCallback();
+        loadAllUsers();
+        MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(),friendsCallback,DataRetriveAction.GET_FRIENDS,true);
+//        if(MyUserManager.getInstance().getMyFriends()==null){
+//            MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(),friendsCallback,DataRetriveAction.GET_FRIENDS,true);
+//        }else{
+//            myFriends= MyUserManager.getInstance().getMyFriends();
+//            MyUserManager.getInstance().getAllUsers(clb,DataRetriveAction.GET_USERS);
+//
+//        }
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.google_maps_fragment_view_location);
         mapFragment.getMapAsync(this);
-        loadAllUsers();
-
         MyUserManager.getInstance().getDatabaseCoordinatesReference().addChildEventListener(locationsChildEventListener);
         MyUserManager.getInstance().getDatabaseFriendsReference().child(MyUserManager.getInstance().getCurrentUserUid()).addChildEventListener(friendsChildEventListener);
         radius.addTextChangedListener(myTextWatcher);
+
     }
 
 
@@ -420,7 +444,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                     MyLatLong myLatLong=new MyLatLong(location.getLatitude(),location.getLongitude());
                     //MyUserManager.getInstance().getUser().setMyLatLong(myLatLong);
 
-                    setCameraView(myLatLong);
+                    //setCameraView(myLatLong);
                     MyUserManager.getInstance().saveUserCoordinates(myLatLong);
                     drawMyMarker();
                     Log.d(TAG, "onComplete: latitude: " + location.getLatitude());
@@ -563,6 +587,13 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                 allUsers.add(user);
             }
         }
+        if(mySpinner!=null && zoom!=null){
+            zoom=null;
+            mySpinner.setSelection(1);
+            drawAllMarkers();
+            radius.setEnabled(true);
+            setCameraView(zoomLatLong);
+        }
     }
     private void drawMyCircle(String text){
         if(!text.equals("")){
@@ -635,6 +666,20 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     public void showUser(UserData user,boolean isFriend){
         myDialog=new DisplayUserInformationOnMapDialog(this);
         myDialog.showDialog(user,isFriend);
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(zoomLatLong!=null)
+        {
+            Intent i=new Intent(this,HomePageActivity.class);
+            startActivity(i);
+            finish();
+
+        }else{
+            super.onBackPressed();
+        }
 
     }
 }

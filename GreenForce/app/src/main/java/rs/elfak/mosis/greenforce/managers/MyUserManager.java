@@ -104,10 +104,14 @@ public class MyUserManager {
     private static final String CURRENT_EVENTS="currentEvents";
 
     private UserData userData,visitProfile;
+    private boolean loggedIn;
     ArrayList<UserData> myFriends;
+    Activity locationServiceHolder;
+    Intent locationService;
 
 
     private MyUserManager() {
+        loggedIn=true;
         firebaseAuth=FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference(USER);
@@ -121,7 +125,13 @@ public class MyUserManager {
 
     }
 
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
 
+    public void setLoggedIn(boolean loggedIn) {
+        this.loggedIn = loggedIn;
+    }
 
 
     private static class SingletonHolder{
@@ -138,7 +148,9 @@ public class MyUserManager {
    public void setMyFriends(ArrayList<UserData> friends){myFriends=friends;}
    public DatabaseReference getDatabaseCoordinatesReference(){return databaseCoordinatesReference;}
    public DatabaseReference getDatabaseFriendsReference(){return databaseFriendsReference;}
-    public DatabaseReference getDatabaseEventsReference(){return databaseEventsReference;}
+   public DatabaseReference getDatabaseEventsReference(){return databaseEventsReference;}
+   public FirebaseAuth getFirebaseAuth(){return firebaseAuth;}
+
 
     public void loginUser(String emailText, String passwordText, final Activity enclosingActivity){
         firebaseAuth.signInWithEmailAndPassword(emailText,passwordText).addOnCompleteListener(enclosingActivity,
@@ -373,11 +385,13 @@ public class MyUserManager {
                 });
     }
 
-    public void getFriends(final String uid, final IGetFriendsCallback callback, final DataRetriveAction action)
+    public void getFriends(final String uid, final IGetFriendsCallback callback, final DataRetriveAction action, final boolean removeLIstener)
     {
         databaseFriendsReference.child(uid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(removeLIstener)
+                    databaseFriendsReference.child(uid).removeEventListener(this);
                 if(action==DataRetriveAction.GET_RANKED_USERS)
                     databaseFriendsReference.child(uid).removeEventListener(this);
                 final ArrayList<UserData> friends=new ArrayList<UserData>();
@@ -639,36 +653,52 @@ public class MyUserManager {
 
 
     public void addFriend(String friendUid){
-        String uid = firebaseAuth.getCurrentUser().getUid();
+        String uid = getCurrentUserUid();
         databaseFriendsReference.child(uid).child(friendUid).child("status").setValue("friend");
         databaseFriendsReference.child(friendUid).child(uid).child("status").setValue("friend");
     }
     public void saveUserCoordinates(MyLatLong myLatLong){
-        String uid = firebaseAuth.getCurrentUser().getUid();
+        String uid = getCurrentUserUid();
         userData.setMyLatLong(myLatLong);
-       // MyLatLong latlong=userData.getMyLatLong();
         databaseCoordinatesReference.child(uid).setValue(myLatLong);
     }
 
-
+    public void startLocationService(){
+        startLocationService(locationServiceHolder);
+    }
     public void startLocationService(Activity serviceHolder){
+        locationServiceHolder=serviceHolder;
         if(!isLocationServiceRunning(serviceHolder)){
-            Intent serviceIntent = new Intent(serviceHolder, LocationService.class);
-
+             locationService = new Intent(serviceHolder, LocationService.class);
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
 
-                serviceHolder.startForegroundService(serviceIntent);
+                serviceHolder.startForegroundService(locationService);
             }else{
-                serviceHolder.startService(serviceIntent);
+                serviceHolder.startService(locationService);
             }
         }
+    }
+
+    public void stopLocationService(){
+        locationServiceHolder.stopService(locationService);
+//        ActivityManager manager = (ActivityManager) serviceHolder.getSystemService(serviceHolder.ACTIVITY_SERVICE);
+//        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){
+//            if("LocationService".equals(service.service.getClassName())) {
+//                android.os.Process.killProcess(service.pid);
+//            }
+//        }
+    }
+
+    public boolean checkIfLocationServiceActive(){
+        return isLocationServiceRunning(locationServiceHolder);
     }
 
 
     private boolean isLocationServiceRunning(Activity serviceHolder) {
         ActivityManager manager = (ActivityManager) serviceHolder.getSystemService(serviceHolder.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){
-            if("LocationService".equals(service.service.getClassName())) {
+            String serviceName=service.service.getClassName();
+            if(LocationService.class.getName().equals(serviceName)) {
                 Log.d("LocationSERVICE", "isLocationServiceRunning: location service is already running.");
                 return true;
             }

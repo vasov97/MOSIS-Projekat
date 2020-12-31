@@ -1,11 +1,13 @@
 package rs.elfak.mosis.greenforce.activities;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -13,6 +15,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
@@ -51,6 +54,8 @@ import rs.elfak.mosis.greenforce.models.UserData;
 
 public class EventsMapActivity extends AppCompatActivity implements IComponentInitializer, OnMapReadyCallback, IApplyEventFilters,GoogleMap.OnMarkerClickListener {
 
+    String zoom;
+    MyLatLong zoomLatLong;
     EditText radius;
     Toolbar toolbar;
     ProgressDialog progressDialog;
@@ -189,6 +194,12 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_events_map);
         initializeComponents();
+        zoom=getIntent().getStringExtra("Zoom");
+        if(zoom!=null){
+            double lat=Double.parseDouble(getIntent().getStringExtra("Lat"));
+            double lon=Double.parseDouble(getIntent().getStringExtra("Lon"));
+            zoomLatLong=new MyLatLong(lat,lon);
+        }
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.google_maps_fragment_events_map);
         mapFragment.getMapAsync(this);
@@ -307,6 +318,10 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         for (MyEvent event : myEvents) {
             drawEventMarker(event);
         }
+        if(zoom!=null){
+            zoom=null;
+            setCameraView(zoomLatLong);
+        }
     }
     private void removeMyCircle(){
         if(myCircle!=null)
@@ -408,7 +423,30 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
             }
         }
     }
+    private void setCameraView(MyLatLong location){
+
+        double bottomBoundary=location.getLatitude()-.1;
+        double leftBoundary=location.getLongitude()-.1;
+        double topBoundary=location.getLatitude()+.1;
+        double rightBoundary=location.getLongitude()+.1;
+
+        LatLngBounds myMapBoundary = new LatLngBounds(new LatLng(bottomBoundary, leftBoundary), new LatLng(topBoundary, rightBoundary));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(myMapBoundary,0));
+    }
 
 
 
+    @Override
+    public void onBackPressed() {
+        if(zoomLatLong!=null)
+        {
+            Intent i=new Intent(this,HomePageActivity.class);
+            startActivity(i);
+            finish();
+
+        }else{
+            super.onBackPressed();
+        }
+
+    }
 }

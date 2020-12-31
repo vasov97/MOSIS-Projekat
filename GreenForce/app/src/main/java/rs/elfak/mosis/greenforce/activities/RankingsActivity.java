@@ -72,7 +72,7 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
         @Override
         public void onUsersReceived(ArrayList<UserData> allUsers) {
                 rankedUsers=allUsers;
-                MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(),getFriendsCallback,DataRetriveAction.GET_RANKED_USERS);
+                MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(),getFriendsCallback,DataRetriveAction.GET_RANKED_USERS,false);
                 sortArray(rankedUsers);
                 if(radioButtonAll.isChecked())
                     displayRankedUsers(allUsers);

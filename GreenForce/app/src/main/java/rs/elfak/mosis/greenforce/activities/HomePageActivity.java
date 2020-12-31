@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -16,11 +17,18 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+
+import org.jetbrains.annotations.NotNull;
+
+import rs.elfak.mosis.greenforce.dialogs.FindUserOnMapDialog;
+import rs.elfak.mosis.greenforce.dialogs.LogOutDialog;
+import rs.elfak.mosis.greenforce.interfaces.ILogOutListener;
 
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.R;
@@ -30,8 +38,10 @@ import static rs.elfak.mosis.greenforce.Constants.ERROR_DIALOG_REQUEST;
 import static rs.elfak.mosis.greenforce.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 import static rs.elfak.mosis.greenforce.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
 
-public class HomePageActivity extends AppCompatActivity implements View.OnClickListener, IComponentInitializer {
+public class HomePageActivity extends AppCompatActivity implements View.OnClickListener, IComponentInitializer, ILogOutListener {
 
+
+    androidx.constraintlayout.widget.ConstraintLayout layout;
     CardView profileCard;
     CardView friendsListCard;
     CardView rankCard;
@@ -40,11 +50,18 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
     boolean mLocationPermissionGranted;
     String TAG="HomePageActivity";
     LocationManager locationManager;
+    float x1;
+    float x2;
+    float y1;
+    float y2;
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
+
         initializeComponents();
         profileCard.setOnClickListener(this);
         friendsListCard.setOnClickListener(this);
@@ -57,6 +74,15 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
                  MyUserManager.getInstance().startLocationService(this);
             }
         }
+
+        layout.setOnTouchListener(new OnSwipeTouchListener(this) {
+            @Override
+            public void onSwipeLeft() {
+              Intent i=new Intent(HomePageActivity.this,EnableCustomServicesActivity.class);
+              startActivity(i);
+            }
+        });
+
 
     }
     @Override
@@ -107,7 +133,11 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
         rankCard=findViewById(R.id.rank_card);
         markSpot=findViewById(R.id.mark_a_spot_card);
         events=findViewById(R.id.events_card);
-;    }
+        layout=findViewById(R.id.homePageLayout);
+    }
+
+
+
 
     private boolean checkMapServices(){
         if(isServicesOK()){
@@ -235,4 +265,24 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
         super.onDestroy();
         //android.os.Process.killProcess(android.os.Process.myPid());
     }
+
+    @Override
+    public void onBackPressed()
+    {
+        LogOutDialog logOutDialog=new LogOutDialog();
+        logOutDialog.show(getSupportFragmentManager(),"Log out");
+
+    }
+
+
+    @Override
+    public void onLogout()
+    {
+        MyUserManager.getInstance().stopLocationService();
+        MyUserManager.getInstance().getFirebaseAuth().signOut();
+        super.onBackPressed();
+    }
+
+
+
 }

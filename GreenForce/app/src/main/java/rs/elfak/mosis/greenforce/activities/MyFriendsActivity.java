@@ -141,7 +141,7 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         initializeComponents();
         friendsClb =new GetFriendsCallback();
         notificationsClb=new GetNotificationsCallback();
-        MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(), friendsClb, DataRetriveAction.GET_FRIENDS);
+        MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(), friendsClb, DataRetriveAction.GET_FRIENDS,false);
         MyUserManager.getInstance().getFriendRequestNotifications(MyUserManager.getInstance().getCurrentUserUid(),notificationsClb);
 
         setUpActionBar(R.string.friends_text);
@@ -179,9 +179,7 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
     private void setUpActionBar(int rid) {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
-       // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        /*getSupportActionBar().setDisplayShowHomeEnabled(true);
-        toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);*/
+
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

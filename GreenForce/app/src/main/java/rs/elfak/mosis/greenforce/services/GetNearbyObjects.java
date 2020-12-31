@@ -17,6 +17,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -49,7 +50,9 @@ import java.util.HashMap;
 import java.util.Random;
 
 import rs.elfak.mosis.greenforce.R;
+import rs.elfak.mosis.greenforce.activities.AddFriendsViaMapsActivity;
 import rs.elfak.mosis.greenforce.activities.EventActivity;
+import rs.elfak.mosis.greenforce.activities.EventsMapActivity;
 import rs.elfak.mosis.greenforce.activities.MyProfileActivity;
 import rs.elfak.mosis.greenforce.activities.RankingsActivity;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
@@ -72,11 +75,16 @@ public class GetNearbyObjects {
     HashMap<String, MyLatLong> tmpChildAddedLatLng;
     GetUsers getUsers;
     GetEventsCallback getEvents;
+    String CHANNEL_ID="my_channel_2";
+    ArrayList<String> displayedUsers;
+    ArrayList<String> displayedEvents;
     double radius;
-    public GetNearbyObjects(LocationService locationService) 
+    public GetNearbyObjects(LocationService locationService)
     {
         radius=5;
         locationServiceContext=locationService;
+        displayedUsers=new ArrayList<>();
+        displayedEvents=new ArrayList<>();
         getEvents=new GetEventsCallback();
         getUsers=new GetUsers();
         MyUserManager.getInstance().getAllEvents(getEvents);
@@ -201,27 +209,43 @@ public class GetNearbyObjects {
         public void onEventVolunteersReceived(ArrayList<EventVolunteer> volunteers) {
         }
     }
-    
-    public void getNearbyObjects(LatLng userLocation)
+
+    public void getNearbyObjects(MyLatLong userLocation)
     {
         ArrayList<Object> nearbyObjects=new ArrayList<>();
-        for(MyEvent event: allEvents)
-        {
-            LatLng eventLocation = new LatLng(event.getEventLocation().getLatitude(),event.getEventLocation().getLongitude());
-            if(SphericalUtil.computeDistanceBetween(userLocation,eventLocation)<=radius)
-                nearbyObjects.add(event);
+        if(allEvents!=null){
+            if(allEvents.size()!=0) {
+                for (MyEvent event : allEvents) {
+                    if(calculateDistance(event.getEventLocation(),userLocation)<=radius*1000)
+                        nearbyObjects.add(event);
+                }
+            }
         }
-        for(UserData userData: users)
-        {
-            LatLng userLatLng = new LatLng(userData.getMyLatLong().getLatitude(),userData.getMyLatLong().getLongitude());
-            if(SphericalUtil.computeDistanceBetween(userLocation,userLatLng)<=radius)
-                nearbyObjects.add(userData);
+        if(users!=null && users.size()!=0){
+            if(users!=null)
+            {
+                if(users.size()!=0)
+                {
+                    for(UserData userData: users)
+                    {
+                        if(!userData.getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid())){
+                            if(calculateDistance(userData.getMyLatLong(),userLocation)<=radius*1000)
+                                nearbyObjects.add(userData);
+                        }
+                    }
+                }
+
+            }
+
         }
-        Random rand=new Random();
-        int upperBound=nearbyObjects.size();
-        int getRandom = rand.nextInt(upperBound);
-        showPushNotification(nearbyObjects.get(getRandom));
-        
+        if(nearbyObjects.size()!=0){
+            Random rand=new Random();
+            int upperBound=nearbyObjects.size();
+            int getRandom = rand.nextInt(upperBound);
+            Object o=nearbyObjects.get(getRandom);
+            if(!checkIfRecentlyDisplayed(o))
+                     showPushNotification(o);
+        }
     }
 
     private void showPushNotification(Object o) 
@@ -242,44 +266,53 @@ public class GetNearbyObjects {
     {
         //Sa pendingIntent se poziva intent koji se otvara na click na push notf
         //Treba da prikaze event/user info ili zoom na mapu
-        Intent intent = new Intent(locationServiceContext, EventActivity.class);
+        Intent intent = new Intent(locationServiceContext, EventsMapActivity.class);
+        intent.putExtra("Zoom","zoom");
+        intent.putExtra("Lat",myEvent.getEventLocation().getLatitude()+"");
+        intent.putExtra("Lon",myEvent.getEventLocation().getLongitude()+"");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(locationServiceContext,0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
         //ako ovaj flag upadate zebava, stavi 0 na to mesto
 
-        String CHANNEL_ID=myEvent.getEventID();
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(locationServiceContext,CHANNEL_ID)
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(locationServiceContext,locationServiceContext.getCHANNEL_2_ID())
                 .setSmallIcon(R.drawable.push_notification)
                 .setContentTitle("Event info")
                 .setContentText("There is an"+myEvent.getEventStatus().toString()+"event nearby")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
+//        Notification notification=builder.build();
+//        locationServiceContext.startForeground(2,notification);
 
         NotificationManagerCompat notificationManagerCompat=NotificationManagerCompat.from(locationServiceContext);
-        notificationManagerCompat.notify(Integer.parseInt(CHANNEL_ID),builder.build());
+        notificationManagerCompat.notify(2,builder.build());
 
     }
 
     private void showPushNotificationForUser(UserData userData)
     {
         //Sa pendingIntent se poziva intent koji se otvara na click na push notf
-        Intent intent = new Intent(locationServiceContext, MyProfileActivity.class);
+        Intent intent = new Intent(locationServiceContext, AddFriendsViaMapsActivity.class);
+        intent.putExtra("Zoom", "zoom");
+        intent.putExtra("Lat",userData.getMyLatLong().getLatitude()+"");
+        intent.putExtra("Lon",userData.getMyLatLong().getLongitude()+"");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(locationServiceContext,0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
 
         //
-        String CHANNEL_ID=userData.getUserUUID();
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(locationServiceContext,CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(locationServiceContext,locationServiceContext.getCHANNEL_2_ID())
                 .setSmallIcon(R.drawable.push_notification)
                 .setContentTitle("User info")
                 .setContentText("User: "+userData.getUsername() + "is nearby")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
+//        Notification notification=builder.build();
+//        locationServiceContext.startForeground(2,notification);
 
         NotificationManagerCompat notificationManagerCompat=NotificationManagerCompat.from(locationServiceContext);
-        notificationManagerCompat.notify(Integer.parseInt(CHANNEL_ID),builder.build());
+        notificationManagerCompat.notify(2,builder.build());
     }
 
     private void checkForInvalidLocations(ArrayList<UserData> userList){
@@ -294,11 +327,38 @@ public class GetNearbyObjects {
             }
         }
     }
+    private double calculateDistance(MyLatLong start,MyLatLong end){
+        float[] results = new float[1];
+        Location.distanceBetween(start.getLatitude(), start.getLongitude(),
+                end.getLatitude(), end.getLongitude(),
+                results);
+        return results[0];
+    }
+
+    private boolean checkIfRecentlyDisplayed(Object o){
+        if(o instanceof UserData)
+        {
+            UserData user=(UserData)o;
+            if(displayedUsers.contains(user.getUserUUID()))
+                return true;
+            else{
+                displayedUsers.add(user.getUserUUID());
+                return false;
+            }
+        }
+        else if(o instanceof MyEvent)
+        {
+            MyEvent event=(MyEvent)o;
+            if(displayedEvents.contains(event.getEventID()))
+                return true;
+            else{
+                displayedEvents.add(event.getEventID());
+                return false;
+            }
+        }
+        return false;
+    }
 
 
-    
-   
-   
-    
 
 }
