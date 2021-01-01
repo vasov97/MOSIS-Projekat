@@ -42,12 +42,14 @@ import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.dialogs.DisplayEventInformationOnMapDialog;
 import rs.elfak.mosis.greenforce.dialogs.EventFiltersDialog;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
+import rs.elfak.mosis.greenforce.enums.EventStatus;
 import rs.elfak.mosis.greenforce.interfaces.IApplyEventFilters;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.interfaces.IGetEventsCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.models.EventVolunteer;
+import rs.elfak.mosis.greenforce.models.LikeDislike;
 import rs.elfak.mosis.greenforce.models.MyEvent;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
 import rs.elfak.mosis.greenforce.models.UserData;
@@ -101,11 +103,13 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         @Override
         public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
             MyEvent event=dataSnapshot.getValue(MyEvent.class);
-            event.setEventID(dataSnapshot.getKey());
-            for(MyEvent e : myEvents){
-                if(e.getEventID().equals(event.getEventID())){
-                    e.setEventStatus(event.getEventStatus());
-                    updateMarkerTag(e);
+            if(event!=null) {
+                event.setEventID(dataSnapshot.getKey());
+                for (MyEvent e : myEvents) {
+                    if (e.getEventID().equals(event.getEventID())) {
+                        e.setEventStatus(event.getEventStatus());
+                        updateMarkerTag(e);
+                    }
                 }
             }
         }
@@ -162,12 +166,22 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
         }
 
         @Override
+        public void onCompletedEventsMapReceived(HashMap<String, EventVolunteer> currentEventsRole) {
+
+        }
+
+        @Override
         public void onEventImagesReceived(ArrayList<Bitmap> images) {
 
         }
 
         @Override
         public void onEventVolunteersReceived(ArrayList<EventVolunteer> volunteers) {
+
+        }
+
+        @Override
+        public void onLikeDislikeReceived(ArrayList<LikeDislike> list) {
 
         }
     }
@@ -316,7 +330,8 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
     }
     private void drawAllMarkers(){
         for (MyEvent event : myEvents) {
-            drawEventMarker(event);
+            if(event.getEventStatus()!= EventStatus.COMPLETED)
+                drawEventMarker(event);
         }
         if(zoom!=null){
             zoom=null;

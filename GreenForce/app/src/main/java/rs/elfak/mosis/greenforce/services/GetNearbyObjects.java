@@ -60,6 +60,7 @@ import rs.elfak.mosis.greenforce.interfaces.IGetEventsCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 import rs.elfak.mosis.greenforce.models.ClusterMarker;
 import rs.elfak.mosis.greenforce.models.EventVolunteer;
+import rs.elfak.mosis.greenforce.models.LikeDislike;
 import rs.elfak.mosis.greenforce.models.MyEvent;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
@@ -204,11 +205,21 @@ public class GetNearbyObjects {
         }
 
         @Override
+        public void onCompletedEventsMapReceived(HashMap<String, EventVolunteer> currentEventsRole) {
+
+        }
+
+        @Override
         public void onEventImagesReceived(ArrayList<Bitmap> images) {
         }
 
         @Override
         public void onEventVolunteersReceived(ArrayList<EventVolunteer> volunteers) {
+        }
+
+        @Override
+        public void onLikeDislikeReceived(ArrayList<LikeDislike> list) {
+
         }
     }
 

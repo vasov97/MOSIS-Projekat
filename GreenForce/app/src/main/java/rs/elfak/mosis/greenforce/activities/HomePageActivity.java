@@ -287,7 +287,9 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
         LocationService locationService=new LocationService();
         assert locationService!=null;
         locationService.clearNotifications();
-        super.onBackPressed();
+        Intent i=new Intent(this,LoginActivity.class);
+        startActivity(i);
+        this.finish();
     }
 
 

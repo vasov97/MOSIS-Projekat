@@ -2,6 +2,7 @@ package rs.elfak.mosis.greenforce.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.google.android.material.tabs.TabLayout;
@@ -84,6 +86,11 @@ public class LikeDislikeEvent extends AppCompatActivity implements IComponentIni
         }
 
         @Override
+        public void onCompletedEventsMapReceived(HashMap<String, EventVolunteer> currentEventsRole) {
+
+        }
+
+        @Override
         public void onEventImagesReceived(ArrayList<Bitmap> images) {
              beforePhotos=images;
             displayBeforePhotos();
@@ -101,7 +108,7 @@ public class LikeDislikeEvent extends AppCompatActivity implements IComponentIni
                likesLayout.setVisibility(View.VISIBLE);
             }else
                 volunteer=false;
-            //pribavi lajkove za event
+           MyUserManager.getInstance().getEventReviews(eventID,getEventVolunteersAndBeforeImagesCallback);
 
         }
 
@@ -113,12 +120,6 @@ public class LikeDislikeEvent extends AppCompatActivity implements IComponentIni
                 checkIfAlreadyVoted(list);
             }
 
-
-            //da se doda like dislike count
-            //mozda da mu ne dam da like dislike stalno nego samo jednom
-            //posle toga sklonim dugmice i prikazem like count dislike count
-            // ako je vec like ili dislike samo count prikazem
-            // kako da uradim to a da nije gragment>??????
         }
     }
 
@@ -143,6 +144,11 @@ public class LikeDislikeEvent extends AppCompatActivity implements IComponentIni
         }
 
         @Override
+        public void onCompletedEventsMapReceived(HashMap<String, EventVolunteer> currentEventsRole) {
+
+        }
+
+        @Override
         public void onEventImagesReceived(ArrayList<Bitmap> images) {
              afterPhotos=images;
         }
@@ -162,6 +168,7 @@ public class LikeDislikeEvent extends AppCompatActivity implements IComponentIni
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_like_dislike_event);
+        initializeComponents();
         eventID=getIntent().getStringExtra("eventID");
         afterCount= Integer.parseInt(getIntent().getStringExtra("afterCount"));
         beforeCount= Integer.parseInt(getIntent().getStringExtra("beforeCount"));
@@ -173,7 +180,7 @@ public class LikeDislikeEvent extends AppCompatActivity implements IComponentIni
 
         }
         try{
-            MyUserManager.getInstance().getEventImages(eventID, EventImageType.BEFORE,afterCount,getAfterImagesCallback);
+            MyUserManager.getInstance().getEventImages(eventID, EventImageType.AFTER,afterCount,getAfterImagesCallback);
         }catch(IOException e){
 
         }
@@ -181,6 +188,8 @@ public class LikeDislikeEvent extends AppCompatActivity implements IComponentIni
 
 
         tabLayout.addOnTabSelectedListener(myTabSelectedListener);
+        dislikeButton.setOnClickListener(this);
+        likeButton.setOnClickListener(this);
 
 
     }
@@ -221,18 +230,20 @@ public class LikeDislikeEvent extends AppCompatActivity implements IComponentIni
         getAfterImagesCallback=new GetAfterImagesCallback();
         eventVolunteers=new ArrayList<>();
         displayedPhotos=new ArrayList<>();
-        likeView.setText(likeCount);
-        dislikeView.setText(dislikeCount);
-
+        likeView.setText("Likes: "+likeCount);
+        dislikeView.setText("Dislikes: "+dislikeCount);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(layoutManager);
     }
 
     @Override
     public void onClick(View v) {
         if(v.getId()==R.id.likeDislike_btn_dislike){
-
+         MyUserManager.getInstance().reviewEvent(eventID,MyUserManager.getInstance().getCurrentUserUid(),ReviewType.DISLIKE);
         }
         else if(v.getId()==R.id.likeDislike_btn_like){
-
+            MyUserManager.getInstance().reviewEvent(eventID,MyUserManager.getInstance().getCurrentUserUid(),ReviewType.LIKE);
         }
 
     }
@@ -268,9 +279,11 @@ public class LikeDislikeEvent extends AppCompatActivity implements IComponentIni
 
     private void checkIfAlreadyVoted(ArrayList<LikeDislike> list) {
         boolean voted=false;
-        for(LikeDislike likeDislike : list){
-            if(likeDislike.getUserID().equals(MyUserManager.getInstance().getCurrentUserUid()))
-                 voted=true;
+        if(list!=null){
+            for(LikeDislike likeDislike : list){
+                if(likeDislike.getUserID().equals(MyUserManager.getInstance().getCurrentUserUid()))
+                    voted=true;
+            }
         }
 
         if(voted){
@@ -290,9 +303,9 @@ public class LikeDislikeEvent extends AppCompatActivity implements IComponentIni
                 else if(likeDislike.getType()==ReviewType.DISLIKE)
                     dislikeCount++;
             }
-            likeView.setText(likeCount);
-            dislikeView.setText(dislikeCount);
         }
+        likeView.setText("Likes: "+likeCount);
+        dislikeView.setText("Dislikes: "+dislikeCount);
     }
 
 }

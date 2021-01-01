@@ -31,6 +31,7 @@ import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.models.EventRequestNotification;
 import rs.elfak.mosis.greenforce.models.EventVolunteer;
 import rs.elfak.mosis.greenforce.models.FriendsRequestNotification;
+import rs.elfak.mosis.greenforce.models.LikeDislike;
 import rs.elfak.mosis.greenforce.models.MyEvent;
 
 public class CurrentEventsActivity extends AppCompatActivity implements IComponentInitializer,View.OnClickListener {
@@ -92,12 +93,22 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
         }
 
         @Override
+        public void onCompletedEventsMapReceived(HashMap<String, EventVolunteer> currentEventsRole) {
+
+        }
+
+        @Override
         public void onEventImagesReceived(ArrayList<Bitmap> images) {
 
         }
 
         @Override
         public void onEventVolunteersReceived(ArrayList<EventVolunteer> volunteers) {
+
+        }
+
+        @Override
+        public void onLikeDislikeReceived(ArrayList<LikeDislike> list) {
 
         }
     }

@@ -44,6 +44,7 @@ import rs.elfak.mosis.greenforce.dialogs.DisplayEventInformationOnMapDialog;
 import rs.elfak.mosis.greenforce.dialogs.EventFiltersDialog;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
 import rs.elfak.mosis.greenforce.enums.EventImageType;
+import rs.elfak.mosis.greenforce.enums.EventStatus;
 import rs.elfak.mosis.greenforce.enums.EventTypes;
 import rs.elfak.mosis.greenforce.enums.VolunteerType;
 import rs.elfak.mosis.greenforce.fragments.FragmentMyProfileMain;
@@ -53,6 +54,7 @@ import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 import rs.elfak.mosis.greenforce.interfaces.IViewFlipperHandler;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.models.EventVolunteer;
+import rs.elfak.mosis.greenforce.models.LikeDislike;
 import rs.elfak.mosis.greenforce.models.MyEvent;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
 import rs.elfak.mosis.greenforce.models.UserData;
@@ -248,7 +250,10 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
             if(myVolunteersKeys!=null){
                 if(isLeader)
                 {
-                    uploadConfirmationImages();
+                    if(eventToView.getEventStatus()== EventStatus.COMPLETED)
+                        Toast.makeText(this,"You have already submited this event!",Toast.LENGTH_LONG).show();
+                    else
+                      uploadConfirmationImages();
                 }
                 else
                     Toast.makeText(this,"Only the event leader can submit this event.",Toast.LENGTH_SHORT).show();
@@ -335,6 +340,11 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
        }
 
        @Override
+       public void onCompletedEventsMapReceived(HashMap<String, EventVolunteer> currentEventsRole) {
+
+       }
+
+       @Override
        public void onEventImagesReceived(ArrayList<Bitmap> images)
        {
            if(images!=null){
@@ -366,6 +376,11 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
                }
            }
            setUpActionBar(R.string.event);
+       }
+
+       @Override
+       public void onLikeDislikeReceived(ArrayList<LikeDislike> list) {
+
        }
    }
 

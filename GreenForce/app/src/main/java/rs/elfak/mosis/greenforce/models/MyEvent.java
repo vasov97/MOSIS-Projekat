@@ -20,20 +20,19 @@ public class MyEvent
     private int eventPoints;
     private String createdByID;
 
-    public int getImagesBeforeCount() {
-        return imagesBeforeCount;
-    }
 
-    public void setImagesBeforeCount(int imagesBeforeCount) {
-        this.imagesBeforeCount = imagesBeforeCount;
-    }
 
     private int imagesBeforeCount;
+    private int imagesAfterCount;
     //String dateTime;
     String date;
     String time;
 
 
+    public MyEvent(){
+        imagesAfterCount=0;
+        imagesAfterCount=0;
+    }
 
 
 
@@ -124,7 +123,21 @@ public class MyEvent
         this.eventID = eventID;
     }
 
+    public int getImagesBeforeCount() {
+        return imagesBeforeCount;
+    }
 
+    public void setImagesBeforeCount(int imagesBeforeCount) {
+        this.imagesBeforeCount = imagesBeforeCount;
+    }
+
+    public int getImagesAfterCount() {
+        return imagesAfterCount;
+    }
+
+    public void setImagesAfterCount(int imagesAfterCount) {
+        this.imagesAfterCount = imagesAfterCount;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -30,6 +30,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
@@ -62,6 +64,7 @@ import rs.elfak.mosis.greenforce.dialogs.DisplayUserInformationOnMapDialog;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
 import rs.elfak.mosis.greenforce.enums.EventImageType;
 import rs.elfak.mosis.greenforce.enums.EventStatus;
+import rs.elfak.mosis.greenforce.enums.ReviewType;
 import rs.elfak.mosis.greenforce.enums.VolunteerType;
 import rs.elfak.mosis.greenforce.interfaces.ICheckEventData;
 import rs.elfak.mosis.greenforce.interfaces.IGetCurrentRankCallback;
@@ -73,6 +76,7 @@ import rs.elfak.mosis.greenforce.interfaces.IGetFriendsCallback;
 import rs.elfak.mosis.greenforce.models.EventRequestNotification;
 import rs.elfak.mosis.greenforce.models.EventVolunteer;
 import rs.elfak.mosis.greenforce.models.FriendsRequestNotification;
+import rs.elfak.mosis.greenforce.models.LikeDislike;
 import rs.elfak.mosis.greenforce.models.MyEvent;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
 import rs.elfak.mosis.greenforce.models.UserData;
@@ -90,6 +94,7 @@ public class MyUserManager {
     private final DatabaseReference databaseEventsReference;
     private final DatabaseReference databaseVolunteersReference;
     private final DatabaseReference databaseUserEventsReference;
+    private final DatabaseReference databaseReviewsReference;
     private final StorageReference storageReference;
     private static final String USER = "user";
     private static final String FRIENDS = "friends";
@@ -103,6 +108,9 @@ public class MyUserManager {
     private static final String VOLUNTEERS="volunteers";
     private static final String USER_EVENTS="userEvents";
     private static final String CURRENT_EVENTS="currentEvents";
+    private static final String COMPLETED_EVENTS="completedEvents";
+    private static final String EVENT_REVIEWS="reviews";
+    private static final int REQUIRED_VOTES=10;
 
     private UserData userData,visitProfile;
     private boolean loggedIn;
@@ -122,6 +130,7 @@ public class MyUserManager {
         databaseEventsReference=firebaseDatabase.getReference(EVENTS);
         databaseVolunteersReference=firebaseDatabase.getReference(VOLUNTEERS);
         databaseUserEventsReference=firebaseDatabase.getReference(USER_EVENTS);
+        databaseReviewsReference=firebaseDatabase.getReference(EVENT_REVIEWS);
         storageReference = FirebaseStorage.getInstance().getReference();
 
     }
@@ -133,6 +142,7 @@ public class MyUserManager {
     public void setLoggedIn(boolean loggedIn) {
         this.loggedIn = loggedIn;
     }
+
 
 
     private static class SingletonHolder{
@@ -1071,6 +1081,28 @@ public class MyUserManager {
             }
         });
     }
+    public void getAllCompletedEvents(String userID, final IGetEventsCallback eventsCallback) {
+        databaseUserEventsReference.child(userID).child(COMPLETED_EVENTS).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    HashMap<String,EventVolunteer> map=new HashMap<String,EventVolunteer>();
+                    for(DataSnapshot child : dataSnapshot.getChildren()){
+                        EventVolunteer myType=child.getValue(EventVolunteer.class);
+                        myType.setId(child.getKey());
+                        map.put(child.getKey(),myType);
+                    }
+                    eventsCallback.onCompletedEventsMapReceived(map);
+
+                }else
+                    eventsCallback.onCompletedEventsMapReceived(null);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
 
     public void getSingleEvent(final String eventID, final IGetEventsCallback eventsCallback) {
         databaseEventsReference.child(eventID).addValueEventListener(new ValueEventListener() {
@@ -1144,12 +1176,187 @@ public class MyUserManager {
         databaseNotificationsReference.child(getCurrentUserUid()).child(EVENT_REQUEST).child(eventID).child(senderUid).removeValue();
     }
 
+    public void getEventReviews(String eventID, final IGetEventsCallback callback){
+        databaseReviewsReference.child(eventID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    ArrayList<LikeDislike> reviews=new ArrayList<>();
+                    for(DataSnapshot child : dataSnapshot.getChildren()){
+                        LikeDislike model=child.getValue(LikeDislike.class);
+                        model.setUserID(child.getKey());
+                        reviews.add(model);
+                    }
+                    callback.onLikeDislikeReceived(reviews);
+
+                }else
+                    callback.onLikeDislikeReceived(null);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void reviewEvent(String eventID, String userID, ReviewType type) {
+        LikeDislike action=new LikeDislike();
+        action.setType(type);
+        databaseReviewsReference.child(eventID).child(userID).setValue(action);
+
+        if(type==ReviewType.LIKE)
+          saveReview(eventID,"likes");
+        else
+           saveReview(eventID,"dislikes");
 
 
 
+    }
 
 
+    private void saveReview(final String eventID, String action) {
+        databaseEventsReference.child(eventID).child("count").child(action).runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                Integer score = mutableData.getValue(Integer.class);
+                if (score == null) {
+                    return Transaction.success(mutableData);
+                }
+                mutableData.setValue(score + 1);
+                checkIfEventCompleted(eventID);
+                return Transaction.success(mutableData);
+            }
 
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {}
+        });
+    }
+
+
+    private void checkIfEventCompleted(final String eventID) {
+    databaseEventsReference.child(eventID).child("count").addValueEventListener(new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            databaseEventsReference.child(eventID).child("count").removeEventListener(this);
+            if(dataSnapshot.exists()){
+                VoteCount count=dataSnapshot.getValue(VoteCount.class);
+                if(count.getLikes()+count.getDislikes()>=REQUIRED_VOTES){
+                    if(count.getLikes()>=count.getDislikes())
+                        eventCompleted(eventID);
+                    else
+                        removeEventFromDatabase(eventID);
+                }
+
+            }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+     });
+    }
+
+
+    private void eventCompleted(final String eventID) {
+        databaseEventsReference.child(eventID).child("eventStatus").setValue(EventStatus.COMPLETED);
+        databaseEventsReference.child(eventID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseEventsReference.child(eventID).removeEventListener(this);
+                MyEvent event=dataSnapshot.getValue(MyEvent.class);
+                addEventPoints(eventID,event.getEventPoints());
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+        addToCompletedEvents(eventID);
+
+    }
+
+    private void addToCompletedEvents(final String eventID) {
+        databaseVolunteersReference.child(eventID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseVolunteersReference.child(eventID).removeEventListener(this);
+                if(dataSnapshot.exists()){
+                    for(DataSnapshot child : dataSnapshot.getChildren()){
+                        EventVolunteer volunteer=child.getValue(EventVolunteer.class);
+                        volunteer.setId(child.getKey());
+                        addToUsersCompletedEvents(eventID,volunteer);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void addToUsersCompletedEvents(String eventID, EventVolunteer volunteer) {
+        databaseUserEventsReference.child(volunteer.getId()).child(CURRENT_EVENTS).child(eventID).removeValue();
+        databaseUserEventsReference.child(volunteer.getId()).child(COMPLETED_EVENTS).child(eventID).setValue(volunteer);
+    }
+
+    private void addEventPoints(final String eventID, final int eventPoints) {
+        databaseVolunteersReference.child(eventID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseVolunteersReference.child(eventID).removeEventListener(this);
+                if(dataSnapshot.exists()){
+                    for(DataSnapshot child : dataSnapshot.getChildren()){
+                        addPointsToUser(child.getKey(),eventPoints);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void addPointsToUser(String userID, final int points) {
+       databaseReference.child(userID).child("points").runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                Integer score = mutableData.getValue(Integer.class);
+                if (score == null) {
+                    return Transaction.success(mutableData);
+                }
+                //for(int i=0;i<points;i++)
+                   mutableData.setValue(score + points);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {}
+        });
+    }
+
+    private void removeEventFromDatabase(final String eventID) {
+        databaseEventsReference.child(eventID).removeValue();
+        databaseReviewsReference.child(eventID).removeValue();
+        databaseVolunteersReference.child(eventID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseVolunteersReference.child(eventID).removeEventListener(this);
+                if(dataSnapshot.exists()){
+                    for(DataSnapshot child : dataSnapshot.getChildren()){
+                       databaseUserEventsReference.child(child.getKey()).child(CURRENT_EVENTS).child(eventID).removeValue();
+                    }
+                }
+                databaseVolunteersReference.child(eventID).removeValue();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
 
 
 

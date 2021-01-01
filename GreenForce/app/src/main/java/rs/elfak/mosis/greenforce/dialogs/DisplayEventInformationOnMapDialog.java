@@ -135,7 +135,9 @@ public class DisplayEventInformationOnMapDialog extends BottomSheetDialog implem
 
     private void approveOfEvent(String eventID) {
         Intent i=new Intent(getContext(), LikeDislikeEvent.class);
-        i.putExtra("eventId",eventID);
+        i.putExtra("eventID",eventID);
+        i.putExtra("beforeCount",eventToView.getImagesBeforeCount()+"");
+        i.putExtra("afterCount",eventToView.getImagesAfterCount()+"");
         getContext().startActivity(i);
     }
 
@@ -177,7 +179,7 @@ public class DisplayEventInformationOnMapDialog extends BottomSheetDialog implem
     private void displayEventData() {
         applyToEvent.setEnabled(true);
         applyToEvent.setText(R.string.apply);
-        if(eventToView.getEventStatus()==EventStatus.PENDING){
+        if(eventToView.getEventStatus()==EventStatus.PENDING && eventToView.getEventStatus()==EventStatus.COMPLETED){
             applyToEvent.setEnabled(false);
             bottomSheetDialog.show();
         }else

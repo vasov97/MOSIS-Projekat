@@ -15,6 +15,7 @@ public interface IGetEventsCallback extends IGetDataCallback{
     void onEventsReceived(ArrayList<MyEvent> events);
     void onSingleEventReceived(MyEvent event);
     void onCurrentEventsMapReceived(HashMap<String, EventVolunteer> currentEventsRole);
+    void onCompletedEventsMapReceived(HashMap<String, EventVolunteer> currentEventsRole);
     void onEventImagesReceived(ArrayList<Bitmap> images);
     void onEventVolunteersReceived(ArrayList<EventVolunteer> volunteers);
     void onLikeDislikeReceived(ArrayList<LikeDislike> list);
