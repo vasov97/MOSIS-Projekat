@@ -85,6 +85,7 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
      ArrayList<EventVolunteer> myVolunteersKeys;
      VolunteersCallback volunteersCallback;
      boolean isLeader=false;
+     MenuItem menuSubmit;
 
 
      public class VolunteersCallback implements IGetUsersCallback{
@@ -116,7 +117,6 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_layout);
         initializeComponents();
-        setUpActionBar(R.string.event);
         Bundle bundle = getIntent().getExtras();
         viewEventID = bundle.getString("eventId");
         MyUserManager.getInstance().getSingleEvent(viewEventID,eventsCallback);
@@ -233,6 +233,11 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
         menu.clear();
         super.onPrepareOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu_view_event,menu);
+        menuSubmit = menu.findItem(R.id.submit_event);
+        if(!isLeader){
+            menuSubmit.setVisible(false);
+            menuSubmit.setEnabled(false);
+        }
         return true;
     }
 
@@ -242,7 +247,9 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
         {
             if(myVolunteersKeys!=null){
                 if(isLeader)
-                    Toast.makeText(this,"later",Toast.LENGTH_SHORT).show();
+                {
+                    uploadConfirmationImages();
+                }
                 else
                     Toast.makeText(this,"Only the event leader can submit this event.",Toast.LENGTH_SHORT).show();
 
@@ -255,16 +262,22 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
 
         return super.onOptionsItemSelected(item);
     }
+
+
+
     public String EventAddressCity(double latitude,double longitude) throws IOException
     {
         Geocoder geocoder;
         List<Address> addresses;
         geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         addresses = geocoder.getFromLocation(latitude, longitude, 1);
+        String address = addresses.get(0).getAddressLine(0);
+        String city = addresses.get(0).getLocality();
+        String country = addresses.get(0).getCountryName();
         if(addresses.get(0).getLocality()==null)
-            return addresses.get(0).getAddressLine(0)+", "+addresses.get(0).getCountryName();
+            return address + ", " + country;
         else
-            return addresses.get(0).getLocality();
+            return address + ", " + city + ", "+ country;
     }
 
    public class EventsCallback implements IGetEventsCallback
@@ -300,6 +313,7 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
            String myCity="";
            try { myCity= EventAddressCity(latLong.getLatitude(),latLong.getLongitude()); }
            catch(Exception e) { e.getMessage(); }
+
            eventLocation.setText(myCity);
            eventPoints.setText(event.getEventPoints()+"");
            eventStatus.setText(event.getEventStatus().toString());
@@ -344,14 +358,14 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
                        eventLeader.setText(v.getId());
                        if(v.getId().equals(MyUserManager.getInstance().getCurrentUserUid()))
                            isLeader=true;
+//                           menuSubmit.setVisible(true);
+//                           menuSubmit.setEnabled(true);
                    }
                    MyUserManager.getInstance().getSingleUser(DataRetriveAction.GET_USER,v.getId(),volunteersCallback);
 
                }
            }
-
-
-
+           setUpActionBar(R.string.event);
        }
    }
 
@@ -376,4 +390,10 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
 
        }
    }
+
+    private void uploadConfirmationImages() {
+         Intent i=new Intent(this,UploadPhotoActivity.class);
+         i.putExtra("Submit",eventToView.getEventID());
+         startActivity(i);
+    }
 }

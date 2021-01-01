@@ -24,6 +24,7 @@ import java.util.TimerTask;
 
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.activities.EventActivity;
+import rs.elfak.mosis.greenforce.activities.LikeDislikeEvent;
 import rs.elfak.mosis.greenforce.activities.MyProfileActivity;
 import rs.elfak.mosis.greenforce.enums.EventStatus;
 import rs.elfak.mosis.greenforce.enums.VolunteerType;
@@ -124,8 +125,18 @@ public class DisplayEventInformationOnMapDialog extends BottomSheetDialog implem
         }
         else if(v.getId()==R.id.viewEventView)
         {
-            viewEventInfo(eventToView.getEventID());
+            if(eventToView.getEventStatus()==EventStatus.PENDING){
+                approveOfEvent(eventToView.getEventID());
+            }
+            else
+             viewEventInfo(eventToView.getEventID());
         }
+    }
+
+    private void approveOfEvent(String eventID) {
+        Intent i=new Intent(getContext(), LikeDislikeEvent.class);
+        i.putExtra("eventId",eventID);
+        getContext().startActivity(i);
     }
 
     private void viewEventInfo(String eventId)
@@ -166,7 +177,11 @@ public class DisplayEventInformationOnMapDialog extends BottomSheetDialog implem
     private void displayEventData() {
         applyToEvent.setEnabled(true);
         applyToEvent.setText(R.string.apply);
-        MyUserManager.getInstance().findEventLeaderAndCheckRequest(eventToView.getEventID(),clb);
+        if(eventToView.getEventStatus()==EventStatus.PENDING){
+            applyToEvent.setEnabled(false);
+            bottomSheetDialog.show();
+        }else
+            MyUserManager.getInstance().findEventLeaderAndCheckRequest(eventToView.getEventID(),clb);
         username.setText("Created by: "+createdByUser.getUsername());
         creatorFullname=createdByUser.getName()+" "+createdByUser.getSurname();
         creatorUsername=createdByUser.getUsername();

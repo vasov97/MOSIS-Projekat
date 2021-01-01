@@ -29,6 +29,7 @@ import java.util.ArrayList;
 
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.adapters.RecyclerAdapter;
+import rs.elfak.mosis.greenforce.enums.EventImageType;
 import rs.elfak.mosis.greenforce.enums.EventStatus;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
@@ -43,6 +44,7 @@ public class UploadPhotoActivity extends AppCompatActivity implements IComponent
    Button finishUpload;
    Toolbar toolbar;
    RecyclerView recyclerView;
+   String submitEvent;
    private RecyclerView.LayoutManager layoutManager;
    private ArrayList<Bitmap> images;
    private RecyclerAdapter recyclerAdapter;
@@ -55,6 +57,7 @@ public class UploadPhotoActivity extends AppCompatActivity implements IComponent
       setContentView(R.layout.event_upload_photo);
       initializeComponents();
       setUpActionBar(R.string.upload_photo);
+      submitEvent=getIntent().getStringExtra("Submit");
       uploadPhoto.setOnClickListener(this);
       cancelUpload.setOnClickListener(this);
       finishUpload.setOnClickListener(this);
@@ -106,8 +109,18 @@ public class UploadPhotoActivity extends AppCompatActivity implements IComponent
       else if(v.getId()==R.id.mark_spot_cancel)
          this.finish();
       else if(v.getId()==R.id.mark_spot_finish){
-         createEvent();
+         if(submitEvent==null)
+            createEvent();
+         else
+         {
+            if(images.size()!=0){
+               MyUserManager.getInstance().saveEventPhotos(submitEvent,images, EventImageType.AFTER);
+               Toast.makeText(this,"Images have been uploaded.",Toast.LENGTH_SHORT).show();
+
+            }
+         }
          startActivity(new Intent(this,HomePageActivity.class));
+         this.finish();
       }
 
    }
@@ -118,7 +131,7 @@ public class UploadPhotoActivity extends AppCompatActivity implements IComponent
          MyUserManager.getInstance().getUser().getCurrentEvent().setEventPhotos(images);
          MyUserManager.getInstance().getUser().getCurrentEvent().setImagesBeforeCount(images.size());
          MyUserManager.getInstance().getUser().getCurrentEvent().setEventStatus(EventStatus.AVAILABLE);
-         MyUserManager.getInstance().saveEvent(this);
+         MyUserManager.getInstance().saveEvent();
       }
    }
 

@@ -76,6 +76,7 @@ import rs.elfak.mosis.greenforce.models.FriendsRequestNotification;
 import rs.elfak.mosis.greenforce.models.MyEvent;
 import rs.elfak.mosis.greenforce.models.MyLatLong;
 import rs.elfak.mosis.greenforce.models.UserData;
+import rs.elfak.mosis.greenforce.models.VoteCount;
 import rs.elfak.mosis.greenforce.services.LocationService;
 
 public class MyUserManager {
@@ -821,17 +822,14 @@ public class MyUserManager {
         databaseNotificationsReference.child(getCurrentUserUid()).child(FRIEND_REQUESTS).child(receiver).removeValue();
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void saveEvent(Activity activity) {
+    public void saveEvent() {
         MyEvent event=userData.getCurrentEvent();
         event.setCreatedByID(getCurrentUserUid());
         //userData.setUserUUID(getCurrentUserUid());
       //  event.setCreatedByFullName(userData.getName()+" "+userData.getSurname());
       //  event.setCreatedByUsername(userData.getUsername());
 
-       // LocalDateTime sentDateTime=LocalDateTime.now();
-      //  String dateTime=sentDateTime.toString();
-       // event.setDateTime(dateTime);
-       // String eventDate=LocalDate.now().toString();
+
         LocalDate eventDate = LocalDate.now();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         //LocalDate myEventDate = LocalDate.parse(eventDate,dateTimeFormatter);
@@ -844,7 +842,7 @@ public class MyUserManager {
         String eventID=databaseEventsReference.push().getKey();
         assert eventID != null;
         databaseEventsReference.child(eventID).setValue(event);
-        saveEventBeforePhotos(eventID,event.getEventPhotos());
+        saveEventPhotos(eventID,event.getEventPhotos(),EventImageType.BEFORE);
     }
     public String setCurrentTime(Calendar myCalendar)
     {
@@ -860,7 +858,15 @@ public class MyUserManager {
         return simpleDateFormat.format(myCalendar.getTime());
     }
 
-    private void saveEventBeforePhotos(String eventID, ArrayList<Bitmap> eventPhotos) {
+    public void saveEventPhotos(String eventID, ArrayList<Bitmap> eventPhotos,EventImageType imageType) {
+        if(imageType==EventImageType.AFTER){
+            databaseEventsReference.child(eventID).child("eventStatus").setValue(EventStatus.PENDING);
+            databaseEventsReference.child(eventID).child("imagesAfterCount").setValue(eventPhotos.size());
+            VoteCount count=new VoteCount();
+            databaseEventsReference.child(eventID).child("count").setValue(count);
+            //mozda kad se kreira event i ovo sve sem stausa???
+        }
+
         String imageName="image";
         int count=1;
         for(Bitmap image : eventPhotos){
@@ -868,7 +874,7 @@ public class MyUserManager {
             final StorageReference reference; reference = FirebaseStorage.getInstance().getReference()
                     .child("eventImage")
                     .child(eventID)
-                    .child("before")
+                    .child(imageType.toString())
                     .child(imageName+count+".jpeg");
             image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             count++;
@@ -1137,6 +1143,8 @@ public class MyUserManager {
     public void deleteEventNotification(String senderUid, String eventID) {
         databaseNotificationsReference.child(getCurrentUserUid()).child(EVENT_REQUEST).child(eventID).child(senderUid).removeValue();
     }
+
+
 
 
 

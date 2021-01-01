@@ -4,6 +4,7 @@ public enum EventStatus
 {
     AVAILABLE("Available"),
     IN_PROGRESS("In progress"),
+    PENDING("Pending"),
     COMPLETED("Completed");
     private String enumString;
     private EventStatus(String brand) {

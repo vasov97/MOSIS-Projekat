@@ -258,8 +258,7 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
 
     //nisam dodao on click!!
     // trebalo bi da je sa current gotovo posle --> finishedEvents treba da se smisle
-    //notifikacije push zavrsi
-    //logout
+
 
 
 }
