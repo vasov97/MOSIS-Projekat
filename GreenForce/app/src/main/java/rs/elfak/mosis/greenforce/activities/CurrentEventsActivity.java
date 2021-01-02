@@ -205,7 +205,8 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
     private void displayEventsStatusVolunteer() {
         leaderList=false;
         //Toast.makeText(this,"Leader events",Toast.LENGTH_SHORT).show();
-        addElementsToDisplay(volunteerEvents);
+
+            addElementsToDisplay(volunteerEvents);
         if(eventsAdapter==null){
             eventsAdapter=new EventsAdapter(this,displayedEvents);
             eventsToDisplayListView.setAdapter(eventsAdapter);
@@ -214,22 +215,27 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
         {
             eventsAdapter.notifyDataSetChanged();
         }
+
+
 
 
     }
 
     private void displayEventsStatusLeader() {
         leaderList=true;
-//        Toast.makeText(this,"Volunteer events",Toast.LENGTH_SHORT).show();
-        addElementsToDisplay(leaderEvents);
-        if(eventsAdapter==null){
-            eventsAdapter=new EventsAdapter(this,displayedEvents);
-            eventsToDisplayListView.setAdapter(eventsAdapter);
-        }
-        else
-        {
-            eventsAdapter.notifyDataSetChanged();
-        }
+//
+
+            addElementsToDisplay(leaderEvents);
+            if(eventsAdapter==null){
+                eventsAdapter=new EventsAdapter(this,displayedEvents);
+                eventsToDisplayListView.setAdapter(eventsAdapter);
+            }
+            else
+            {
+                eventsAdapter.notifyDataSetChanged();
+            }
+
+
 
     }
 
@@ -253,10 +259,14 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
     }
 
     private void checkIfAllEventsReceived() {
+
         if(leaderEvents.size()+volunteerEvents.size()==eventsMap.size()){
             progressDialog.dismiss();
             displayListOfEvents();
-        }
+                }
+
+
+
 
     }
 

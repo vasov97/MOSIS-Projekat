@@ -2,6 +2,10 @@ package rs.elfak.mosis.greenforce.managers;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.NotificationManager;
+import android.app.Service;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -680,6 +684,7 @@ public class MyUserManager {
     public void startLocationService(Activity serviceHolder){
         locationServiceHolder=serviceHolder;
         if(!isLocationServiceRunning(serviceHolder)){
+
              locationService = new Intent(serviceHolder, LocationService.class);
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
 
@@ -826,6 +831,13 @@ public class MyUserManager {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
+    }
+
+    public void deletePushNotifications(Activity serviceHolder)
+    {
+        NotificationManager notificationManager = (NotificationManager)serviceHolder.getSystemService(Context.NOTIFICATION_SERVICE);
+        assert notificationManager != null;
+        notificationManager.cancelAll();
     }
     public void deleteNotifications(String receiver) {
         databaseNotificationsReference.child(receiver).child(FRIEND_REQUESTS).child(getCurrentUserUid()).removeValue();
@@ -1112,6 +1124,7 @@ public class MyUserManager {
                 MyEvent event=dataSnapshot.getValue(MyEvent.class);
                 event.setEventID(dataSnapshot.getKey());
                 eventsCallback.onSingleEventReceived(event);
+
             }
 
             @Override

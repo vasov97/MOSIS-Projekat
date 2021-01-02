@@ -274,6 +274,7 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
         LogOutDialog logOutDialog=new LogOutDialog();
         logOutDialog.show(getSupportFragmentManager(),"Log out");
 
+
     }
 
 
@@ -282,11 +283,9 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
     {
         MyUserManager.getInstance().stopLocationService();
         MyUserManager.getInstance().getFirebaseAuth().signOut();
-        //MyUserManager.getInstance().deleteNotifications();//mozda neki bool dal je sign out
+        MyUserManager.getInstance().deletePushNotifications(this);
 
-        LocationService locationService=new LocationService();
-        assert locationService!=null;
-        locationService.clearNotifications();
+
         Intent i=new Intent(this,LoginActivity.class);
         startActivity(i);
         this.finish();

@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import rs.elfak.mosis.greenforce.activities.CompletedEventsActivity;
 import rs.elfak.mosis.greenforce.activities.CurrentEventsActivity;
 import rs.elfak.mosis.greenforce.activities.MyProfileActivity;
 import rs.elfak.mosis.greenforce.interfaces.IGetCurrentRankCallback;
@@ -31,12 +32,20 @@ public class FragmentMyProfileMain extends Fragment implements IFragmentComponen
       TextView userPoints;
       boolean visitor=false;
       Button current,completed;
-    GetUserRank clb;
+      GetUserRank clb;
 
     @Override
     public void onClick(View v) {
         if(v.getId()==R.id.my_profile_completed_events){
-            Toast.makeText(getActivity(), "Nisam radio ovaj deo jos", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getActivity(), CompletedEventsActivity.class);
+            String idToVisit="";
+            if(visitor){
+                idToVisit=MyUserManager.getInstance().getVisitProfile().getUserUUID();
+            }
+            else
+                idToVisit=MyUserManager.getInstance().getCurrentUserUid();
+            intent.putExtra("UserIDCompl",idToVisit);
+            startActivity(intent);
         }
         else if(v.getId()==R.id.my_profile_current_events){
             Intent i=new Intent(getActivity(), CurrentEventsActivity.class);

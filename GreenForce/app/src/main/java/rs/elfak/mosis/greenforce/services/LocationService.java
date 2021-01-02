@@ -112,12 +112,7 @@ public class LocationService extends Service  {
     }
 
 
-    public void clearNotifications()
-    {
 
-        /*NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancelAll();*/
-    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

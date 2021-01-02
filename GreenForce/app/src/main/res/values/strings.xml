@@ -142,6 +142,7 @@
     <string name="before">Before</string>
     <string name="after">After</string>
     <string name="review">Review</string>
+    <string name="completed_events">Completed events</string>
 
 
 </resources>
