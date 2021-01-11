@@ -23,7 +23,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     Button loginButton;
     TextView dontHaveAnAccount;
     TextView forgotPassword;
-    EditText email;
+    EditText username;
     EditText password;
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -61,7 +61,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         loginButton = findViewById(R.id.loginButton);
         dontHaveAnAccount = findViewById(R.id.dontHaveAnAccount);
         forgotPassword = findViewById(R.id.forgotPassword);
-        email = findViewById(R.id.editTextEmailLoginActivity);
+        username = findViewById(R.id.editTextUsernameLoginActivity);
         password = findViewById(R.id.editTextPasswordLoginActivity);
     }
     private void showRecoverPasswordDialog()
@@ -109,8 +109,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         boolean valid=true;
         if(emailText.isEmpty())
         {
-            email.setError("Please enter email");
-            email.requestFocus();
+            username.setError("Please enter username");
+            username.requestFocus();
             valid=false;
         }
         else if(passwordText.isEmpty())
@@ -133,11 +133,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
     private void loginUser()
     {
-        String emailText = email.getText().toString();
+        String usernameText = username.getText().toString();
         String passwordText = password.getText().toString();
-        if(validateInfo(emailText,passwordText))
+        if(validateInfo(usernameText,passwordText))
         {
-           MyUserManager.getInstance().loginUser(emailText,passwordText,LoginActivity.this);
+           MyUserManager.getInstance().loginWithUsername(usernameText,passwordText,LoginActivity.this);
         }
     }
 

@@ -71,8 +71,8 @@ public class RegisterActivity extends AppCompatActivity implements FragmentRegis
     @Override
     public void finish() {
         super.finish();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+//        FragmentManager fragmentManager = getSupportFragmentManager();
+//        fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
     public void restart() {
@@ -82,4 +82,6 @@ public class RegisterActivity extends AppCompatActivity implements FragmentRegis
         finish();
         startActivity(intent);
     }
+
+
 }

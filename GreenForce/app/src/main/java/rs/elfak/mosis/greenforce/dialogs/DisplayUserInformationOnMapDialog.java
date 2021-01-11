@@ -121,7 +121,7 @@ public class DisplayUserInformationOnMapDialog extends BottomSheetDialog impleme
         userPoints=v.findViewById(R.id.viewUserPoints);
         userPhoneNumber=v.findViewById(R.id.viewUserPhoneNumber);
         userEmail=v.findViewById(R.id.viewUserEmail);
-        userDistance=v.findViewById(R.id.bottom_sheet_dialog_time);
+       // userDistance=v.findViewById(R.id.bottom_sheet_dialog_time);
         userImage=v.findViewById(R.id.viewUserImage);
         sendRequestButton=v.findViewById(R.id.sendRequestButton);
         removeUseButton=v.findViewById(R.id.removeUserButton);

@@ -294,7 +294,7 @@ public class GetNearbyObjects {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(locationServiceContext,locationServiceContext.getCHANNEL_2_ID())
                 .setSmallIcon(R.drawable.push_notification)
                 .setContentTitle("Event info")
-                .setContentText("There is an"+myEvent.getEventStatus().toString()+"event nearby")
+                .setContentText("There is an "+myEvent.getEventStatus().toString()+" event nearby. Click for more info.")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
@@ -319,7 +319,7 @@ public class GetNearbyObjects {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(locationServiceContext,locationServiceContext.getCHANNEL_2_ID())
                 .setSmallIcon(R.drawable.push_notification)
                 .setContentTitle("User info")
-                .setContentText("User: "+userData.getUsername() + "is nearby")
+                .setContentText("User: "+userData.getUsername() + " is nearby. Click for more info.")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);

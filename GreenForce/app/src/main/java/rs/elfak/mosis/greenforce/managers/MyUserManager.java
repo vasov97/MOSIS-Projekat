@@ -164,10 +164,36 @@ public class MyUserManager {
    public DatabaseReference getDatabaseCoordinatesReference(){return databaseCoordinatesReference;}
    public DatabaseReference getDatabaseFriendsReference(){return databaseFriendsReference;}
    public DatabaseReference getDatabaseEventsReference(){return databaseEventsReference;}
+   public DatabaseReference getDatabaseUsersReference(){return databaseReference;}
    public FirebaseAuth getFirebaseAuth(){return firebaseAuth;}
 
 
+   public void loginWithUsername(String username, final String password, final Activity enclosingActivity){
+       databaseReference.orderByChild("username").equalTo(username).addValueEventListener(new ValueEventListener(){
+           @Override
+           public void onDataChange(DataSnapshot dataSnapshot){
+               databaseReference.removeEventListener(this);
+               if(dataSnapshot.exists()){
+                   for(DataSnapshot child : dataSnapshot.getChildren()){
+                       UserData me=child.getValue(UserData.class);
+                       loginUser(me.getEmail(),password,enclosingActivity);
+                   }
+               }
+     else{
+                   Toast.makeText(enclosingActivity,"Username not found.", Toast.LENGTH_SHORT).show();
+               }
+
+           }
+           @Override
+           public void onCancelled(DatabaseError databaseError) {
+
+           }
+       });
+   }
+
+
     public void loginUser(String emailText, String passwordText, final Activity enclosingActivity){
+
         firebaseAuth.signInWithEmailAndPassword(emailText,passwordText).addOnCompleteListener(enclosingActivity,
                 new OnCompleteListener<AuthResult>()
                 {

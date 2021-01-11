@@ -11,25 +11,25 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="@string/login_page_header"
         android:textColor="#349F38"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.398"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.044" />
+        app:layout_constraintVertical_bias="0.003" />
 
     <EditText
-        android:id="@+id/editTextEmailLoginActivity"
+        android:id="@+id/editTextUsernameLoginActivity"
         android:layout_width="220dp"
         android:layout_height="25dp"
         android:background="@drawable/edit_text_style"
         android:ems="10"
-        android:hint="@string/email"
+        android:hint="@string/username"
         android:textColor="@color/colorBlack"
-        android:inputType="textEmailAddress"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.549"
@@ -51,7 +51,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.549"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextEmailLoginActivity"
+        app:layout_constraintTop_toBottomOf="@+id/editTextUsernameLoginActivity"
         app:layout_constraintVertical_bias="0.033" />
 
     <TextView

@@ -76,28 +76,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="35dp"
-            android:orientation="horizontal"
-            android:layout_marginTop="5dp">
-
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/directions_walk_black"
-                android:padding="8dp" />
-            <TextView
-
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="5 min"
-                android:id="@+id/bottom_sheet_dialog_time"
-                android:textSize="25sp"
-                android:textColor="@color/colorBlack"/>
-
         </LinearLayout>
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
@@ -145,4 +123,3 @@
             </LinearLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </LinearLayout>
-</LinearLayout>

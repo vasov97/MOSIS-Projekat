@@ -184,7 +184,7 @@
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_toRightOf="@id/filters_checkbox_water_pollution"
-            android:id="@+id/filters_checkbox_land_pollution"
+            android:id="@+id/filters_checkbox_reforestation"
             android:text="@string/reforestation"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/filters_checkbox_water_pollution" />
@@ -194,16 +194,16 @@
             android:layout_height="wrap_content">
         <CheckBox
             android:layout_width="wrap_content"
-            android:id="@+id/filters_checkbox_reforestation"
+            android:id="@+id/filters_checkbox_land_pollution"
             android:text="@string/land_pollution"
             android:layout_height="wrap_content"/>
         <CheckBox
             android:layout_width="wrap_content"
             android:id="@+id/filters_checkbox_other"
             android:text="@string/other"
-            android:layout_toRightOf="@id/filters_checkbox_reforestation"
+            android:layout_toRightOf="@id/filters_checkbox_land_pollution"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/filters_checkbox_reforestation" />
+            android:layout_toEndOf="@id/filters_checkbox_land_pollution" />
         </RelativeLayout>
     <View
         android:layout_width="match_parent"
