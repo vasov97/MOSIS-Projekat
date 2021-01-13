@@ -165,6 +165,7 @@ public class MarkASpotActivity extends AppCompatActivity implements IComponentIn
     {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
     }
     @Override

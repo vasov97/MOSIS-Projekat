@@ -132,7 +132,7 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
     {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu)

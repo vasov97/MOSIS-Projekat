@@ -47,6 +47,7 @@ public class EnableCustomServicesActivity extends AppCompatActivity implements I
     private void setUpActionBar(int rid) {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
     }
     @Override

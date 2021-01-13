@@ -426,9 +426,7 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        //da bi postavio back strelicu na menu
-        //getSupportActionBar().setDisplayShowHomeEnabled(true);
-       // toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);
+
     }
 
     private void getLastKnownLocation() {

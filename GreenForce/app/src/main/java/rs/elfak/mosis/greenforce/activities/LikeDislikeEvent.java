@@ -197,6 +197,7 @@ public class LikeDislikeEvent extends AppCompatActivity implements IComponentIni
     {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
     }
     @Override

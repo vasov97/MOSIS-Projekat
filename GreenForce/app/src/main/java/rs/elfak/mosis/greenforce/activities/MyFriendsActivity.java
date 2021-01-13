@@ -38,6 +38,7 @@ import rs.elfak.mosis.greenforce.adapters.MyFriendsAdapter;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 import rs.elfak.mosis.greenforce.interfaces.IGetFriendsCallback;
 import rs.elfak.mosis.greenforce.interfaces.IOnClickNewIntent;
+import rs.elfak.mosis.greenforce.services.BluetoothConnectionService;
 
 
 public class MyFriendsActivity extends AppCompatActivity implements View.OnClickListener, IComponentInitializer,
@@ -99,7 +100,16 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
 
         }
     }
+    private void displayProgressDialog()
+    {
+        progressDialog=new ProgressDialog(getApplicationContext());
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
 
+    }
     SearchView.OnQueryTextListener mySearchListener=new SearchView.OnQueryTextListener() {
         @Override
         public boolean onQueryTextSubmit(String query) {
@@ -179,6 +189,7 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
     private void setUpActionBar(int rid) {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
     }
 
@@ -253,7 +264,8 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         }
         else if(v.getId()==R.id.fabBluetooth)
         {
-           onClickNewIntent(this, AddFriendsViaBluetoothActivity.class);
+
+        onClickNewIntent(this, AddFriendsViaBluetoothActivity.class);
         }
         else if(v.getId()==R.id.fabMaps)
         {

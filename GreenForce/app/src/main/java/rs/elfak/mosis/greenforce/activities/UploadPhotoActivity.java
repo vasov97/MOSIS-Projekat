@@ -83,7 +83,7 @@ public class UploadPhotoActivity extends AppCompatActivity implements IComponent
    {
       setSupportActionBar(toolbar);
       getSupportActionBar().setTitle(rid);
-
+      getSupportActionBar().setDisplayHomeAsUpEnabled(false);
    }
    @Override
    public boolean onCreateOptionsMenu(Menu menu)

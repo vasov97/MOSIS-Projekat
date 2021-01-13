@@ -15,7 +15,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +30,6 @@ import rs.elfak.mosis.greenforce.interfaces.IGetNotifications;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.models.EventRequestNotification;
 import rs.elfak.mosis.greenforce.models.EventVolunteer;
-import rs.elfak.mosis.greenforce.models.FriendsRequestNotification;
 import rs.elfak.mosis.greenforce.models.LikeDislike;
 import rs.elfak.mosis.greenforce.models.MyEvent;
 
@@ -185,6 +184,7 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
     {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
     }
     @Override
@@ -243,8 +243,7 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
         if(displayedEvents==null)
             displayedEvents=new ArrayList<>();
         displayedEvents.clear();
-        for(MyEvent e : list)
-            displayedEvents.add(e);
+        displayedEvents.addAll(list);
     }
 
     private void loadAllCurrentEvents()
@@ -277,8 +276,7 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
             displayEventsStatusVolunteer();
     }
 
-    //nisam dodao on click!!
-    // trebalo bi da je sa current gotovo posle --> finishedEvents treba da se smisle
+
 
 
 

@@ -81,7 +81,7 @@ public class NotificationsActivity extends AppCompatActivity implements ICompone
     {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu)

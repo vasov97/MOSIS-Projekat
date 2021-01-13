@@ -7,9 +7,9 @@ import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.Menu;
-import android.widget.ImageView;
+
 import android.widget.ListView;
-import android.widget.TextView;
+
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -103,6 +103,7 @@ public class CompletedEventsActivity extends AppCompatActivity implements ICompo
     {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
     }
     @Override

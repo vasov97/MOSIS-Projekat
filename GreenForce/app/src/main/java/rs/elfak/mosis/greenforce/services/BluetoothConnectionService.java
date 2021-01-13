@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -18,6 +19,7 @@ import java.nio.charset.Charset;
 import java.util.UUID;
 
 import rs.elfak.mosis.greenforce.activities.AddFriendsViaBluetoothActivity;
+import rs.elfak.mosis.greenforce.activities.MyFriendsActivity;
 
 public class BluetoothConnectionService {
     private static final String TAG="BluetoothConnectionServ";
@@ -56,8 +58,14 @@ public class BluetoothConnectionService {
             BluetoothSocket socket=null;
             try {
                 Log.d(TAG,"run: RFCOM server socket start.....");
-                socket=bluetoothServerSocket.accept();
-                Log.d(TAG,"run: RFCOM server socket accepted connection");
+                if(bluetoothServerSocket!=null)
+                {
+                    socket=bluetoothServerSocket.accept();
+                    Log.d(TAG,"run: RFCOM server socket accepted connection");
+                }
+
+
+
             } catch (IOException e) {
                 Log.e(TAG,"AcceptThread: IOException"+e.getMessage());
             }

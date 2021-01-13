@@ -3,6 +3,7 @@ package rs.elfak.mosis.greenforce.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -17,6 +18,7 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -48,17 +50,18 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
     Toolbar toolbar;
     FloatingActionButton refreshFAB;
     ListView pairedDevice;
-
+    ActionBar actionBar;
     int requestCode;
     BluetoothAdapter bluetoothAdapter;
     BluetoothConnectionService bluetoothConnectionService;
     BluetoothDevice bluetoothDevice;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch bluetoothSwitch;
     Intent enablingIntent;
     Set<BluetoothDevice> nearbyDevices;
     ArrayList<BluetoothDevice> listNearbyDevices;
     MyListViewAdapter adapter;
-
+    ProgressDialog progressDialog;
     UUID myUUID;
     String receivedUser;
     boolean isToggleOn,isServer;
@@ -74,6 +77,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_add_friends_via_bluetooth);
         initializeComponents();
         setUpActionBar(R.string.bluetooth);
+
 
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         registerReceiver(myReceiverBondStateChanged,filter);//njemu 4 receiver
@@ -235,10 +239,10 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
     {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-       /* getSupportActionBar().setDisplayShowHomeEnabled(true);
-        toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);*/
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
     }
+
 
     public void sendFriendRequest() {
         isServer=true;
@@ -254,6 +258,12 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         {
             isToggleOn =true;
             bluetoothSwitch.setChecked(true);
+        }
+        else if(!bluetoothAdapter.isEnabled())
+        {
+
+            bluetoothAdapter.enable();
+            enableBluetooth();
         }
     }
     @RequiresApi(api = Build.VERSION_CODES.M)

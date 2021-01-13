@@ -41,7 +41,7 @@ public class LocationService extends Service  {
     private static final String TAG = "LocationService";
     long pushNotificationCounter=0;
     private FusedLocationProviderClient mFusedLocationClient;
-    private final static long UPDATE_INTERVAL = 4 * 1000;  /* 4 secs */
+    private final static long UPDATE_INTERVAL = 4 ;  /* 4 secs */
     private final static long FASTEST_INTERVAL = 2000; /* 2 sec */
     private final static long NEARBY_DISPLAY_INTERVAL=60*1000;
     LocationCallback locationCallback;

@@ -221,6 +221,7 @@ public class EventActivity extends AppCompatActivity implements IComponentInitia
     {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
     }
     @Override

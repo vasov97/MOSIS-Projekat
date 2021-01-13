@@ -37,15 +37,13 @@
     <string name="name">Name</string>
     <string name="surname">Surame</string>
     <string name="change_password">Change Password</string>
-    <string name="old_password">Old Password</string>
     <string name="confirm_password">Confirm Password</string>
-    <string name="new_password">New Password</string>
     <string name="confirm">Confirm</string>
     <string name="title_activity_my_friends">MyFriendsActivity</string>
     <!-- Strings used for fragments for navigation -->
 
     <string name="title_activity_add_friends_via_bluetooth">AddFriendsViaBluetoothActivity</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="radius">Radius:</string>
     <string name="maps">Maps</string>
     <string name="maps_api_key">AIzaSyCOndUlXir9aIy6EHnEhdfnVWUAUqfjciY</string>
@@ -143,6 +141,8 @@
     <string name="after">After</string>
     <string name="review">Review</string>
     <string name="completed_events">Completed events</string>
+    <string name="new_password">New Password</string>
+    <string name="old_password">Old Password</string>
 
 
 </resources>
