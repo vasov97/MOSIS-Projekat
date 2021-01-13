@@ -56,6 +56,7 @@ public class BluetoothConnectionService {
         public void run(){
             Log.d(TAG,"run: AcceptThread running");
             BluetoothSocket socket=null;
+            //while (true){}
             try {
                 Log.d(TAG,"run: RFCOM server socket start.....");
                 if(bluetoothServerSocket!=null)
@@ -73,6 +74,8 @@ public class BluetoothConnectionService {
                 connected(socket,bluetoothDevice);
             }
             Log.d(TAG,"END AcceptThread");
+            acceptThread.start();
+
         }
         public void cancel(){
             Log.d(TAG,"cancel: Canceling AcceptThread");
@@ -246,6 +249,19 @@ public class BluetoothConnectionService {
         Log.d(TAG,"write: Write called");
         connectedThread.write(out);
     }
+
+
+    public synchronized void closeAllThreads(){
+        if(acceptThread!=null)
+            acceptThread.cancel();
+        if(connectThread!=null)
+            connectThread.cancel();
+        if(connectedThread!=null)
+            connectedThread.cancel();
+    }
+
+
+
 
 
 }

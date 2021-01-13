@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import rs.elfak.mosis.greenforce.interfaces.IEditEmailListener;
 import rs.elfak.mosis.greenforce.interfaces.IGetCurrentRankCallback;
 import rs.elfak.mosis.greenforce.managers.MyUserManager;
 import rs.elfak.mosis.greenforce.R;
@@ -31,7 +33,7 @@ import rs.elfak.mosis.greenforce.fragments.FragmentMyProfileEdit;
 import rs.elfak.mosis.greenforce.fragments.FragmentMyProfileMain;
 import rs.elfak.mosis.greenforce.interfaces.IComponentInitializer;
 
-public class MyProfileActivity extends AppCompatActivity implements IComponentInitializer {
+public class MyProfileActivity extends AppCompatActivity implements IComponentInitializer, IEditEmailListener {
 
     private static final int PICK_IMAGE = 1;
     private static final String MAIN_TAG="MainFragment";
@@ -59,8 +61,8 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
         choseUserToDisplay();
         Bundle bundle=new Bundle();
         bundle.putString("Visit",visit);
-        myProfileMainFragment=new FragmentMyProfileMain();
-        myProfileMainFragment.setArguments(bundle);
+        //myProfileMainFragment=new FragmentMyProfileMain();
+        //myProfileMainFragment.setArguments(bundle);
         myProfileEditFragment=new FragmentMyProfileEdit();
         setUpFragment(R.id.MyProfileActivityFragmentContainer,new FragmentMyProfileMain(),true,MAIN_TAG);
     }
@@ -80,6 +82,9 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(rid);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        /*getSupportActionBar().setDisplayShowHomeEnabled(true);
+        toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);*/
 
 
     }
@@ -128,20 +133,29 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
         }
         else if(item.getItemId()==R.id.menu_save_profile_changes)
         {
-
-            MyUserManager.getInstance().editProfileChanges(myProfileEditFragment.getUserData());
             if(imageBitmap!=null){
                 MyUserManager.getInstance().getUser().setUserImage(imageBitmap);
                 MyUserManager.getInstance().saveUserImage();
             }
-            setUpAccountToolbar();
-            setUpUserData(MyUserManager.getInstance().getUser());
-            setUpFragment(R.id.MyProfileActivityFragmentContainer,new FragmentMyProfileMain(),true,MAIN_TAG);
+
+            if(MyUserManager.getInstance().editProfileChanges(myProfileEditFragment.getUserData(),this)){
+                showFragmentAfterChanges();
+            }
+
         }
 
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void showFragmentAfterChanges() {
+        setUpAccountToolbar();
+        setUpUserData(MyUserManager.getInstance().getUser());
+
+        setUpFragment(R.id.MyProfileActivityFragmentContainer,new FragmentMyProfileMain(),true,MAIN_TAG);
+    }
+
+
     @Override
     public void initializeComponents() {
         toolbar = findViewById(R.id.myProfileToolbar);
@@ -218,4 +232,9 @@ public class MyProfileActivity extends AppCompatActivity implements IComponentIn
     }
 
     public boolean getVisitor(){return visitor;}
+
+    @Override
+    public void onEmailEdit(String password,String newEmail) {
+        MyUserManager.getInstance().updateEmail(password,newEmail,this);
+    }
 }

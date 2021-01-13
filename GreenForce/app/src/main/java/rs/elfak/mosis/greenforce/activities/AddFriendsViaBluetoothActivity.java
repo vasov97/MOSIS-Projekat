@@ -66,7 +66,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
     String receivedUser;
     boolean isToggleOn,isServer;
 
-    Button btsnd,btnconnect;
+    //Button btsnd,btnconnect;
 
 
 
@@ -115,11 +115,11 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
             }
         });
 
-        btnconnect=findViewById(R.id.btn_connect_via_bt);
-        btsnd=findViewById(R.id.btn_send_fried_request);
-        btnconnect.setOnClickListener(this);
-        btsnd.setOnClickListener(this);
-        bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);
+//        btnconnect=findViewById(R.id.btn_connect_via_bt);
+//        btsnd=findViewById(R.id.btn_send_fried_request);
+//        btnconnect.setOnClickListener(this);
+//        btsnd.setOnClickListener(this);
+        bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);//veroravtno ovaj deo zeza na slmsung?
 
     }
     private final BroadcastReceiver myReceiver=new BroadcastReceiver()
@@ -258,6 +258,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         {
             isToggleOn =true;
             bluetoothSwitch.setChecked(true);
+            //bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);
         }
         else if(!bluetoothAdapter.isEnabled())
         {
@@ -299,6 +300,11 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
                 adapter.notifyDataSetChanged();
             }
             bluetoothAdapter.disable();
+            /////////////
+            //za slmsung
+//            if(bluetoothConnectionService!=null)
+//                bluetoothConnectionService.closeAllThreads();
+            /////////////////
             IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
             registerReceiver(myReceiver,filter);
         }
@@ -463,11 +469,11 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         {
             if(bluetoothAdapter.isEnabled())
                  discoverDevices();
-        }else if(v.getId()==R.id.btn_connect_via_bt){
-            startConnection();
-        }else if(v.getId()==R.id.btn_send_fried_request){
-            sendFriendRequest();
-        }
+//        }else if(v.getId()==R.id.btn_connect_via_bt){
+//            startConnection();
+//        }else if(v.getId()==R.id.btn_send_fried_request){
+//            sendFriendRequest();
+      }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -480,6 +486,13 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
                 IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
                 registerReceiver(myReceiver,filter);
                 Toast.makeText(getApplicationContext(),"Bluetooth enabled",Toast.LENGTH_SHORT).show();
+                //ako enabled i ako nema server napravi server
+
+                //za slmsung
+//                if(bluetoothConnectionService==null)
+//                    bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);
+//                else
+//                    bluetoothConnectionService.start();
 
                 discoverDevices();
 

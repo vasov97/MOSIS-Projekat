@@ -18,6 +18,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -63,14 +65,18 @@ import rs.elfak.mosis.greenforce.activities.EventsMapActivity;
 import rs.elfak.mosis.greenforce.R;
 import rs.elfak.mosis.greenforce.activities.HomePageActivity;
 import rs.elfak.mosis.greenforce.activities.LoginActivity;
+import rs.elfak.mosis.greenforce.activities.MyProfileActivity;
 import rs.elfak.mosis.greenforce.activities.RegisterActivity;
 import rs.elfak.mosis.greenforce.dialogs.DisplayUserInformationOnMapDialog;
+import rs.elfak.mosis.greenforce.dialogs.EditEmailDialog;
+import rs.elfak.mosis.greenforce.dialogs.LogOutDialog;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
 import rs.elfak.mosis.greenforce.enums.EventImageType;
 import rs.elfak.mosis.greenforce.enums.EventStatus;
 import rs.elfak.mosis.greenforce.enums.ReviewType;
 import rs.elfak.mosis.greenforce.enums.VolunteerType;
 import rs.elfak.mosis.greenforce.interfaces.ICheckEventData;
+import rs.elfak.mosis.greenforce.interfaces.IEditEmailListener;
 import rs.elfak.mosis.greenforce.interfaces.IGetCurrentRankCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetEventsCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetNotifications;
@@ -123,6 +129,8 @@ public class MyUserManager {
     Intent locationService;
 
 
+
+
     private MyUserManager() {
         loggedIn=true;
         firebaseAuth=FirebaseAuth.getInstance();
@@ -146,6 +154,7 @@ public class MyUserManager {
     public void setLoggedIn(boolean loggedIn) {
         this.loggedIn = loggedIn;
     }
+
 
 
 
@@ -375,16 +384,76 @@ public class MyUserManager {
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void editProfileChanges(HashMap<String,String> userData) {
-        this.userData.setEmail(userData.get("email"));
+    public boolean editProfileChanges(final HashMap<String, String> userData, Activity enclosingActivity) {
         this.userData.setName(userData.get("name"));
         this.userData.setSurname(userData.get("surname"));
         this.userData.setPhoneNumber(userData.get("phoneNumber"));
-        saveProfileChangesToDatabase(userData);
+        if(!this.userData.getEmail().equals(userData.get("email"))){
+            EditEmailDialog dialog=new EditEmailDialog();
+            FragmentManager ft = ((FragmentActivity)enclosingActivity).getSupportFragmentManager();
+            dialog.setNewEmail(userData.get("email"));
+            dialog.show(ft,"Edit email");
+            return false;
+
+        }else{
+            saveProfileChangesToDatabase();
+            return true;
+        }
+
+
+
+       // saveProfileChangesToDatabase(userData);
+    }
+    public void updateEmail(String password,String newEmail,Activity enclosingActivity) {
+        updateEmailInDatabase(userData.getEmail(),newEmail,password,enclosingActivity);
+    }
+
+    private void updateEmailInDatabase(String oldEmail, final String newEmail, String password, final Activity enclosingActivity) {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        // Get auth credentials from the user for re-authentication
+        AuthCredential credential = EmailAuthProvider
+                .getCredential(oldEmail, password); // Current Login Credentials \\
+        // Prompt the user to re-provide their sign-in credentials
+        user.reauthenticate(credential)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d("MyUserManager", "User re-authenticated.");
+                        //Now change your email address \\
+                        //----------------Code for Changing Email Address----------\\
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        user.updateEmail(newEmail)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @RequiresApi(api = Build.VERSION_CODES.N)
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.d("MyUserManager", "User email address updated.");
+                                            Toast.makeText(enclosingActivity,"Email updated!",Toast.LENGTH_SHORT).show();
+                                            userData.setEmail(newEmail);
+                                            saveProfileChangesToDatabase();
+                                            ((MyProfileActivity)enclosingActivity).showFragmentAfterChanges();
+
+                                        }else{
+                                            Toast.makeText(enclosingActivity,"Email update failed!",Toast.LENGTH_SHORT).show();
+                                            ((MyProfileActivity)enclosingActivity).showFragmentAfterChanges();
+                                        }
+                                    }
+                                });
+
+                    }
+                });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private void saveProfileChangesToDatabase(final HashMap<String, String> userData) {
+    private void saveProfileChangesToDatabase() {
+        String uid=getCurrentUserUid();
+        databaseReference.child(uid).setValue(this.userData);
+    }
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void saveProfileChangesToDatabase(final HashMap<String,String> userData) {
+        userData.remove("email");
         CompletableFuture.runAsync(new Runnable() {
             @Override
             public void run() {
@@ -397,6 +466,7 @@ public class MyUserManager {
             }
         });
     }
+
 
     public void updatePassword(String oldPassword, final String newPassword, final Activity myActivity) {
         final FirebaseUser user = firebaseAuth.getCurrentUser();
@@ -568,6 +638,7 @@ public class MyUserManager {
                 switch (action) {
                     case GET_SELF:
                         enclosingActivity.startActivity(new Intent(enclosingActivity, HomePageActivity.class));
+                        enclosingActivity.finish();
                         break;
                     case GET_FRIENDS:
                         if(!usersArray.contains(user))
@@ -672,6 +743,7 @@ public class MyUserManager {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 UserData userToSend;
                 if(action==DataRetriveAction.GET_SELF){
+                    databaseReference.child(uid).removeEventListener(this);
                     userData=dataSnapshot.getValue(UserData.class);
                     userData.setUserUUID(uid);
                     userToSend=userData;

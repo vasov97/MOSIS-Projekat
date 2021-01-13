@@ -20,18 +20,6 @@
 
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-        <Button
-            android:id="@+id/btn_connect_via_bt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="BTCONNECT" />
-
-        <Button
-            android:id="@+id/btn_send_fried_request"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="BTSEND" />
-
     </com.google.android.material.appbar.AppBarLayout>
 
 

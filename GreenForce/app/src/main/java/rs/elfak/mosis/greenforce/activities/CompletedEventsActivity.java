@@ -162,12 +162,14 @@ public class CompletedEventsActivity extends AppCompatActivity implements ICompo
 
         @Override
         public void onCurrentEventsMapReceived(HashMap<String, EventVolunteer> currentEventsRole) {
-            if(currentEventsRole!=null){
-                eventsMap=currentEventsRole;
-                for(String key : eventsMap.keySet()){
-                    MyUserManager.getInstance().getSingleEvent(key,eventsCallback);
-                }
-            }
+//            if(currentEventsRole!=null){
+//                eventsMap=currentEventsRole;
+//                for(String key : eventsMap.keySet()){
+//                    MyUserManager.getInstance().getSingleEvent(key,eventsCallback);
+//                }
+//            }
+//            else
+//                progressDialog.dismiss();
         }
 
         @Override
@@ -177,7 +179,8 @@ public class CompletedEventsActivity extends AppCompatActivity implements ICompo
                 for(String key : eventsMap.keySet()){
                     MyUserManager.getInstance().getSingleEvent(key,eventsCallback);
                 }
-            }
+            }else
+                progressDialog.dismiss();
         }
 
         @Override
