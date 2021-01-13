@@ -89,7 +89,8 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
                 for(String key : eventsMap.keySet()){
                     MyUserManager.getInstance().getSingleEvent(key,eventsCallback);
                 }
-            }
+            }else
+                progressDialog.dismiss();
         }
 
         @Override

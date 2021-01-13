@@ -264,7 +264,7 @@ public class MyFriendsActivity extends AppCompatActivity implements View.OnClick
         }
         else if(v.getId()==R.id.notificationIcon){
             //Toast.makeText(this, "Bell", Toast.LENGTH_SHORT).show();
-            Intent i=new Intent(this, CurrentEventsActivity.class);
+            Intent i=new Intent(this, NotificationsActivity.class);
             i.putExtra("Type", NotificationType.FRIEND.toString());
             startActivity(i);
         }

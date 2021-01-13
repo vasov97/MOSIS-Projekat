@@ -86,7 +86,7 @@ public class FragmentMyProfileMain extends Fragment implements IFragmentComponen
 //            setUpUserData(MyUserManager.getInstance().getUser());
 //
 //    }
-    private void choseUserToDisplay() {
+    public void choseUserToDisplay() {
         UserData displayUser;
         if(visitor){
             displayUser=MyUserManager.getInstance().getVisitProfile();
@@ -123,7 +123,6 @@ public class FragmentMyProfileMain extends Fragment implements IFragmentComponen
     @Override
     public void onDetach() {
         super.onDetach();
-
         this.getActivity().finish();
     }
 

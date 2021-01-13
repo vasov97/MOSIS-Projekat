@@ -103,7 +103,17 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
                     @SuppressLint("SetTextI18n")
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
-                    { date.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year); }
+                    {
+                        String dayOfMonthString=String.valueOf(dayOfMonth);
+                        String monthOfYearString=String.valueOf(monthOfYear+1);
+                        if(dayOfMonthString.length()==1)
+                            dayOfMonthString="0"+dayOfMonthString;
+
+                        if(monthOfYearString.length()==1)
+                            monthOfYearString="0"+monthOfYearString;
+
+                        date.setText(dayOfMonthString + "-" + monthOfYearString + "-" + year);
+                    }
                 }, year, month, day);
         datePickerDialog.show();
     }
@@ -313,11 +323,12 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
     private void checkDateAndTimeFilters(MyEvent myEvent)
     {
         String eventDatePicker=date.getText().toString();
+        //String eventDatePicker="06-01-2021";
         if(!eventDatePicker.equals(""))
         {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             LocalDate localDate= LocalDate.parse(eventDatePicker,dateTimeFormatter);
-            LocalDate myEventDate = LocalDate.parse(myEvent.getDate());
+            LocalDate myEventDate = LocalDate.parse(myEvent.getDate(),dateTimeFormatter);
             Log.d("sa","myEventDate is: "+myEventDate.toString()+"localDate is: "+localDate.toString());
             int resultDate=localDate.compareTo(myEventDate);
             if(resultDate>0)
@@ -376,8 +387,6 @@ public class EventFiltersDialog extends BottomSheetDialog implements IFragmentCo
         return eventTimeList;
     }
 
-    //date&time filters
-    //saveEvent u manager
-    //view za event
+
 
 }

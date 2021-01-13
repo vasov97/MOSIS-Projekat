@@ -179,7 +179,7 @@ public class DisplayEventInformationOnMapDialog extends BottomSheetDialog implem
     private void displayEventData() {
         applyToEvent.setEnabled(true);
         applyToEvent.setText(R.string.apply);
-        if(eventToView.getEventStatus()==EventStatus.PENDING && eventToView.getEventStatus()==EventStatus.COMPLETED){
+        if(eventToView.getEventStatus()==EventStatus.PENDING || eventToView.getEventStatus()==EventStatus.COMPLETED){
             applyToEvent.setEnabled(false);
             bottomSheetDialog.show();
         }else

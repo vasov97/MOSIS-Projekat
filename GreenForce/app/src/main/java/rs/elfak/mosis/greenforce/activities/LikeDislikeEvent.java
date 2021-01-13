@@ -253,8 +253,10 @@ public class LikeDislikeEvent extends AppCompatActivity implements IComponentIni
         if(displayedPhotos==null)
             displayedPhotos=new ArrayList<>();
         displayedPhotos.clear();
-        for(Bitmap bitmap : list)
-            displayedPhotos.add(bitmap);
+        if(list!=null){
+            for(Bitmap bitmap : list)
+                displayedPhotos.add(bitmap);
+        }
     }
 
     private void displayBeforePhotos() {
