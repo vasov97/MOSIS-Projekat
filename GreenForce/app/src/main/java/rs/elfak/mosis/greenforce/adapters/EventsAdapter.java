@@ -71,13 +71,15 @@ public class EventsAdapter extends ArrayAdapter<MyEvent>
         List<Address> addresses;
         geocoder = new Geocoder(context, Locale.getDefault());
 
-        addresses = geocoder.getFromLocation(latitude, longitude, 3);
+        addresses = geocoder.getFromLocation(latitude, longitude, 1);
 
         String address = addresses.get(0).getAddressLine(0);
         String city = addresses.get(0).getLocality();
         String country = addresses.get(0).getCountryName();
-
-        return (address + ", " + city + ", "+ country);
+        if(addresses.get(0).getLocality()==null)
+            return (address +", "+ country);
+        else
+           return (address + ", " + city + ", "+ country);
 
     }
 

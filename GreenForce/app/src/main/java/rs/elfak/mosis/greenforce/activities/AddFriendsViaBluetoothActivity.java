@@ -119,7 +119,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
 //        btsnd=findViewById(R.id.btn_send_fried_request);
 //        btnconnect.setOnClickListener(this);
 //        btsnd.setOnClickListener(this);
-        bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);//veroravtno ovaj deo zeza na slmsung?
+       // bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);//veroravtno ovaj deo zeza na slmsung?
 
     }
     private final BroadcastReceiver myReceiver=new BroadcastReceiver()
@@ -258,7 +258,7 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
         {
             isToggleOn =true;
             bluetoothSwitch.setChecked(true);
-            //bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);
+            bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);
         }
         else if(!bluetoothAdapter.isEnabled())
         {
@@ -302,8 +302,8 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
             bluetoothAdapter.disable();
             /////////////
             //za slmsung
-//            if(bluetoothConnectionService!=null)
-//                bluetoothConnectionService.closeAllThreads();
+            if(bluetoothConnectionService!=null)
+                bluetoothConnectionService.closeAllThreads();
             /////////////////
             IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
             registerReceiver(myReceiver,filter);
@@ -320,6 +320,14 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBtIntent, this.requestCode);
             }
+            else
+                {
+                    bluetoothSwitch.setChecked(true);
+                    if(bluetoothConnectionService==null)
+                        bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);
+                    else
+                        bluetoothConnectionService.start();
+                }
         }
     }
     private void enableDiscoverable()
@@ -488,11 +496,12 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
                 //ako enabled i ako nema server napravi server
 
                 //za slmsung
-//                if(bluetoothConnectionService==null)
-//                    bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);
-//                else
-//                    bluetoothConnectionService.start();
+                if(bluetoothConnectionService==null)
+                    bluetoothConnectionService=new BluetoothConnectionService(AddFriendsViaBluetoothActivity.this);
+                else
+                    bluetoothConnectionService.start();
 
+                bluetoothSwitch.setChecked(true);
                 discoverDevices();
 
             }
