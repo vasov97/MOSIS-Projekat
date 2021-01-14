@@ -128,20 +128,18 @@ public class MarkASpotActivity extends AppCompatActivity implements IComponentIn
 
     @SuppressLint("SetTextI18n")
     private void getEventAddress(double latitude, double longitude) throws IOException {
+
         Geocoder geocoder;
         List<Address> addresses;
-        geocoder = new Geocoder(this, Locale.getDefault());
+        geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
 
-        addresses = geocoder.getFromLocation(latitude, longitude, 3);
+        addresses = geocoder.getFromLocation(latitude, longitude, 1);
 
         String address = addresses.get(0).getAddressLine(0);
         String city = addresses.get(0).getLocality();
-        String state = addresses.get(0).getAdminArea();
         String country = addresses.get(0).getCountryName();
-        String postalCode = addresses.get(0).getPostalCode();
-        String knownName = addresses.get(0).getFeatureName();
-        eventLocationCity.setText(address + ", " + city + ", "+ country);
-        //myEvent.setEventAddress(address + ", " + city + ", "+ country);
+        if(addresses.get(0).getLocality()==null)  eventLocationCity.setText(address + ", "+ country);
+        else eventLocationCity.setText(address + ", " + city + ", "+ country);
 
     }
     private void checkBoxesSetup()

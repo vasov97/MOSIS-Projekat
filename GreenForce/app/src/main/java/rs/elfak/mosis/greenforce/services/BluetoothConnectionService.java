@@ -74,7 +74,7 @@ public class BluetoothConnectionService {
                 connected(socket,bluetoothDevice);
             }
             Log.d(TAG,"END AcceptThread");
-            acceptThread.start();
+           /// acceptThread.start();
 
         }
         public void cancel(){
