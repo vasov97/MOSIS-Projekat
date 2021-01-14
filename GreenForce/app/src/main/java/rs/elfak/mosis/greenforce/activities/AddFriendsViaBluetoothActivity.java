@@ -318,7 +318,6 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
             if(!bluetoothAdapter.isEnabled())
             {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-
                 startActivityForResult(enableBtIntent, this.requestCode);
             }
         }
