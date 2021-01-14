@@ -41,6 +41,7 @@ public class BluetoothConnectionService {
 
    private class AcceptThread extends Thread{
         private final BluetoothServerSocket bluetoothServerSocket;
+        boolean searching;
 
         public AcceptThread(){
             BluetoothServerSocket tmp=null;
@@ -55,30 +56,31 @@ public class BluetoothConnectionService {
         }
         public void run(){
             Log.d(TAG,"run: AcceptThread running");
+            searching=true;
             BluetoothSocket socket=null;
-            //while (true){}
-            try {
-                Log.d(TAG,"run: RFCOM server socket start.....");
-                if(bluetoothServerSocket!=null)
-                {
-                    socket=bluetoothServerSocket.accept();
-                    Log.d(TAG,"run: RFCOM server socket accepted connection");
+            while (searching) {
+                try {
+                    Log.d(TAG, "run: RFCOM server socket start.....");
+                    if (bluetoothServerSocket != null) {
+                        socket = bluetoothServerSocket.accept();
+                        Log.d(TAG, "run: RFCOM server socket accepted connection");
+                    }
+
+
+                } catch (IOException e) {
+                    Log.e(TAG, "AcceptThread: IOException" + e.getMessage());
                 }
-
-
-
-            } catch (IOException e) {
-                Log.e(TAG,"AcceptThread: IOException"+e.getMessage());
+                if (socket != null) {
+                    connected(socket, bluetoothDevice);
+                }
+                Log.d(TAG, "END AcceptThread");
+                /// acceptThread.start();
             }
-            if(socket!=null){
-                connected(socket,bluetoothDevice);
-            }
-            Log.d(TAG,"END AcceptThread");
-           /// acceptThread.start();
 
         }
         public void cancel(){
             Log.d(TAG,"cancel: Canceling AcceptThread");
+            searching=false;
             try{
                 bluetoothServerSocket.close();
             }catch(IOException e){
@@ -252,12 +254,20 @@ public class BluetoothConnectionService {
 
 
     public synchronized void closeAllThreads(){
-        if(acceptThread!=null)
+        if(acceptThread!=null){
             acceptThread.cancel();
-        if(connectThread!=null)
+            acceptThread=null;
+        }
+
+        if(connectThread!=null){
             connectThread.cancel();
-        if(connectedThread!=null)
+            connectThread=null;
+        }
+
+        if(connectedThread!=null) {
             connectedThread.cancel();
+            connectedThread=null;
+        }
     }
 
 

@@ -71,11 +71,13 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
 
         @Override
         public void onUsersReceived(ArrayList<UserData> allUsers) {
+                if(rankedUsers!=null)
+                    rankedUsers.clear();
                 rankedUsers=allUsers;
                 MyUserManager.getInstance().getFriends(MyUserManager.getInstance().getCurrentUserUid(),getFriendsCallback,DataRetriveAction.GET_RANKED_USERS,false);
                 sortArray(rankedUsers);
                 if(radioButtonAll.isChecked())
-                    displayRankedUsers(allUsers);
+                    displayRankedUsers(rankedUsers);
         }
 
         @Override
@@ -177,13 +179,19 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
          currentPoints.setText("Points: "+user.getPoints()+"");
     }
     private void setRanks(ArrayList<UserData> userList){
-        long rank=1;
+        /*long rank=1;
         for(UserData user:userList){
             user.setCurrentRank(rank);//mora da sacekam da se napuni fon malo
-            if(user.getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid())){
-                 MyUserManager.getInstance().getUser().setCurrentRank(rank);
+           /* if(user.getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid())){
+                // MyUserManager.getInstance().getUser().setCurrentRank(rank);
             }
              rank++;
+        }*/
+        for(int i=0;i<userList.size();i++){
+            userList.get(i).setCurrentRank(i+1);
+            if(userList.get(i).getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid())){
+                 MyUserManager.getInstance().getUser().setCurrentRank(i+1);
+            }
         }
     }
     private void sortArray(ArrayList<UserData> userList){

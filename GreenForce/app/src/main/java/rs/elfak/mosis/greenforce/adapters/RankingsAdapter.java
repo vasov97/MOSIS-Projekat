@@ -52,7 +52,7 @@ public class RankingsAdapter extends ArrayAdapter<UserData>
         UserData display=getItem(position);
         assert display != null;
         rankedUserImage.setImageBitmap(display.getUserImage());
-        rank.setText(Long.toString(display.getCurrentRank()));
+        rank.setText(Long.toString(position+1));
         username.setText(display.getUsername());
         points.setText(Integer.toString(display.getPoints()));
         if(display.getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid()))
