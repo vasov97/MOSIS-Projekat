@@ -139,6 +139,7 @@ public class DisplayEventInformationOnMapDialog extends BottomSheetDialog implem
         i.putExtra("beforeCount",eventToView.getImagesBeforeCount()+"");
         i.putExtra("afterCount",eventToView.getImagesAfterCount()+"");
         getContext().startActivity(i);
+        dismissDialog();
     }
 
     private void viewEventInfo(String eventId)
@@ -151,6 +152,7 @@ public class DisplayEventInformationOnMapDialog extends BottomSheetDialog implem
         intent.putExtra("creatorFullname",creatorFullname);
         intent.putExtra("eventPointsString",eventPointsString);
         getContext().startActivity(intent);
+        dismissDialog();
 
     }
     @Override

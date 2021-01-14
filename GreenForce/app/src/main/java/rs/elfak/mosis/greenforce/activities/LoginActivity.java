@@ -141,5 +141,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        android.os.Process.killProcess(android.os.Process.myPid());
+    }
 }
