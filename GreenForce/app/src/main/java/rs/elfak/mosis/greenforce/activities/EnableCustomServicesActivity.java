@@ -35,10 +35,14 @@ public class EnableCustomServicesActivity extends AppCompatActivity implements I
             @SuppressLint("ResourceType")
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(!isChecked)
+                if(!isChecked){
                     MyUserManager.getInstance().stopLocationService();
-                else
+                    MyUserManager.getInstance().setEnableService(false);
+                }
+                else{
+                    MyUserManager.getInstance().setEnableService(true);
                     MyUserManager.getInstance().startLocationService();
+                }
             }
         });
     }
@@ -66,8 +70,8 @@ public class EnableCustomServicesActivity extends AppCompatActivity implements I
     @Override
     public void onBackPressed()
     {
-        Intent i=new Intent(this,HomePageActivity.class);
-        startActivity(i);
+        //Intent i=new Intent(this,HomePageActivity.class);
+        //startActivity(i);
         finish();
         super.onBackPressed();
     }
