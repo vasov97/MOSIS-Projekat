@@ -167,14 +167,19 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                     String key=dataSnapshot.getKey();
                     UserData user=getUserFromList(allUsers,key);
-                    myFriends.remove(user);
-                    ClusterMarker marker=(ClusterMarker) userMarkers.get(user.getUserUUID());
-                    if(marker!=null){
-                        myClusterManagerRenderer.removeClusterMarker(marker);
-                        userMarkers.remove(key);
+                    if(user!=null) {
+                        myFriends.remove(user);
+                        if (userMarkers.get(user.getUserUUID()) instanceof ClusterMarker) {
+                            ClusterMarker marker = (ClusterMarker) userMarkers.get(user.getUserUUID());
+                            if (marker != null) {
+                                myClusterManagerRenderer.removeClusterMarker(marker);
+                                userMarkers.remove(key);
+                            }
+
+                            drawUserMarker(user);
+                        }
                     }
 
-                    drawUserMarker(user);
             }
 
             @Override
@@ -318,6 +323,17 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
                             if(marker!=null)
                                 marker.setVisible(false);
                         }
+                    }else{//zbog ponovnog trazenja
+                        if (myFriends.contains(user)){
+                            ClusterMarker clusterMarker=(ClusterMarker)userMarkers.get(user.getUserUUID());
+                            if(clusterMarker!=null)
+                                myClusterManagerRenderer.setMarkerVisibility(clusterMarker,true);
+                        }
+                        else{
+                            Marker marker=(Marker)userMarkers.get(user.getUserUUID());
+                            if(marker!=null)
+                                marker.setVisible(true);
+                        }
                     }
                 }
             }else{
@@ -394,10 +410,12 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     }
 
     private void removeUserMarker(UserData user) {
-        Marker marker = (Marker)userMarkers.get(user.getUserUUID());
-        if(marker!=null){
-            marker.remove();
-            userMarkers.remove(user.getUserUUID());
+        if(userMarkers.get(user.getUserUUID())!=null){
+            if(userMarkers.get(user.getUserUUID()) instanceof Marker) {
+                Marker marker = (Marker)userMarkers.get(user.getUserUUID());
+                marker.remove();
+                userMarkers.remove(user.getUserUUID());
+            }
         }
     }
 
@@ -488,12 +506,13 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
     }
     private void drawMyMarker() {
         UserData currentUser = MyUserManager.getInstance().getUser();
-        Marker myMarker = (Marker)userMarkers.get(currentUser.getUserUUID());
+        if(userMarkers.get(currentUser.getUserUUID()) instanceof Marker || userMarkers.size()==0) {
+            Marker myMarker = (Marker) userMarkers.get(currentUser.getUserUUID());
 
             if (myMarker != null)
                 myMarker.remove();
 
-            LatLng latLng = new LatLng(currentUser.getMyLatLong().getLatitude(),currentUser.getMyLatLong().getLongitude());
+            LatLng latLng = new LatLng(currentUser.getMyLatLong().getLatitude(), currentUser.getMyLatLong().getLongitude());
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
             markerOptions.title("Current Location");
@@ -501,31 +520,34 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
             myMarker = googleMap.addMarker(markerOptions);
             myMarker.setTag(currentUser);
             userMarkers.put(currentUser.getUserUUID(), myMarker);
+        }
     }
 
     private void drawFriendMarker(UserData user){
-                Log.d(TAG, "addMapMarkers: location: " + user.getMyLatLong().getLatitude()+","+user.getMyLatLong().getLongitude());
-                try{
-                    String snippet = "";
-                    if(user.getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid()))
-                        snippet="This is you";
-                    else
-                        snippet="Determine route to "+user.getUsername();
+       // if(userMarkers.get(user.getUserUUID())==null) {
+            Log.d(TAG, "addMapMarkers: location: " + user.getMyLatLong().getLatitude() + "," + user.getMyLatLong().getLongitude());
+            try {
+                String snippet = "";
+                if (user.getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid()))
+                    snippet = "This is you";
+                else
+                    snippet = "Determine route to " + user.getUsername();
 
 //                    try{
 //                        avatar = Integer.parseInt(String.valueOf(user.getUserImage()));
 //                    }catch (NumberFormatException e){
 //                        Log.d(TAG, "addMapMarkers: no avatar for " + user.getUsername() + ", setting default.");
 //                    }
-                    ClusterMarker newClusterMarker = new ClusterMarker(snippet, user);
-                    userMarkers.put(user.getUserUUID(),newClusterMarker);
-                    clusterManager.addItem(newClusterMarker);
-                    clusterMarkers.add(newClusterMarker);
-                    //myClusterManagerRenderer.setTag(newClusterMarker);
+                ClusterMarker newClusterMarker = new ClusterMarker(snippet, user);
+                userMarkers.put(user.getUserUUID(), newClusterMarker);
+                clusterManager.addItem(newClusterMarker);
+                clusterMarkers.add(newClusterMarker);
+                //myClusterManagerRenderer.setTag(newClusterMarker);
 
-                }catch (NullPointerException e){
-                    Log.e(TAG, "addMapMarkers: NullPointerException: " + e.getMessage() );
-                }
+            } catch (NullPointerException e) {
+                Log.e(TAG, "addMapMarkers: NullPointerException: " + e.getMessage());
+            }
+      //  }
     }
     private void drawUserMarker(UserData user){
         Marker userMarker=(Marker)userMarkers.get(user.getUserUUID());

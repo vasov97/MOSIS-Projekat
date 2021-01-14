@@ -56,6 +56,7 @@ import rs.elfak.mosis.greenforce.activities.EventsMapActivity;
 import rs.elfak.mosis.greenforce.activities.MyProfileActivity;
 import rs.elfak.mosis.greenforce.activities.RankingsActivity;
 import rs.elfak.mosis.greenforce.enums.DataRetriveAction;
+import rs.elfak.mosis.greenforce.enums.EventStatus;
 import rs.elfak.mosis.greenforce.interfaces.IGetEventsCallback;
 import rs.elfak.mosis.greenforce.interfaces.IGetUsersCallback;
 import rs.elfak.mosis.greenforce.models.ClusterMarker;
@@ -229,8 +230,10 @@ public class GetNearbyObjects {
         if(allEvents!=null){
             if(allEvents.size()!=0) {
                 for (MyEvent event : allEvents) {
-                    if(calculateDistance(event.getEventLocation(),userLocation)<=radius*1000)
-                        nearbyObjects.add(event);
+                    if(event.getEventStatus()!= EventStatus.COMPLETED) {
+                        if (calculateDistance(event.getEventLocation(), userLocation) <= radius * 1000)
+                            nearbyObjects.add(event);
+                    }
                 }
             }
         }

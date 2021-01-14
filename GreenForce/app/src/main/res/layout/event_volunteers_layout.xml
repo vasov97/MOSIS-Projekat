@@ -4,7 +4,15 @@
     android:id="@+id/event_volunteers_layout_id"
     android:orientation="vertical"
     android:layout_height="match_parent">
-
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Leader:"
+        android:textStyle="bold"
+        android:textColor="@color/colorBlack"
+        android:textSize="20sp"
+        />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

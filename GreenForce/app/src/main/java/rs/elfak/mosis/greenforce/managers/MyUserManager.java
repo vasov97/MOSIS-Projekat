@@ -255,8 +255,9 @@ public class MyUserManager {
             public void run() {
                 try {
                     Thread.sleep(Toast.LENGTH_SHORT);
-                    enclosingActivity.finish();
+                    //enclosingActivity.onBackPressed();
                     enclosingActivity.startActivity(new Intent(enclosingActivity, LoginActivity.class));
+                    enclosingActivity.finish();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
