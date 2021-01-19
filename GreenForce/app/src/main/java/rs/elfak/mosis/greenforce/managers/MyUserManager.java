@@ -123,7 +123,7 @@ public class MyUserManager {
     private static final int REQUIRED_VOTES=10;
 
     private UserData userData,visitProfile;
-    private boolean loggedIn;
+    private boolean loggedIn,enableService;
     ArrayList<UserData> myFriends;
     Activity locationServiceHolder;
     Intent locationService;
@@ -133,6 +133,7 @@ public class MyUserManager {
 
     private MyUserManager() {
         loggedIn=true;
+        enableService=true;
         firebaseAuth=FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference(USER);
@@ -175,6 +176,7 @@ public class MyUserManager {
    public DatabaseReference getDatabaseEventsReference(){return databaseEventsReference;}
    public DatabaseReference getDatabaseUsersReference(){return databaseReference;}
    public FirebaseAuth getFirebaseAuth(){return firebaseAuth;}
+   public void setEnableService(boolean enableService){this.enableService=enableService;}
 
 
    public void loginWithUsername(String username, final String password, final Activity enclosingActivity){
@@ -781,15 +783,17 @@ public class MyUserManager {
         startLocationService(locationServiceHolder);
     }
     public void startLocationService(Activity serviceHolder){
-        locationServiceHolder=serviceHolder;
-        if(!isLocationServiceRunning(serviceHolder)){
+        if(enableService) {
+            locationServiceHolder = serviceHolder;
+            if (!isLocationServiceRunning(serviceHolder)) {
 
-             locationService = new Intent(serviceHolder, LocationService.class);
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
+                locationService = new Intent(serviceHolder, LocationService.class);
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
 
-                serviceHolder.startForegroundService(locationService);
-            }else{
-                serviceHolder.startService(locationService);
+                    serviceHolder.startForegroundService(locationService);
+                } else {
+                    serviceHolder.startService(locationService);
+                }
             }
         }
     }
