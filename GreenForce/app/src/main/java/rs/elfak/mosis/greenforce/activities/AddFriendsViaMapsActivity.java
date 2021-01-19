@@ -498,13 +498,15 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
 
     private void drawAllMarkers(){
         setUpClusterManager();
-        for (UserData user : allUsers) {
-            if (myFriends.contains(user))
-                drawFriendMarker(user);
-            else
-                drawUserMarker(user);
+        if(allUsers!=null) {
+            for (UserData user : allUsers) {
+                if (myFriends.contains(user))
+                    drawFriendMarker(user);
+                else
+                    drawUserMarker(user);
+            }
+            clusterManager.cluster();
         }
-        clusterManager.cluster();
     }
     private void drawMyMarker() {
         UserData currentUser = MyUserManager.getInstance().getUser();
@@ -567,9 +569,11 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         }
     }
     private UserData getUserFromList(ArrayList<UserData> allUsers, String uuid) {
-        for(UserData u: allUsers){
-            if(u.getUserUUID().equals(uuid))
-                return u;
+        if(allUsers!=null) {
+            for (UserData u : allUsers) {
+                if (u.getUserUUID().equals(uuid))
+                    return u;
+            }
         }
         return null;
     }

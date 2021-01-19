@@ -655,7 +655,8 @@ public class MyUserManager {
                             ((IGetFriendsCallback) callback).onFriendsReceived(usersArray);
                         break;
                     case GET_USERS:
-                        getUserLocation(user, count,(IGetUsersCallback)callback, usersArray);
+                        if(!user.getUserUUID().equals(userData.getUserUUID()))
+                          getUserLocation(user, count,(IGetUsersCallback)callback, usersArray);
                         break;
                     case GET_USER:
                         ((IGetUsersCallback)callback).onUserReceived(user);
