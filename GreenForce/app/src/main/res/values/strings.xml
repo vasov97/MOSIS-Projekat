@@ -76,9 +76,9 @@
     <string name="event_description">Description:</string>
     <string name="event">Event</string>
     <string name="about_categories">
-        Land pollution - Garbage is at inappropriate place somewhere in nature.<br /><br />
-        Water pollution - Garbage is in the river,lake or other water areas.<br /><br />
-        Reforestation - Forest was either burnt down by wildfire(or on purpose) or trees were cut down.<br /><br />
+        Land pollution - Garbage is at inappropriate place somewhere in nature.\n<br /><br />
+        Water pollution - Garbage is in the river,lake or other water areas.\n<br /><br />
+        Reforestation - Forest was either burnt down by wildfire(or on purpose) or trees were cut down.\n<br /><br />
         Others - An event that doesn\'t belong in any of above named categories.
     </string>
     <string name="about_events">
