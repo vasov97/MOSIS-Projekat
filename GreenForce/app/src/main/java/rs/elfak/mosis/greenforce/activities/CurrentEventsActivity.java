@@ -71,13 +71,15 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
 
         @Override
         public void onSingleEventReceived(MyEvent event) {
-            if(eventsMap.containsKey(event.getEventID())){
-                EventVolunteer type=eventsMap.get(event.getEventID());
-                if(type.getType()== VolunteerType.LEADER)
-                    leaderEvents.add(event);
-                else
-                    volunteerEvents.add(event);
-                checkIfAllEventsReceived();
+            if(event!=null) {
+                if (eventsMap.containsKey(event.getEventID())) {
+                    EventVolunteer type = eventsMap.get(event.getEventID());
+                    if (type.getType() == VolunteerType.LEADER)
+                        leaderEvents.add(event);
+                    else
+                        volunteerEvents.add(event);
+                    checkIfAllEventsReceived();
+                }
             }
         }
 
@@ -86,7 +88,9 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
             if(currentEventsRole!=null){
                 eventsMap=currentEventsRole;
                 for(String key : eventsMap.keySet()){
-                    MyUserManager.getInstance().getSingleEvent(key,eventsCallback);
+                    if(key!=null) {
+                        MyUserManager.getInstance().getSingleEvent(key, eventsCallback);
+                    }
                 }
             }else
                 progressDialog.dismiss();
@@ -263,11 +267,7 @@ public class CurrentEventsActivity extends AppCompatActivity implements ICompone
         if(leaderEvents.size()+volunteerEvents.size()==eventsMap.size()){
             progressDialog.dismiss();
             displayListOfEvents();
-                }
-
-
-
-
+        }
     }
 
     private void displayListOfEvents() {

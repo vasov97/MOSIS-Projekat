@@ -160,8 +160,15 @@ public class RankingsActivity extends AppCompatActivity implements IComponentIni
             rankingsListView.setAdapter(rankingsAdapter);
             //showRank();
         }
+        for(UserData user : rankedUsers){
+            if(user.getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid())){
+                MyUserManager.getInstance().getUser().setCurrentRank(user.getCurrentRank());
+                MyUserManager.getInstance().getUser().setPoints(user.getPoints());
+                displayMyRank(MyUserManager.getInstance().getUser());
 
-        displayMyRank(MyUserManager.getInstance().getUser());
+            }
+        }
+
 
 
     }

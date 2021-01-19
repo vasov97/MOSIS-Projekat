@@ -128,6 +128,9 @@ public class DisplayEventInformationOnMapDialog extends BottomSheetDialog implem
             if(eventToView.getEventStatus()==EventStatus.PENDING){
                 approveOfEvent(eventToView.getEventID());
             }
+            else if(eventToView.getEventStatus()==EventStatus.COMPLETED){
+                Toast.makeText(getContext(),"This event was recently completed and can not be viewed.",Toast.LENGTH_SHORT).show();
+            }
             else
              viewEventInfo(eventToView.getEventID());
         }

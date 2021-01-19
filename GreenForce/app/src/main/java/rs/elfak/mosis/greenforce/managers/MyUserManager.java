@@ -1225,10 +1225,14 @@ public class MyUserManager {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 databaseEventsReference.child(eventID).removeEventListener(this);
-                MyEvent event=dataSnapshot.getValue(MyEvent.class);
-                event.setEventID(dataSnapshot.getKey());
-                eventsCallback.onSingleEventReceived(event);
-
+                if(dataSnapshot.exists()) {
+                    MyEvent event = dataSnapshot.getValue(MyEvent.class);
+                    if (event != null) {
+                        event.setEventID(dataSnapshot.getKey());
+                        eventsCallback.onSingleEventReceived(event);
+                    }
+                }else
+                    eventsCallback.onSingleEventReceived(null);
             }
 
             @Override
