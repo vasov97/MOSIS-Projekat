@@ -144,16 +144,18 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
         ChildEventListener friendsChildEventListener= new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if(allUsers!=null && myFriends!=null){
-                    UserData user=getUserFromList(allUsers,dataSnapshot.getKey());
-                    if(!myFriends.contains(user)){
-                        if(myDialog!=null && myDialog.getUser().getUserUUID().equals(user.getUserUUID()))
-                            myDialog.dismissDialog();
-                        removeUserMarker(user);
-                        drawFriendMarker(user);
-                        setUpClusterManager();
-                        clusterManager.cluster();
-                        myFriends.add(user);
+                if(allUsers!=null && myFriends!=null) {
+                    UserData user = getUserFromList(allUsers, dataSnapshot.getKey());
+                    if (user != null) {
+                        if (!myFriends.contains(user)) {
+                            if (myDialog != null && myDialog.getUser().getUserUUID().equals(user.getUserUUID()))
+                                myDialog.dismissDialog();
+                            removeUserMarker(user);
+                            drawFriendMarker(user);
+                            setUpClusterManager();
+                            clusterManager.cluster();
+                            myFriends.add(user);
+                        }
                     }
                 }
             }
