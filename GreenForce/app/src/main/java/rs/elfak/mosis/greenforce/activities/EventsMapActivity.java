@@ -97,6 +97,7 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
                     drawEventMarker(event);
                     if(appliedFilters)
                         setMarkerVisibility(event,false);
+
                 }
             }
         }
@@ -106,12 +107,14 @@ public class EventsMapActivity extends AppCompatActivity implements IComponentIn
             if(event!=null) {
                 event.setEventID(dataSnapshot.getKey());
                 for (MyEvent e : myEvents) {
-                    if (e.getEventID().equals(event.getEventID())) {
-                        if(e.getEventStatus()!=event.getEventStatus()){
-                            e.setEventStatus(event.getEventStatus());
-                            if(event.getEventStatus()==EventStatus.PENDING)
-                                e.setImagesAfterCount(event.getImagesAfterCount());
-                            updateMarkerTag(e);
+                    if(e.getEventID()!=null && event.getEventID()!=null) {
+                        if (e.getEventID().equals(event.getEventID())) {
+                            if (e.getEventStatus() != event.getEventStatus()) {
+                                e.setEventStatus(event.getEventStatus());
+                                if (event.getEventStatus() == EventStatus.PENDING)
+                                    e.setImagesAfterCount(event.getImagesAfterCount());
+                                updateMarkerTag(e);
+                            }
                         }
                     }
                 }

@@ -532,10 +532,10 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
             Log.d(TAG, "addMapMarkers: location: " + user.getMyLatLong().getLatitude() + "," + user.getMyLatLong().getLongitude());
             try {
                 String snippet = "";
-                if (user.getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid()))
-                    snippet = "This is you";
-                else
-                    snippet = "Determine route to " + user.getUsername();
+//                if (user.getUserUUID().equals(MyUserManager.getInstance().getCurrentUserUid()))
+//                    snippet = "This is you";
+//                else
+//                    snippet = "Determine route to " + user.getUsername();
 
 //                    try{
 //                        avatar = Integer.parseInt(String.valueOf(user.getUserImage()));
