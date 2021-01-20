@@ -524,6 +524,8 @@ public class AddFriendsViaMapsActivity extends AppCompatActivity implements Seri
             myMarker = googleMap.addMarker(markerOptions);
             myMarker.setTag(currentUser);
             userMarkers.put(currentUser.getUserUUID(), myMarker);
+            //removeAllMarkers();
+
         }
     }
 

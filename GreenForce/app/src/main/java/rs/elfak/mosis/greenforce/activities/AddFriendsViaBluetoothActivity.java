@@ -341,24 +341,24 @@ public class AddFriendsViaBluetoothActivity extends AppCompatActivity implements
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void discoverDevices()
-    {
-        Log.d("AddFriendsViaBT","Looking for unpaired devices");
-        if(bluetoothAdapter.isDiscovering())
-        {
-            bluetoothAdapter.cancelDiscovery();
-            Log.d("AddFriendsViaBT","Canceling discovery...");
-            bluetoothAdapter.startDiscovery();
-
-            IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            registerReceiver(myReceiverForDiscovering,discoverDevicesIntent);
-        }
-        if(!bluetoothAdapter.isDiscovering())
-        {
-            bluetoothPermissions();
-            bluetoothAdapter.startDiscovery();
-            IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            registerReceiver(myReceiverForDiscovering,discoverDevicesIntent);
-        }
+    {   getPairedDevices();
+//        Log.d("AddFriendsViaBT","Looking for unpaired devices");
+//        if(bluetoothAdapter.isDiscovering())
+//        {
+//            bluetoothAdapter.cancelDiscovery();
+//            Log.d("AddFriendsViaBT","Canceling discovery...");
+//            bluetoothAdapter.startDiscovery();
+//
+//            IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+//            registerReceiver(myReceiverForDiscovering,discoverDevicesIntent);
+//        }
+//        if(!bluetoothAdapter.isDiscovering())
+//        {
+//            bluetoothPermissions();
+//            bluetoothAdapter.startDiscovery();
+//            IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+//            registerReceiver(myReceiverForDiscovering,discoverDevicesIntent);
+//        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
